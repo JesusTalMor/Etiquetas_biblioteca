@@ -1,0 +1,25 @@
+Comandos Basicos para manejar Visual Studio
+Moverte entre carpetas y archivos con 		Ctrl + 0
+Crear un archivo nuevo			Ctrl + N
+Crear un folder nuevo			Ctrl + Shift + N
+Crear un nuevo salto de linea con 		Ctrl + Enter
+Abrir linea de comandos de Visual con		Ctrl + P
+Colapsar codigo con				Alt + C
+Abrir todo el codigo con			Alt + V
+Mover una linea completa de codigo con 		Alt + Flecha AA
+Copiar una linea completa con			Shitf + Alt + Flechas AA
+Comentar una linea rapido con 			Ctrl + ,
+Comentar un bloque rapido con			Ctrl + .
+Se puede utilizar tambien
+"Ctrl + K + C" para comentar una linea o un bloque completo
+"Ctrl + K + U" para descomentar una linea o un bloque completo
+
+Seleccionar una linea completa con		Ctrl + L
+Seleccionar multiples coincidencias		Ctrl + D
+Seleccionar multiples lineas consecutivas		Ctrl + Alt + Shift + Flechas AA
+Seleccionar multiples lineas no consecutivas	Alt + Click Izq
+
+Seleccionar y reemplazar todas las coincidecias	Ctrl + F2
+
+Generar .Exe de un archivo .PY
+pyinstaller
