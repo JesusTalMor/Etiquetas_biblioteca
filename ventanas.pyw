@@ -2,13 +2,12 @@ from datetime import datetime
 
 import numpy as np
 import PySimpleGUI as sg
-from ticket_maker import ticket_maker_main
 
 from ApoyoSTRLIST import *
-from auxEtiquetas import cargarStat
 from mainEtiquetas import *
 from pop_ups import *
 from select_pos import select_initialposition
+from ticket_maker import ticket_maker_main
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
@@ -56,6 +55,14 @@ tabla_modify = []
 # Configuración de la impresion de etiquetas
 main_config = [21.59, 27.94, 3.59, 4.65, 6, 6, False]
 position = (None, None)
+
+
+"""
+TODO Problema del Intercalador
+TODO Problema con el C. nan
+"""
+
+
 
 
 # ? Ventanas de apoyo y configuraciones
@@ -650,19 +657,15 @@ def ventana_elemento():
   pipe_a = [
     [
       sg.Text(
-        text="PIPE A",
-        font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
+        text="PIPE A", font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF", justification="center",
         pad=5,
       )
     ],
     [
       sg.In(
-        size=(14, 1),
-        font=("Open Sans", 10),
-        justification="center",
-        key="PIPE_A",
+        size=(14, 1), font=("Open Sans", 10),
+        justification="center", key="PIPE_A",
         disabled=True,
       )
     ],
@@ -761,7 +764,6 @@ def ventana_elemento():
         layout=pipe_b, background_color="#FFFFFF", element_justification="c"
       ),
     ],
-    [sg.Button("Agregar", font=("Open Sans", 12))],
   ]
 
   layout_izq = [
@@ -824,9 +826,10 @@ def ventana_elemento():
         key="FOLDER",
         font=("Open Sans", 9),
         justification="center",
-        pad=(5, (0, 10)),
+        pad=(5, (0, 5)),
       ),
     ],
+    [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
   ]
   # * Tabla de Etiquetas para manejo
   layout_der = [
@@ -1140,7 +1143,6 @@ def ventana_archivo():
         justification="center",
       ),
     ],
-    [sg.Button("Cargar", font=("Open Sans", 12, "bold"))],
   ]
 
   layout_izq = [
@@ -1203,9 +1205,10 @@ def ventana_archivo():
         key="FOLDER",
         font=("Open Sans", 9),
         justification="center",
-        pad=(5, (0, 15)),
+        pad=(5, (0, 10)),
       ),
     ],
+    [sg.Button("Cargar", font=("Open Sans", 12, "bold"))],
   ]
   # * Layout tabla general de etiquetas,
   layout_der = [

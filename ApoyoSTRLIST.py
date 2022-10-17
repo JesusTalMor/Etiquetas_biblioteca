@@ -1,7 +1,7 @@
 import re
 
 '''
-  Paquete de Funciones de apoyo para el trabajo de Strings y Manejo de Grupos para programa Descarte
+Paquete de Funciones de apoyo para el trabajo de Strings y Manejo de Grupos para programa Descarte
 '''
 
 letras_array = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']

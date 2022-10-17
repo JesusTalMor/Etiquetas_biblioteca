@@ -1,13 +1,40 @@
 import pandas as pd
 
 from ApoyoSTRLIST import *
-from auxEtiquetas import cargarDatos, cargarExcel, cargarStat
 
+
+def cargarExcel(path):
+  Datos = pd.read_excel(path,sheet_name=None)
+  return Datos
+
+def cargarDatos(dataframe):
+  lClas = [False]
+  lVol = [False]
+  lCop = [False]
+
+  llaves = list(dataframe)
+
+  if 'Clasificación' in llaves and 'Volumen' in llaves and 'Copia' in llaves:
+    lClas = dataframe['Clasificación']
+    lVol = dataframe['Volumen']
+    lCop = dataframe['Copia']
+  
+  return lClas, lVol, lCop
+
+def cargarStat(dataframe):
+  lTitulo = [False]
+  lQRO = [False]
+
+  llaves = list(dataframe)
+
+  if 'C. Barras' in llaves and 'Título' in llaves:
+    lTitulo = dataframe['Título']
+    lQRO = dataframe['C. Barras']
+  
+  return lTitulo, lQRO
 
 def detectar_etiquetas(ruta_archivo):
-  """ 
-  * Funcion para sacar las etiquetas de un archivo Excel
-  """
+  """ Sacas las etiquetas de un archivo Excel """
   Salida = []
   Error_flag = False
   dataFrame = cargarExcel(ruta_archivo)
@@ -30,7 +57,6 @@ def detectar_etiquetas(ruta_archivo):
 
       # * Checar si el atributo VOL esta vacio
       if pd.isna(STR_C): STR_C = ''
-
 
       STR_Clas = clas_maker(STR, STR_V, STR_C, False)
 
@@ -88,4 +114,3 @@ def crear_reporte(modificados, ruta, fecha):
     modif_file.write(f'No existen modificaciones\n')
   # print('Archivo Creado')
   modif_file.close()
-
