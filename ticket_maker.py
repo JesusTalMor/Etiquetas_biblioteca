@@ -8,8 +8,51 @@ from ApoyoSTRLIST import *
 # TODO Ajustar el encabezado 1 cm de margen, listo pero no me convence
 # TODO Queda pendiente PNG o PDF - Dejar en PNG etiquetas individuales
 
-max_lenght = 0
-max_row = 0
+alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+
+def upd_separate_STR(STR):
+  """ Separa un STR en retorna una lista separada """
+  return_list = []
+  
+  # separar por espacios
+  aux_list = STR.split(' ')
+  # print(aux_list)
+  
+  split_list = 0
+  # Caso con encabezado
+  if aux_list[0][2] in alphabet: 
+    split_list = 1
+    # Agregamos el encabezado a la lista final
+    return_list.append(aux_list[0])
+  
+  # Separando Pipe A en una lista
+  pipe_a_list = aux_list[split_list].split('.')
+  # print(pipe_a_list)
+
+  clas_split = 1
+  # Caso con Clase 2 letras
+  if pipe_a_list[0][1] in alphabet: clas_split = 2
+
+  # Separando clase y subclase del string
+  class_str = pipe_a_list[0][:clas_split]
+  subclass_str = pipe_a_list[0][clas_split:]
+
+  # print(class_str, subclass_str)
+  return_list.append(class_str)
+  return_list.append(subclass_str)
+
+  # Actualizar listas de elementos
+  pipe_a_list = pipe_a_list[1:]
+  aux_list = aux_list[split_list+1:]
+  # print(pipe_a_list)
+  # print(aux_list)
+  
+  for elem in pipe_a_list: return_list.append('.' + elem)
+  for elem in aux_list: return_list.append(elem)
+
+  # print(return_list)
+  return return_list
+
 
 def primitive_cutter(STR):
   exit_list = []
@@ -30,7 +73,7 @@ def separate_STR(STR_List):
   """Recibe una lista de string, retorna una lista de listas de los string separados"""
   global max_lenght
   global max_row
-  alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+  
   
   # * Esta función separa los parametros de las etiquetas de manera primitiva
   exit_list = []
@@ -207,11 +250,18 @@ def ticket_maker_main(STR, date, root, config, position):
 
 if __name__ == "__main__":
   # hoy = date.today()
-  main_STR = ["JAPAN SB822.2 .L418 1974 V.1 C.1"]
-  # main_STR = ["SB822 .L418 1974"]
-  root = ""
-  # print(separate_STR(main_STR))
-  heigth = 5
-  width = 3
-  ICP = [0, 0, width, heigth, 0, 0, False]  # Individual Configuration Parameters
-  ticket_maker_main(main_STR, 'Nan', root, ICP, (None, None))
+  one = "JAPAN SB822.2 .L418 1974 V.1 C.1"
+  two = "SB822.2 .L418 1974 V.1 C.1"
+  thing = "HG4572 .L4418 2009"
+  train_list = [one, two]
+  # for clasify in train_list:
+  #   # print(clasify)
+  #   print(upd_separate_STR(clasify))
+  print(upd_separate_STR(thing))
+  # # main_STR = ["SB822 .L418 1974"]
+  # root = ""
+  # # print(separate_STR(main_STR))
+  # heigth = 5
+  # width = 3
+  # ICP = [0, 0, width, heigth, 0, 0, False]  # Individual Configuration Parameters
+  # ticket_maker_main(main_STR, 'Nan', root, ICP, (None, None))
