@@ -1,10 +1,10 @@
 import os
-from typing import List
 
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
 
 from ApoyoSTRLIST import *
+from pop_ups import pop_check_images
 
 # TODO Ajustar el encabezado 1 cm de margen, listo pero no me convence
 # TODO Queda pendiente PNG o PDF - Dejar en PNG etiquetas individuales
@@ -21,10 +21,13 @@ def separate_STR(STR:str):
   
   split_list = 0
   # Caso con encabezado
-  if aux_list[0][2] in alphabet: 
-    split_list = 1
-    # Agregamos el encabezado a la lista final
-    return_list.append(aux_list[0])
+  try: 
+    if aux_list[0][2] in alphabet: 
+      split_list = 1
+      # Agregamos el encabezado a la lista final
+      return_list.append(aux_list[0])
+  except:
+    return ['Failed','Error','Separation','Clase']
   
   # Separando Pipe A en una lista
   pipe_a_list = aux_list[split_list].split('.')
@@ -58,6 +61,7 @@ def separate_list(str_list: list):
   """ Recibe una lista de strings y retorna una lista de listas """
   return_list = []
   for indiv_str in str_list:
+    print(indiv_str)
     return_list.append(separate_STR(indiv_str))
   
   return return_list
@@ -75,7 +79,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
   #* Recibe la configuración para las etiquetas
   PW, PH, IW, IH, COL, ROW, OPTION = config
   #* Transforma una lista de strings a una lista de listas
-  ticket = separate_STR(str_list)
+  ticket = separate_list(str_list)
 
   scale = 100  # * Escala de la etiqueta recomendado 100
   # * (Individual) Medidas de Etiqueta
@@ -134,13 +138,20 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
     # print(str(ID) + '_' + str(date) + '.png')
     main_image.save(f"{root}/{page_counter}_aux_image.png")
     os.system(f"powershell -c {root}/{page_counter}_aux_image.png")
-    # Borrar imagenes no utiles
-    for index in range(page_counter+1):
-      fpdf.add_page()
-      aux_image = f"{root}/{index}_aux_image.png"
-      fpdf.image(aux_image, 0,0, w=210)
-      os.remove(aux_image)
-    fpdf.output(root + "/" + str(date) + ".pdf")
+
+    # Mostrar pop up de confirmación
+    answer = pop_check_images()
+    if answer:
+      for index in range(page_counter+1):
+        fpdf.add_page()
+        aux_image = f"{root}/{index}_aux_image.png"
+        fpdf.image(aux_image, 0,0, w=210)
+        os.remove(aux_image)
+      fpdf.output(root + "/" + str(date) + ".pdf")
+    else:
+      for index in range(page_counter+1):
+        aux_image = f"{root}/{index}_aux_image.png"
+        os.remove(aux_image)
 
 
   else:
@@ -170,8 +181,8 @@ if __name__ == "__main__":
   train_list = [one, two]
   # for clasify in train_list:
   #   # print(clasify)
-  #   print(upd_separate_STR(clasify))
-  print(separate_list(train_list))
+  print(separate_STR(thing))
+  # print(separate_list(train_list))
   
   # heigth = 5
   # width = 3
