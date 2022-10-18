@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
@@ -10,7 +11,7 @@ from ApoyoSTRLIST import *
 
 alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 
-def upd_separate_STR(STR):
+def separate_STR(STR:str):
   """ Separa un STR en retorna una lista separada """
   return_list = []
   
@@ -53,115 +54,28 @@ def upd_separate_STR(STR):
   # print(return_list)
   return return_list
 
-
-def primitive_cutter(STR):
-  exit_list = []
-  while True:
-    pos_list = pos_Separadores(STR[1:])
-    # print(STR)
-    # print(pos_list)
-    if pos_list[0] + pos_list[1] + pos_list[2] == 0:
-      exit_list.append(STR.replace(" ", ""))
-      break
-    pos_cut = pos_corte(pos_list)
-    exit_list.append(STR[: pos_cut + 1].replace(" ", ""))
-    STR = STR[pos_cut + 1 :]
-  return exit_list
-
-
-def separate_STR(STR_List):
-  """Recibe una lista de string, retorna una lista de listas de los string separados"""
-  global max_lenght
-  global max_row
+def separate_list(str_list: list):
+  """ Recibe una lista de strings y retorna una lista de listas """
+  return_list = []
+  for indiv_str in str_list:
+    return_list.append(separate_STR(indiv_str))
   
+  return return_list
+
+def ticket_maker_main(str_list: list, date: str, root:str, config:list, position:tuple):
+  """
+  * Toma una lista de strings y genera imagenes ya sean formato PNG o PDF
   
-  # * Esta función separa los parametros de las etiquetas de manera primitiva
-  exit_list = []
-  for STR in STR_List:
-    # print(STR)
-    aux_list = []
-    vol = ""
-    cop = ""
-    
-    if "C." in STR:
-      cop_pos = STR.index("C.")
-      cop = "C." + STR[cop_pos + 2]
-      STR = STR[: cop_pos - 1]
-      # print(cop)
-
-    # * Revisar si tenemos copia o volumen
-    if "V." in STR:
-      vol_pos = STR.index("V.")
-      vol = "V." + STR[vol_pos + 2]
-      STR = STR[: vol_pos - 1]
-      # print(vol)
-
-    # * Checar si existe un encabezado
-    if " " in STR and STR[2] in letras_array:
-      pos_enca = STR.index(" ")
-      aux_list.append(STR[:pos_enca])
-      # print(f"Encabezado es {STR[:pos_enca]}")
-      STR = STR[pos_enca + 1 :]
-      # print(f"el string ahora es {STR}")
-
-    # * Primero separar encabezado (DS, D, HB.)
-    for index in range(len(STR)):
-      if STR[index] not in alphabet:
-        aux_list.append(STR[:index])
-        STR = STR[index:]
-        break
-
-    if " ." in STR or ". " in STR:
-      try:
-        dotesp_pos = STR.index(" .")
-      except:
-        dotesp_pos = 1000
-
-      try:
-        espdot_pos = STR.index(". ")
-      except:
-        espdot_pos = 1000
-
-      if espdot_pos == 1000:
-        main_cut = dotesp_pos
-      else:
-        main_cut = espdot_pos
-
-      STR_aux = STR[main_cut + 1 :]
-      STR = STR[:main_cut]
-
-      # print(STR)
-      # print(STR_aux)
-
-      STRA_list = primitive_cutter(STR)
-      STRB_list = primitive_cutter(STR_aux)
-
-      for arr in STRA_list:
-        aux_list.append(arr)
-      for arr in STRB_list:
-        aux_list.append(arr)
-
-      # print(aux_list)
-
-    else:
-      STR_list = primitive_cutter(STR)
-      for arr in STR_list:
-        aux_list.append(arr)
-
-    if vol != "":
-      aux_list.append(vol)
-    if cop != "":
-      aux_list.append(cop)
-
-    # print(aux_list)
-    exit_list.append(aux_list)
-
-  return exit_list
-
-
-def ticket_maker_main(STR, date, root, config, position):
+  @param str_list: Es una lista que contiene las cadenas a imprimir
+  @param date: Fecha para poder nombrar los archivos
+  @param root: La ruta de guardado de los archivos generados
+  @param config: La configuración de las imagenes que se generarán
+  @param position: !Solo caso de Tamaño carta! Posición de inicio para imprimir
+  """
+  #* Recibe la configuración para las etiquetas
   PW, PH, IW, IH, COL, ROW, OPTION = config
-  ticket = separate_STR(STR)
+  #* Transforma una lista de strings a una lista de listas
+  ticket = separate_STR(str_list)
 
   scale = 100  # * Escala de la etiqueta recomendado 100
   # * (Individual) Medidas de Etiqueta
@@ -257,11 +171,9 @@ if __name__ == "__main__":
   # for clasify in train_list:
   #   # print(clasify)
   #   print(upd_separate_STR(clasify))
-  print(upd_separate_STR(thing))
-  # # main_STR = ["SB822 .L418 1974"]
-  # root = ""
-  # # print(separate_STR(main_STR))
+  print(separate_list(train_list))
+  
   # heigth = 5
   # width = 3
   # ICP = [0, 0, width, heigth, 0, 0, False]  # Individual Configuration Parameters
-  # ticket_maker_main(main_STR, 'Nan', root, ICP, (None, None))
+  # ticket_maker_main(train_list, 'Nan', 'Nan', ICP, (None,None))
