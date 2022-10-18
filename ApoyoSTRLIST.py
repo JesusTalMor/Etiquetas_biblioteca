@@ -156,8 +156,12 @@ def clas_maker(clas, vol, cop, flag):
   @vol, cop, flag: Parametros a agregar
   '''
   STR_clas = clas
-  if vol != '' and flag: STR_clas += ' V.' + vol
-  elif vol != '' and not flag: STR_clas + ' ' + vol
+  # caso principal tenemos datos
+  if vol != '':
+    # Checar si es de tipo texto completo o solo numero
+    if 'V.' in vol: STR_clas += ' ' + vol
+    else: STR_clas += ' V.' + vol
+  
   if cop not in ('1',''): STR_clas += ' C.' + cop
   return STR_clas
 

@@ -51,6 +51,7 @@ def detectar_etiquetas(ruta_archivo):
       STR = CLAS[i]
       STR_C = str(COP[i])
       STR_V = VOL[i]
+      # print(STR_V)
 
       # * Checar si el atributo VOL esta vacio
       if pd.isna(STR_V): STR_V = ''
