@@ -1,5 +1,6 @@
 from tkinter import messagebox
 
+
 # # ? POP_up de advertencia (Warning)
 ##########################################################
 def pop_warning_element():
@@ -39,5 +40,16 @@ def pop_info_license():
 def pop_info_about():
   msg = f'Programa Generador de Etiquetas\n Por: Jesus Talamantes Morales 2022'
   messagebox.showinfo("Licencia", msg)
+
+# # ? POP_up de OkCancel Ask (askokcancel)
+##########################################################
+def pop_check_images():
+  msg = f'Imagenes Generadas\n Presione Aceptar para continuar con su PDF'
+  answer = messagebox.askokcancel("Confirmar", msg)
+  return answer
+
+if __name__ == "__main__":
+  print(pop_check_images())
+
 
 
