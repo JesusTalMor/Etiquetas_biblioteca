@@ -158,7 +158,7 @@ def clas_maker(clas, vol, cop, flag):
   STR_clas = clas
   if vol != '' and flag: STR_clas += ' V.' + vol
   elif vol != '' and not flag: STR_clas + ' ' + vol
-  if cop > '1' or cop != '': STR_clas += ' C.' + cop
+  if cop not in ('1',''): STR_clas += ' C.' + cop
   return STR_clas
 
 def STR_limit(STR, size):

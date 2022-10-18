@@ -62,9 +62,6 @@ TODO Problema del Intercalador
 TODO Problema con el C. nan
 """
 
-
-
-
 # ? Ventanas de apoyo y configuraciones
 def vetana_modify(STR_clas):
   prev_STR = str(STR_clas)
