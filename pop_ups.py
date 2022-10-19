@@ -44,7 +44,7 @@ def pop_info_about():
 # # ? POP_up de OkCancel Ask (askokcancel)
 ##########################################################
 def pop_check_images():
-  msg = f'Imagenes Generadas\n Presione Aceptar para continuar con su PDF'
+  msg = f'Imágenes Generadas\n Presione Aceptar para continuar con su PDF'
   answer = messagebox.askokcancel("Confirmar", msg)
   return answer
 
