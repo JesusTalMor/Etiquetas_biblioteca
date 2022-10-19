@@ -810,11 +810,14 @@ def ventana_elemento():
 
     # * Limpiar tabla por completo DONE
     if event == "Limpiar":
-      # Poner parametors a default
+      # Poner parametros a default
       tabla_principal = []
       row_color_array = []
       main_dicc = {}
       modify_flag = False
+
+      tabla_titulo = []
+      tabla_QRO = []
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
@@ -1080,7 +1083,7 @@ def ventana_archivo():
       # print('Prueba de Fallo')
       ruta_archivo = values["EXCEL_FILE"]  # Ruta de donde se saca el archivo
       datos_excel, excel_flag = detectar_etiquetas(ruta_archivo)  # Sacamos los datos de las clasificaciones de etiquetas
-      tabla_titulo, tabla_QRO = detectar_stat(ruta_archivo)  # Sacamos la tabla de titulo de libro y de QRO
+      aux_tabla_titulo, aux_tabla_QRO = detectar_stat(ruta_archivo)  # Sacamos la tabla de titulo de libro y de QRO
       # TODO Falta integrar control de errores y excepciones
 
       # * Generamos la tabla de datos para el Excel
@@ -1105,8 +1108,17 @@ def ventana_archivo():
       if len(tabla_principal) != 0:
         tabla_principal = np.concatenate((np.array(tabla_principal), np.array(datos_excel)), axis=0)
         tabla_principal = tabla_principal.tolist()
+
+        tabla_titulo = np.concatenate((np.array(tabla_titulo), np.array(aux_tabla_titulo)), axis=0)
+        tabla_titulo = tabla_titulo.tolist()
+
+        tabla_QRO = np.concatenate((np.array(tabla_QRO), np.array(aux_tabla_QRO)), axis=0)
+        tabla_QRO = tabla_QRO.tolist()
       # ? No tenemos aun datos en la tabla 
-      else: tabla_principal = datos_excel
+      else: 
+        tabla_principal = datos_excel
+        tabla_titulo = aux_tabla_titulo
+        tabla_QRO = aux_tabla_QRO
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
@@ -1117,6 +1129,10 @@ def ventana_archivo():
       row_color_array = []
       main_dicc = {}
       modify_flag = False
+
+      tabla_titulo = []
+      tabla_QRO = []
+
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Seleccionar toda la tabla
