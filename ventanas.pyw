@@ -56,7 +56,6 @@ tabla_modify = []
 main_config = [21.59, 27.94, 3.59, 4.65, 6, 6, False]
 position = (None, None)
 
-no_mod_flag = False
 today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
 
 """
@@ -645,8 +644,6 @@ def ventana_elemento():
   global tabla_titulo
   global tabla_modify
 
-  global no_mod_flag
-
   # Variables para manejo de modificacion
   modify_flag = False
   modify_index = 0
@@ -804,6 +801,8 @@ def ventana_elemento():
       row = ((len(tabla_principal)), "#FFFFFF")
       row_color_array.append(row)
       tabla_principal.append(list)
+      tabla_QRO.append('NAN')
+      tabla_titulo.append('NAN')
 
       # * Actualizando la tabla principal
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
@@ -908,12 +907,11 @@ def ventana_elemento():
       
       if mod_output == []: continue # Se checa si se realizaron cambios
       
-      if not no_mod_flag:
-        # Agregamos elemento a una tabla de modificaciones
-        mod_title = tabla_titulo[modify_index]
-        mod_QRO = tabla_QRO[modify_index]
-        aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
-        tabla_modify.append(aux_modify)
+      # Agregamos elemento a una tabla de modificaciones
+      mod_title = tabla_titulo[modify_index]
+      mod_QRO = tabla_QRO[modify_index]
+      aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
+      tabla_modify.append(aux_modify)
 
       # Cambiamos la apariencia del elemento en la tabla
       main_dicc[modify_index] = "True"
@@ -969,8 +967,6 @@ def ventana_archivo():
   global tabla_QRO
   global tabla_titulo
   global tabla_modify
-
-  global no_mod_flag
 
   # Variables para manejo de modificacion
   modify_flag = False
@@ -1220,12 +1216,11 @@ def ventana_archivo():
       
       if mod_output == []: continue # Se checa si se realizaron cambios
       
-      if not no_mod_flag:
-        # Agregamos elemento a una tabla de modificaciones
-        mod_title = tabla_titulo[modify_index]
-        mod_QRO = tabla_QRO[modify_index]
-        aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
-        tabla_modify.append(aux_modify)
+      # Agregamos elemento a una tabla de modificaciones
+      mod_title = tabla_titulo[modify_index]
+      mod_QRO = tabla_QRO[modify_index]
+      aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
+      tabla_modify.append(aux_modify)
 
       # Cambiamos la apariencia del elemento en la tabla
       main_dicc[modify_index] = "True"
@@ -1342,8 +1337,6 @@ def ventana_inicial():
       ventana_archivo()
     if event == "ELEM":
       window.close()
-      pop_warning_element()
-      no_mod_flag = True
       ventana_elemento()
 
   # * Finalizamos el programa
@@ -1352,5 +1345,5 @@ def ventana_inicial():
 
 if __name__ == "__main__":
   ventana_inicial()
-  if len(tabla_modify) != 0 and not no_mod_flag: 
+  if len(tabla_modify) != 0: 
     crear_reporte(tabla_modify, ruta_folder, today_date)  # Con la tabla de modificados generamos un reporte
