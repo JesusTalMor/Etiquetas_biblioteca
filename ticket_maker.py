@@ -61,7 +61,7 @@ def separate_list(str_list: list):
   """ Recibe una lista de strings y retorna una lista de listas """
   return_list = []
   for indiv_str in str_list:
-    print(indiv_str)
+    # print(indiv_str)
     return_list.append(separate_STR(indiv_str))
   
   return return_list

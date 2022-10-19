@@ -56,6 +56,8 @@ tabla_modify = []
 main_config = [21.59, 27.94, 3.59, 4.65, 6, 6, False]
 position = (None, None)
 
+no_mod_flag = False
+today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
 
 """
 TODO Problema del Intercalador
@@ -643,7 +645,7 @@ def ventana_elemento():
   global tabla_titulo
   global tabla_modify
 
-  global today_date
+  global no_mod_flag
 
   # Variables para manejo de modificacion
   modify_flag = False
@@ -652,191 +654,63 @@ def ventana_elemento():
 
   # * Layout para insertar clasificaciones
   pipe_a = [
-    [
-      sg.Text(
-        text="PIPE A", font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF", justification="center",
-        pad=5,
-      )
-    ],
-    [
-      sg.In(
-        size=(14, 1), font=("Open Sans", 10),
-        justification="center", key="PIPE_A",
-        disabled=True,
-      )
-    ],
+    [sg.Text(text="PIPE A", font=("Open Sans", 12, "bold"),background_color="#FFFFFF", justification="center",pad=5,)],
+    [sg.In(size=(14, 1), font=("Open Sans", 10), justification="center", key="PIPE_A", disabled=True,)],
   ]
   pipe_b = [
-    [
-      sg.Text(
-        text="PIPE B",
-        font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
-        pad=5,
-      )
-    ],
-    [
-      sg.In(
-        size=(14, 1),
-        font=("Open Sans", 10),
-        justification="center",
-        key="PIPE_B",
-        disabled=True,
-      )
-    ],
+    [sg.Text(text="PIPE B", font=("Open Sans", 12, "bold"), background_color="#FFFFFF", justification="center", pad=5,)],
+    [sg.In(size=(14, 1), font=("Open Sans", 10), justification="center", key="PIPE_B", disabled=True,)],
   ]
   indi_layout = [
+    [sg.Text(text="Agregar Clasificación", font=("Open Sans", 14, "bold"), background_color="#FFFFFF", justification="center",)],
+    [sg.In(size=(28, 1), enable_events=True, key="CLAS", font=("Open Sans", 12), justification="center",pad=(15, 5),)],
+    [sg.Text(text="Agregar Encabezado", font=("Open Sans", 12), background_color="#FFFFFF", justification="center",)],
+    [sg.In(size=(18, 1), enable_events=True, key="HEAD", font=("Open Sans", 12), justification="center",)],
     [
-      sg.Text(
-        text="Agregar Clasificación",
-        font=("Open Sans", 14, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
-      )
+      sg.Text(text="Volumen", font=("Open Sans", 12), background_color="#FFFFFF", justification="center",),
+      sg.In(size=(2, 1), enable_events=True, key="VOL", font=("Open Sans", 10), justification="center",),
+      sg.Text(text="Copia", font=("Open Sans", 12), background_color="#FFFFFF", justification="center",),
+      sg.In(default_text="1", size=(2, 1), enable_events=True, key="COP", font=("Open Sans", 10), justification="center",),
     ],
     [
-      sg.In(
-        size=(28, 1),
-        enable_events=True,
-        key="CLAS",
-        font=("Open Sans", 12),
-        justification="center",
-        pad=(15, 5),
-      )
-    ],
-    [
-      sg.Text(
-        text="Agregar Encabezado",
-        font=("Open Sans", 12),
-        background_color="#FFFFFF",
-        justification="center",
-      )
-    ],
-    [
-      sg.In(
-        size=(18, 1),
-        enable_events=True,
-        key="HEAD",
-        font=("Open Sans", 12),
-        justification="center",
-      )
-    ],
-    [
-      sg.Text(
-        text="Volumen",
-        font=("Open Sans", 12),
-        background_color="#FFFFFF",
-        justification="center",
-      ),
-      sg.In(
-        size=(2, 1),
-        enable_events=True,
-        key="VOL",
-        font=("Open Sans", 10),
-        justification="center",
-      ),
-      sg.Text(
-        text="Copia",
-        font=("Open Sans", 12),
-        background_color="#FFFFFF",
-        justification="center",
-      ),
-      sg.In(
-        default_text="1",
-        size=(2, 1),
-        enable_events=True,
-        key="COP",
-        font=("Open Sans", 10),
-        justification="center",
-      ),
-    ],
-    [
-      sg.Column(
-        layout=pipe_a, background_color="#FFFFFF", element_justification="c"
-      ),
+      sg.Column(layout=pipe_a, background_color="#FFFFFF", element_justification="c"),
       sg.VSeperator(),
-      sg.Column(
-        layout=pipe_b, background_color="#FFFFFF", element_justification="c"
-      ),
+      sg.Column(layout=pipe_b, background_color="#FFFFFF", element_justification="c"),
     ],
   ]
 
   layout_izq = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
-    [
-      sg.Text(
-        text="Generador de Etiquetas",
-        font=("Open Sans", 20, "bold", "italic"),
-        background_color="#FFFFFF",
-        justification="left",
-        pad=(0, (0, 15)),
-      )
-    ],
-    [
-      sg.Text(
-        text="Seleccione una opción:",
-        font=("Open Sans", 16, "bold"),
-        background_color="#FFFFFF",
-        justification="left",
-      )
-    ],
+    [sg.Text(text="Generador de Etiquetas", font=("Open Sans", 20, "bold", "italic"), background_color="#FFFFFF", justification="left", pad=(0, (0, 15)),)],
+    [sg.Text(text="Seleccione una opción:", font=("Open Sans", 16, "bold"), background_color="#FFFFFF",justification="left",)],
     [
       sg.Radio(
-        "Cargar Archivo",
-        "O1",
-        default=False,
+        "Cargar Archivo", "O1", default=False,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
         font=("Open Sans", 14),
-        key="FILE",
-        enable_events=True,
+        key="FILE", enable_events=True,
       ),
       sg.Radio(
-        "Cargar Elemento",
-        "O1",
-        default=True,
+        "Cargar Elemento", "O1", default=True,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
         font=("Open Sans", 14),
-        key="ELEM",
-        enable_events=True,
+        key="ELEM", enable_events=True,
       ),
     ],
     [sg.HorizontalSeparator(color="#000000", pad=(0, 5))],
-    [
-      sg.Frame(
-        "",
-        layout=indi_layout,
-        background_color="#FFFFFF",
-        element_justification="c",
-      )
-    ],
+    [sg.Frame("",layout=indi_layout, background_color="#FFFFFF", element_justification="c",)],
     [sg.HorizontalSeparator(color="#000000", pad=(0, 5))],
     [
       sg.FolderBrowse("Guardar", font=("Open Sans", 12), pad=(5, (0, 10))),
-      sg.In(
-        default_text=ruta_folder,
-        size=(50, 1),
-        enable_events=True,
-        key="FOLDER",
-        font=("Open Sans", 9),
-        justification="center",
-        pad=(5, (0, 5)),
-      ),
+      sg.In(default_text=ruta_folder, size=(50, 1), enable_events=True, key="FOLDER", font=("Open Sans", 9), justification="center", pad=(5, (0, 5)),),
     ],
     [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
   ]
   # * Tabla de Etiquetas para manejo
   layout_der = [
-    [
-      sg.Text(
-        text="Lista de Clasificaciones a Imprimir",
-        background_color="#FFFFFF",
-        font=("Open", 18, "bold", "italic"),
-      )
-    ],
+    [sg.Text(text="Lista de Clasificaciones a Imprimir", background_color="#FFFFFF",font=("Open", 18, "bold", "italic"),)],
     [
       sg.Table(
         values=tabla_principal,
@@ -859,16 +733,9 @@ def ventana_elemento():
       )
     ],
     [
-      sg.Button(
-        "Seleccionar Todo",
-        font=("Open Sans", 12),
-        pad=(0, 10),
-        key="SELECT-ALL",
-      ),
+      sg.Button("Seleccionar Todo", font=("Open Sans", 12), pad=(0, 10), key="SELECT-ALL",),
       sg.Button("Limpiar", font=("Open Sans", 12), pad=(30, 10)),
-      sg.Button(
-        "Deseleccionar", font=("Open Sans", 12), pad=(0, 10), key="DESELECT-ALL"
-      ),
+      sg.Button("Deseleccionar", font=("Open Sans", 12), pad=(0, 10), key="DESELECT-ALL"),
     ],
     [sg.Button("Exportar", font=("Open Sans", 12, "bold"))],
   ]
@@ -876,13 +743,9 @@ def ventana_elemento():
   layout = [
     [sg.Menu(menu_opciones, tearoff=False)],
     [
-      sg.Column(
-        layout_izq, background_color="#FFFFFF", element_justification="c", pad=0
-      ),
+      sg.Column(layout_izq, background_color="#FFFFFF", element_justification="c", pad=0),
       sg.VSep(color="#000000", pad=(5, 0)),
-      sg.Column(
-        layout_der, background_color="#FFFFFF", element_justification="c", pad=0
-      ),
+      sg.Column(layout_der, background_color="#FFFFFF", element_justification="c", pad=0),
     ],
   ]
 
@@ -912,14 +775,15 @@ def ventana_elemento():
         # Se revisa si se puede separa la PIPE B
         if revisarSep(clas) and revisarPipeB(clas):
           pos_div, sum = buscarPIPE(clas)
-
           if pos_div != 0:
             pipe_a_str = clas[:pos_div]
             pipe_b_str = clas[pos_div + sum :]
-            window["PIPE_A"].update(pipe_a_str)  # Se actualiza las PIPE B
+            # Se actualiza las PIPE B
+            window["PIPE_A"].update(pipe_a_str)  
             window["PIPE_B"].update(pipe_b_str)
             # ? Bandera Verdadera se puede agregar
             add_flag = True
+        
         else:
           window["PIPE_A"].update("NO")
           window["PIPE_B"].update("APLICA")
@@ -929,19 +793,11 @@ def ventana_elemento():
     # * Añadir una clasificación a la tabla DONE
     elif event == "Agregar" and add_flag:
       # * Generamos el elemento a agregar
-      STR_clas = clas_maker(
-        values["CLAS"], values["VOL"], values["COP"], True
-      )  # * Clasificación Completa
+      STR_clas = clas_maker(values["CLAS"], values["VOL"], values["COP"], True)  # * Clasificación Completa
       HEAD_STR = ""
-      if values["HEAD"] != "":
-        HEAD_STR = values["HEAD"] + " "  # * Chequeo de Encabezado
+      if values["HEAD"] != "": HEAD_STR = values["HEAD"] + " "  # * Chequeo de Encabezado
 
-      list = [
-        (HEAD_STR + STR_clas),
-        values["PIPE_A"],
-        values["PIPE_B"],
-        "True",
-      ]  # Agregamos el encabezado al elemento
+      list = [(HEAD_STR + STR_clas), values["PIPE_A"], values["PIPE_B"], "True",]  # Agregamos el encabezado al elemento
 
       # * Se agrega dicho elemento a las listas
       main_dicc[len(tabla_principal)] = "True"
@@ -987,8 +843,7 @@ def ventana_elemento():
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Dar ruta para guardar el archivo DONE
-    if event == "FOLDER":
-      ruta_folder = values["FOLDER"]
+    if event == "FOLDER": ruta_folder = values["FOLDER"]
 
     # * Mostrar licencia
     if event == "Licencia":pop_info_license()
@@ -997,13 +852,7 @@ def ventana_elemento():
     if event == "Acerca de...":pop_info_about()
 
     # * Abrir ventana de configuración
-    if event == "Configuración":
-      # print(f'Vamos a configurar')
-      # if config_status: print('Se realizaron modificaciones a la configuración')
-      # else: print('No se realizaron modificaciones')
-      # print(f'Configuraciones Guardadas {main_config}')
-      # print(f'Posición Seleccionada {position}')
-      config_status = ventana_config()
+    if event == "Configuración": ventana_config()
 
     # * Manejo de eventos dentro de la tabla DONE
     if event == "TABLE":
@@ -1051,54 +900,52 @@ def ventana_elemento():
 
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
-      # * Vamos a abrir una nueva pantalla para modificar el texto,
-      mod_output = vetana_modify(
-        tabla_principal[modify_index][0]
-      )  # Manda llamar la ventana para modificar
-
-      if mod_output != []:  # Si se recibe algun cambio
+      # * Vamos a abrir una nueva pantalla para modificar el texto
+      mod_output = vetana_modify(tabla_principal[modify_index][0])  # Manda llamar la ventana para modificar
+      
+      if mod_output == []: continue # Se checa si se realizaron cambios
+      
+      if not no_mod_flag:
+        # Agregamos elemento a una tabla de modificaciones
         mod_title = tabla_titulo[modify_index]
         mod_QRO = tabla_QRO[modify_index]
-        aux_modify = [
-          mod_title,
-          tabla_principal[modify_index][0],
-          mod_output[0],
-          mod_QRO,
-        ]
-        # print(aux_modify)
+        aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
         tabla_modify.append(aux_modify)
-        main_dicc[modify_index] = "True"
-        tabla_principal[modify_index] = mod_output
-        row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
-        modify_flag = False
 
+      # Cambiamos la apariencia del elemento en la tabla
+      main_dicc[modify_index] = "True"
+      tabla_principal[modify_index] = mod_output
+      row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
+      modify_flag = False
+      
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Exporta los elementos seleccionados a impresión
     if event == "Exportar":
-      if ruta_folder != "":  # Revisamos que exista una ruta de folder
-        selected = []  # Lista con elementos seleccionados
-
-        # * LLenado de lista de elementos seleccionados
-        for ind in range(len(tabla_principal)):
-          status = main_dicc[ind]
-          if status == "Selected":
-            selected.append(tabla_principal[ind][0])
-
-        # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-        if len(selected) != 0:
-          main_status = ventana_config()  # Pasamos a la ventana de configuración
-          # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
-          # * Si la ventana de configuración fue aceptada continuamos con el proceso
-          if main_status:
-            # ? Función para el manejo y creación de eiquetas
-            # Variable para tener el dia de la consulta
-            today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
-            ticket_maker_main(selected, today_date, ruta_folder, main_config, position)
-            pop_success_program()
-
-      else:
+      # Revisamos que exista una ruta de folder
+      if ruta_folder == "":
         pop_warning_folder()
+        continue
+      selected = []  # Lista con elementos seleccionados
+
+      # * LLenado de lista de elementos seleccionados
+      for ind in range(len(tabla_principal)):
+        status = main_dicc[ind]
+        if status == "Selected":
+          selected.append(tabla_principal[ind][0])
+
+      # * Revisar que la tabla de seleccionado tenga valores para poder continuar
+      if len(selected) != 0:
+        main_status = ventana_config()  # Pasamos a la ventana de configuración
+        # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+        
+        # * Si la ventana de configuración fue aceptada continuamos con el proceso
+        if main_status:
+          # ? Función para el manejo y creación de eiquetas
+          # Variable para tener el dia de la consulta
+          today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+          ticket_maker_main(selected, today_date, ruta_folder, main_config, position)
+          pop_success_program()
 
   window.close()
 
@@ -1120,7 +967,7 @@ def ventana_archivo():
   global tabla_titulo
   global tabla_modify
 
-  global today_date
+  global no_mod_flag
 
   # Variables para manejo de modificacion
   modify_flag = False
@@ -1131,91 +978,42 @@ def ventana_archivo():
   excel_layout = [
     [
       sg.FileBrowse("Abrir", font=("Open Sans", 12)),
-      sg.In(
-        default_text=ruta_archivo,
-        size=(50, 1),
-        enable_events=True,
-        key="EXCEL_FILE",
-        font=("Open Sans", 9),
-        justification="center",
-      ),
+      sg.In(default_text=ruta_archivo, size=(50, 1), enable_events=True, key="EXCEL_FILE", font=("Open Sans", 9), justification="center",),
     ],
   ]
 
   layout_izq = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
-    [
-      sg.Text(
-        text="Generador de Etiquetas",
-        font=("Open Sans", 20, "bold", "italic"),
-        background_color="#FFFFFF",
-        justification="left",
-        pad=(0, (0, 20)),
-      )
-    ],
-    [
-      sg.Text(
-        text="Seleccione una opción:",
-        font=("Open Sans", 16, "bold"),
-        background_color="#FFFFFF",
-        justification="left",
-      )
-    ],
+    [sg.Text(text="Generador de Etiquetas", font=("Open Sans", 20, "bold", "italic"), background_color="#FFFFFF", justification="left", pad=(0, (0, 20)),)],
+    [sg.Text(text="Seleccione una opción:", font=("Open Sans", 16, "bold"), background_color="#FFFFFF", justification="left",)],
     [
       sg.Radio(
-        "Cargar Archivo",
-        "O1",
-        default=True,
+        "Cargar Archivo", "O1", default=True,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
         font=("Open Sans", 14),
-        key="FILE",
-        enable_events=True,
+        key="FILE", enable_events=True,
       ),
       sg.Radio(
-        "Cargar Elemento",
-        "O1",
-        default=False,
-        background_color="#FFFFFF",
+        "Cargar Elemento", "O1",
+        default=False, background_color="#FFFFFF",
         circle_color="#DEE6F7",
         font=("Open Sans", 14),
-        key="ELEM",
-        enable_events=True,
+        key="ELEM", enable_events=True,
       ),
     ],
     [sg.HorizontalSeparator(color="#000000", pad=(0, (40, 30)))],
-    [
-      sg.Frame(
-        "",
-        layout=excel_layout,
-        background_color="#FFFFFF",
-        element_justification="r",
-      )
-    ],
+    [sg.Frame("", layout=excel_layout, background_color="#FFFFFF", element_justification="r", )],
     [sg.HorizontalSeparator(color="#000000", pad=(0, (30, 40)))],
     [
       sg.FolderBrowse("Guardar", font=("Open Sans", 12), pad=(5, (0, 15))),
-      sg.In(
-        default_text=ruta_folder,
-        size=(50, 1),
-        enable_events=True,
-        key="FOLDER",
-        font=("Open Sans", 9),
-        justification="center",
-        pad=(5, (0, 10)),
-      ),
+      sg.In(default_text=ruta_folder, size=(50, 1), enable_events=True, key="FOLDER",font=("Open Sans", 9), justification="center", pad=(5, (0, 10)),),
     ],
     [sg.Button("Cargar", font=("Open Sans", 12, "bold"))],
   ]
   # * Layout tabla general de etiquetas,
   layout_der = [
-    [
-      sg.Text(
-        text="Lista de Clasificaciones a Imprimir",
-        background_color="#FFFFFF",
-        font=("Open", 16, "bold", "italic"),
-      )
-    ],
+    [sg.Text(text="Lista de Clasificaciones a Imprimir", background_color="#FFFFFF", font=("Open", 16, "bold", "italic"),)],
     [
       sg.Table(
         values=tabla_principal,
@@ -1238,19 +1036,9 @@ def ventana_archivo():
       )
     ],
     [
-      sg.Button(
-        "Seleccionar Todo",
-        font=("Open Sans", 12),
-        pad=((0), 10),
-        key="SELECT-ALL",
-      ),
+      sg.Button("Seleccionar Todo", font=("Open Sans", 12), pad=((0), 10), key="SELECT-ALL",),
       sg.Button("Limpiar", font=("Open Sans", 12), pad=(30, 10)),
-      sg.Button(
-        "Deseleccionar",
-        font=("Open Sans", 12),
-        pad=((0, 0), 10),
-        key="DESELECT-ALL",
-      ),
+      sg.Button("Deseleccionar", font=("Open Sans", 12), pad=((0, 0), 10), key="DESELECT-ALL",),
     ],
     [sg.Button("Exportar", font=("Open Sans", 12, "bold"))],
   ]
@@ -1259,13 +1047,9 @@ def ventana_archivo():
   layout = [
     [sg.Menu(menu_opciones, tearoff=False)],
     [
-      sg.Column(
-        layout_izq, background_color="#FFFFFF", element_justification="c", pad=0
-      ),
+      sg.Column(layout_izq, background_color="#FFFFFF", element_justification="c", pad=0 ),
       sg.VerticalSeparator(color="#000000", pad=(5, 0)),
-      sg.Column(
-        layout_der, background_color="#FFFFFF", element_justification="c", pad=0
-      ),
+      sg.Column( layout_der, background_color="#FFFFFF", element_justification="c", pad=0 ),
     ],
   ]
 
@@ -1281,8 +1065,7 @@ def ventana_archivo():
     # print('-'*50 + '\n')
 
     # * Cerrar ventana
-    if event in (sg.WINDOW_CLOSED, "Exit", "Salir"):
-      break
+    if event in (sg.WINDOW_CLOSED, "Exit", "Salir"): break
 
     #  * Cambio de ventana a elemento
     if event == "ELEM":
@@ -1296,43 +1079,34 @@ def ventana_archivo():
         continue
       # print('Prueba de Fallo')
       ruta_archivo = values["EXCEL_FILE"]  # Ruta de donde se saca el archivo
-      datos_excel, excel_flag = detectar_etiquetas(
-        ruta_archivo
-      )  # Sacamos los datos de las clasificaciones de etiquetas
-      tabla_titulo, tabla_QRO = detectar_stat(
-        ruta_archivo
-      )  # Sacamos la tabla de titulo de libro y de QRO
+      datos_excel, excel_flag = detectar_etiquetas(ruta_archivo)  # Sacamos los datos de las clasificaciones de etiquetas
+      tabla_titulo, tabla_QRO = detectar_stat(ruta_archivo)  # Sacamos la tabla de titulo de libro y de QRO
       # TODO Falta integrar control de errores y excepciones
 
       # * Generamos la tabla de datos para el Excel
       for ind in range(len(datos_excel)):
         status = datos_excel[ind][3]
         main_dicc[len(tabla_principal) + ind] = status
-        if status == "False":
-          row = ((len(tabla_principal) + ind), "#F04150")
-        else:
-          row = ((len(tabla_principal) + ind), "#FFFFFF")
+        if status == "False": row = ((len(tabla_principal) + ind), "#F04150")
+        else: row = ((len(tabla_principal) + ind), "#FFFFFF")
         row_color_array.append(row)
 
-      # ? Se cargaron algunas etiquetas pero otras no contienen información
-      # ? Falta poder ver si podemos integrar excepciones
-      if excel_flag:
-        # print('Algunos datos tienen error')
-        pop_warning_excel_file_data_error()
+      # TODO Falta poder ver si podemos integrar excepciones
 
-      if datos_excel != [] and tabla_principal != []:
-        # * Podemos continuar con el proceso sin errores de carga
-        tabla_principal = np.concatenate(
-          (np.array(tabla_principal), np.array(datos_excel)), axis=0
-        )
-        tabla_principal = tabla_principal.tolist()
-      elif datos_excel != [] and tabla_principal == []:
-        # * No tenemos aun datos en la tabla
-        tabla_principal = datos_excel
-      else:
-        # * No se cargo ni una etiqueta
-        # print('Error al cargar las etiquetas')
+      # ? Se cargaron algunas etiquetas pero otras no contienen información
+      if excel_flag: pop_warning_excel_file_data_error()
+
+      # ? No se cargo ni una etiqueta
+      if len(datos_excel) == 0: 
         pop_error_excel_file()
+        continue
+      
+      # ? Concatenamos los nuevos datos a los antiguos
+      if len(tabla_principal) != 0:
+        tabla_principal = np.concatenate((np.array(tabla_principal), np.array(datos_excel)), axis=0)
+        tabla_principal = tabla_principal.tolist()
+      # ? No tenemos aun datos en la tabla 
+      else: tabla_principal = datos_excel
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
@@ -1368,23 +1142,16 @@ def ventana_archivo():
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Dar ruta para guardar el archivo
-    if event == "FOLDER":
-      ruta_folder = values["FOLDER"]
+    if event == "FOLDER": ruta_folder = values["FOLDER"]
 
     # * Mostrar licencia
-    if event == "Licencia":pop_info_license()
+    if event == "Licencia": pop_info_license()
 
     # * Mostrar Acerca de
-    if event == "Acerca de...":pop_info_about()
+    if event == "Acerca de...": pop_info_about()
 
     # * Abrir ventana de configuración
-    if event == "Configuración":
-      # if config_status: print('Se realizaron modificaciones a la configuración') # TODO Hacerlo popUP
-      # else: print('No se realizaron modificaciones')
-      # print(f'Configuraciones Guardadas {main_config}')
-      # print(f'Posición Seleccionada {position}')
-      # print(f'Vamos a configurar')
-      config_status = ventana_config()
+    if event == "Configuración": ventana_config()
 
     # * Eventos dentro de la tabla
     if event == "TABLE":
@@ -1432,56 +1199,52 @@ def ventana_archivo():
 
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
-      # * Vamos a abrir una nueva pantalla para modificar el texto,
-      mod_output = vetana_modify(
-        tabla_principal[modify_index][0]
-      )  # Manda llamar la ventana para modificar
-
-      if mod_output != []:  # Si se recibe algun cambio
+      # * Vamos a abrir una nueva pantalla para modificar el texto
+      mod_output = vetana_modify(tabla_principal[modify_index][0])  # Manda llamar la ventana para modificar
+      
+      if mod_output == []: continue # Se checa si se realizaron cambios
+      
+      if not no_mod_flag:
+        # Agregamos elemento a una tabla de modificaciones
         mod_title = tabla_titulo[modify_index]
         mod_QRO = tabla_QRO[modify_index]
-        aux_modify = [
-          mod_title,
-          tabla_principal[modify_index][0],
-          mod_output[0],
-          mod_QRO,
-        ]
-        # print(aux_modify)
+        aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
         tabla_modify.append(aux_modify)
-        main_dicc[modify_index] = "True"
-        tabla_principal[modify_index] = mod_output
-        row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
-        modify_flag = False
 
+      # Cambiamos la apariencia del elemento en la tabla
+      main_dicc[modify_index] = "True"
+      tabla_principal[modify_index] = mod_output
+      row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
+      modify_flag = False
+      
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Exporta los elementos seleccionados a impresión
     if event == "Exportar":
-      if ruta_folder != "":  # Revisamos que exista una ruta de folder
-        selected = []  # Lista con elementos seleccionados
-
-        # * LLenado de lista de elementos seleccionados
-        for ind in range(len(tabla_principal)):
-          status = main_dicc[ind]
-          if status == "Selected":
-            selected.append(tabla_principal[ind][0])
-
-        # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-        if len(selected) != 0:
-          main_status = ventana_config()  # Pasamos a la ventana de configuración
-          
-          # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
-          # * Si la ventana de configuración fue aceptada continuamos con el proceso
-          if main_status:
-            # ? Función para el manejo y creación de eiquetas
-            # Variable para tener el dia de la consulta
-            today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
-            ticket_maker_main(selected, today_date, ruta_folder, main_config, position)
-            pop_success_program()
-
-      else:
-        # print('Seleccione una carpeta de Salida') # TODO Hacer esto un pop up
+      # Revisamos que exista una ruta de folder
+      if ruta_folder == "":
         pop_warning_folder()
+        continue
+      selected = []  # Lista con elementos seleccionados
+
+      # * LLenado de lista de elementos seleccionados
+      for ind in range(len(tabla_principal)):
+        status = main_dicc[ind]
+        if status == "Selected":
+          selected.append(tabla_principal[ind][0])
+
+      # * Revisar que la tabla de seleccionado tenga valores para poder continuar
+      if len(selected) != 0:
+        main_status = ventana_config()  # Pasamos a la ventana de configuración
+        # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+        
+        # * Si la ventana de configuración fue aceptada continuamos con el proceso
+        if main_status:
+          # ? Función para el manejo y creación de eiquetas
+          # Variable para tener el dia de la consulta
+          today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+          ticket_maker_main(selected, today_date, ruta_folder, main_config, position)
+          pop_success_program()
 
   window.close()
 
@@ -1491,6 +1254,7 @@ def ventana_inicial():
   """
   Función para la creación de la ventana principal
   """
+  global no_mod_flag
   layout_incial_izq = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
     [
@@ -1563,6 +1327,7 @@ def ventana_inicial():
     if event == "ELEM":
       window.close()
       pop_warning_element()
+      no_mod_flag = True
       ventana_elemento()
 
   # * Finalizamos el programa
@@ -1571,6 +1336,5 @@ def ventana_inicial():
 
 if __name__ == "__main__":
   ventana_inicial()
-  if len(tabla_modify) != 0:
-    today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+  if len(tabla_modify) != 0 and not no_mod_flag: 
     crear_reporte(tabla_modify, ruta_folder, today_date)  # Con la tabla de modificados generamos un reporte
