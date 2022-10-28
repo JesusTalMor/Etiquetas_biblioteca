@@ -61,6 +61,7 @@ today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
 """
 TODO Problema del Intercalador
 TODO Problema con el C. nan
+Hola Mami Mar y Marcos
 """
 
 # ? Ventanas de apoyo y configuraciones
