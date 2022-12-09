@@ -49,6 +49,11 @@ def detectar_etiquetas(ruta_archivo):
     # * Inicia proceso de sacar todas las clasificaciones
     for i in range(len_data):
       STR = CLAS[i]
+
+      # Control de Excepciones
+      # GN25 .C3818 2013
+      # Buscar espacio despues de letra
+
       STR_C = str(COP[i])
       STR_V = VOL[i]
       # print(STR_V)

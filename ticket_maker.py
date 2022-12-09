@@ -18,7 +18,6 @@ def separate_STR(STR:str):
   # separar por espacios
   aux_list = STR.split(' ')
   # print(aux_list)
-  
   split_list = 0
   # Caso con encabezado
   try: 
@@ -28,7 +27,7 @@ def separate_STR(STR:str):
       return_list.append(aux_list[0])
   except:
     return ['Failed','Error','Separation','Clase']
-  
+
   # Separando Pipe A en una lista
   pipe_a_list = aux_list[split_list].split('.')
   # print(pipe_a_list)
@@ -90,7 +89,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
   Pheight = int(scale * float(PH))
 
   # * Margen en eje Y
-  Y_pos = int(0.5*scale) # Ajuste de margen ya definido
+  Y_pos = int(0.6*scale) # Ajuste de margen ya definido
   # * Calcular la posición del cursor en X
   X_pos = int(Iwidth / 2) - 40
 
@@ -131,7 +130,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
       y_print = Y_pos + (Iheight * y)
       for text in main_ticket:
         image_draw.text((x_print, y_print), text, fill=color, font=font)
-        y_print += 40
+        y_print += 45
       x += 1  # Actualizamos valor de X despues de imprimir
 
     # * Muestreo de la Imagen (Guardar Imagen)
@@ -165,7 +164,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
       y_print = Y_pos
       for text in main_ticket:
         image_draw.text((X_pos, y_print), text, fill=color, font=font)
-        y_print += 40
+        y_print += 45
 
       # * Muestreo de la Imagen (Guardar Imagen)
       # print(str(ID) + '_' + str(date) + '.png')

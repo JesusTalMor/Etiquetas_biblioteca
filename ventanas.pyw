@@ -53,7 +53,7 @@ tabla_QRO = []
 tabla_modify = []
 
 # Configuración de la impresion de etiquetas
-main_config = [21.59, 27.94, 3.59, 4.65, 6, 6, False]
+main_config = [22, 28, 3.66, 3.5, 6, 8, False]
 position = (None, None)
 
 today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
