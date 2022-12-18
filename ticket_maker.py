@@ -173,17 +173,4 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
 
 
 if __name__ == "__main__":
-  # hoy = date.today()
-  one = "JAPAN SB822.2 .L418 1974 V.1 C.1"
-  two = "SB822.2 .L418 1974 V.1 C.1"
-  thing = "HG4572 .L4418 2009"
-  train_list = [one, two]
-  # for clasify in train_list:
-  #   # print(clasify)
-  print(separate_STR(thing))
-  # print(separate_list(train_list))
-  
-  # heigth = 5
-  # width = 3
-  # ICP = [0, 0, width, heigth, 0, 0, False]  # Individual Configuration Parameters
-  # ticket_maker_main(train_list, 'Nan', 'Nan', ICP, (None,None))
+  pass
