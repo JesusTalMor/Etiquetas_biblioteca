@@ -6,7 +6,7 @@ Paquete de Funciones de apoyo para el trabajo de Strings y Manejo de Grupos para
 
 letras_array = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
-def contar_letras(STR: str) -> int:
+def revisar_letras(STR: str) -> int:
   C_letras = len(re.findall('[ABCDEFGHIJKLMNOPQRSTUVWXYZ]',STR))
   return C_letras != 0
 
@@ -79,7 +79,7 @@ def posicion_corte(posicion_separadores:list) -> int:
   return posicion_salida
 
 
-def revisar_corte(STR:str) -> bool:
+def revisar_corte_pipe(STR:str) -> bool:
   ''' Revisar si se puede cortar de manera correcta '''
   
   posicion_corte, diferencia = buscar_pipe(STR)
@@ -106,7 +106,7 @@ def revisar_pipeB(STR:str) -> bool:
   nuevo_str = STR[::-1]
   length = len(nuevo_str)
 
-  nuevo_posicion_corte = [pos for pos in range(length) if nuevo_str[pos] in letras_array]
+  nuevo_posicion_corte = [pos for pos in range(length) if nuevo_str[pos] in letras_array][0]
 
   nueva_posicion_pipe = length - 1 - (nuevo_posicion_corte + diferencia)
   if posicion_pipe == nueva_posicion_pipe: return True
@@ -123,6 +123,7 @@ def checar_maximo(MAX,X):
   if X >= MAX: MAX = X
   return MAX
 
+
 def limpiar_cadena(STR:str) -> str:
   ''' Remueve los caracteres no deseados de una cadena '''
   str_salida = STR
@@ -130,6 +131,7 @@ def limpiar_cadena(STR:str) -> str:
   for x in CharNoDeseado:
     str_salida = str_salida.replace(x,'')
   return str_salida
+
 
 def estandarizar_cadena(STR, maxLen):
   '''
@@ -143,6 +145,7 @@ def estandarizar_cadena(STR, maxLen):
   #Reemplaza el valor estadarizado en la lista
   return str_salida
 
+
 def creador_clasificacion(clas:str, vol:str, cop:int):
   ''' Retorna una clasificacion completa '''
   str_clasificacion_completa = clas
@@ -155,10 +158,12 @@ def creador_clasificacion(clas:str, vol:str, cop:int):
   if cop not in ('1',''): str_clasificacion_completa += ' C.' + cop
   return str_clasificacion_completa
 
+
 def limitador_string(STR:str, size:int) -> str:
   ''' Limitar el tamaño de un string'''
   if len(STR) > size: return STR[:size] + '...'
   else: return STR
+
 
 def cortar_string(STR:str, char:str) -> str:
   '''Corta la cadena a partir de un caracter especial'''
@@ -167,4 +172,13 @@ def cortar_string(STR:str, char:str) -> str:
 
 if __name__ == '__main__':
   # TODO Añadir pruebas para checar este modulo
-  pass
+  string_prueba = 'DF78.23.Q89 .H90 2009'
+  print(f'Pruebas de Modulo y debugeo')
+  print(f'Existen Letras ?: {revisar_letras(string_prueba)}')
+  texto = f'''
+  Separar PIPE A y PIPE B:
+  Posicion de Corte: {buscar_pipe(string_prueba)}
+  Se cortó correctamente: {revisar_corte_pipe(string_prueba)}
+  PipeB concuerda con el corte: {revisar_pipeB(string_prueba)}
+  '''
+  print(texto)
