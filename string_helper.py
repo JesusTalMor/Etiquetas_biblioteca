@@ -133,7 +133,7 @@ def limpiar_cadena(STR:str) -> str:
   return str_salida
 
 
-def estandarizar_cadena(STR, maxLen):
+def estandarizar_cadena(STR:str, maxLen:int) -> str:
   '''
     Estandariza las cadenas a un tamaño fijo 
   '''
@@ -173,6 +173,7 @@ def cortar_string(STR:str, char:str) -> str:
 if __name__ == '__main__':
   # TODO Añadir pruebas para checar este modulo
   string_prueba = 'DF78.23.Q89 .H90 2009'
+  string_estandarizar = 'DF89'
   print(f'Pruebas de Modulo y debugeo')
   print(f'Existen Letras ?: {revisar_letras(string_prueba)}')
   texto = f'''
@@ -180,5 +181,7 @@ if __name__ == '__main__':
   Posicion de Corte: {buscar_pipe(string_prueba)}
   Se cortó correctamente: {revisar_corte_pipe(string_prueba)}
   PipeB concuerda con el corte: {revisar_pipeB(string_prueba)}
+  Prueba de limpieza del String: {limpiar_cadena(string_prueba)}
+  Prueba para estandarizar string: {estandarizar_cadena(string_estandarizar, 8)}
   '''
   print(texto)
