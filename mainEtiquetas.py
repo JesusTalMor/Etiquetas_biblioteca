@@ -1,62 +1,71 @@
 import pandas as pd
 
-from ApoyoSTRLIST import *
+import string_helper as sh
 
 
-def cargarExcel(path):
-  Datos = pd.read_excel(path,sheet_name=None)
+def cargar_excel(path:str):
+  '''Obtiene todo el dataframe de datos de un excel'''
+  Datos = pd.read_excel(path, sheet_name=None)
   return Datos
 
-def cargarDatos(dataframe):
-  lClas = [False]
-  lVol = [False]
-  lCop = [False]
+def cargar_clasif_libros(dataframe):
+  ''' Carga los datos para generar clasificaciones'''
+  clasif = [False]
+  volumen = [False]
+  copia = [False]
 
   llaves = list(dataframe)
 
+  # Revisar si podemos extraer los datos necesarios
   if 'Clasificación' in llaves and 'Volumen' in llaves and 'Copia' in llaves:
-    lClas = dataframe['Clasificación']
-    lVol = dataframe['Volumen']
-    lCop = dataframe['Copia']
+    clasif = dataframe['Clasificación']
+    volumen = dataframe['Volumen']
+    copia = dataframe['Copia']
   
-  return lClas, lVol, lCop
+  return clasif, volumen, copia
 
-def cargarStat(dataframe):
-  lTitulo = [False]
-  lQRO = [False]
+def cargar_informacion_libros(dataframe):
+  ''' Carga los datos de información de los libros'''
+  titulo = [False]
+  codigo_barras = [False]
 
   llaves = list(dataframe)
 
-  if 'C. Barras' in llaves and 'Título' in llaves:
-    lTitulo = dataframe['Título']
-    lQRO = dataframe['C. Barras']
+  if 'C. Barras' in llaves: titulo = dataframe['Título']
+  if 'Título' in llaves: codigo_barras = dataframe['C. Barras']
   
-  return lTitulo, lQRO
+  return titulo, codigo_barras
 
-def detectar_etiquetas(ruta_archivo):
-  """ Sacas las etiquetas de un archivo Excel """
-  Salida = []
-  Error_flag = False
-  dataFrame = cargarExcel(ruta_archivo)
-  paginas_excel = list(dataFrame)
-  for key in paginas_excel:
-    CLAS, VOL, COP = cargarDatos(dataFrame[key])
+def generar_etiquetas_libros(ruta_archivo:str):
+  """ Genera las etiquetas de un archivo Excel """
+  salida = []
+  error_flag = False
+  dataframe = cargar_excel(ruta_archivo)
+  paginas_excel = list(dataframe)
+  for hoja in paginas_excel:
+    CLAS, VOL, COP = cargar_clasif_libros(dataframe[hoja])
+    len_data = len(CLAS)
+    
     # * Checa si se cargaron todos los datos
     if not CLAS[0]:
-      Error_flag = True
+      error_flag = True
       continue
-    len_data = len(CLAS)
+    
     # * Inicia proceso de sacar todas las clasificaciones
     for i in range(len_data):
       STR = CLAS[i]
-
-      # Control de Excepciones
-      # GN25 .C3818 2013
-      # Buscar espacio despues de letra
-
       STR_C = str(COP[i])
       STR_V = VOL[i]
       # print(STR_V)
+
+      # * Checar si el atributo CLAS esta vacio
+      if pd.isna(STR):
+        salida.append(['None', 'No', 'Aplica', 'False'])
+        continue
+
+      # * Eliminar caracteres LX y MAT
+      if 'LX' in STR: STR = sh.cortar_string(STR, 'LX')
+      if 'MAT' in STR: STR = sh.cortar_string(STR, 'MAT')
 
       # * Checar si el atributo VOL esta vacio
       if pd.isna(STR_V): STR_V = ''
@@ -64,46 +73,44 @@ def detectar_etiquetas(ruta_archivo):
       # * Checar si el atributo VOL esta vacio
       if pd.isna(STR_C): STR_C = ''
 
-      STR_Clas = clas_maker(STR, STR_V, STR_C, False)
+      STR_Clas = sh.creador_clasificacion(STR, STR_V, STR_C)
+      
+      # * Revisar si tenemos Volumen o Copia donde no corresponden
+      if 'V.' in STR or 'C.' in STR:
+        salida.append([STR_Clas, 'No', 'Aplica', 'False'])
+        continue
 
-      if pd.isna(STR):
-        Salida.append(['None', 'No', 'Aplica', 'False'])
+      # * Revisamos si se puede dividir Pipe A y Pipe B
+      if sh.revisar_corte_pipe(STR) and sh.revisar_pipeB(STR):
+        pos_div, sum = sh.buscar_pipe(STR)
+        pipe_a_str = STR[:pos_div]
+        pipe_b_str = STR[pos_div+sum:]
+        salida.append([STR_Clas, pipe_a_str, pipe_b_str, 'True'])
       else:
-        if 'LX' in STR: 
-          char = 'LX'  # Para casos con XL
-          STR = STR_cutter(STR, char)
-        elif 'MAT' in STR: 
-          char = 'MAT' # Para casos con MAT COM
-          STR = STR_cutter(STR, char)
+        salida.append([STR_Clas, 'No', 'Aplica', 'False'])
+  
+  if len(salida) != 0: return salida, error_flag
+  else: return [False]
 
-        if 'V.' in STR or 'C.' in STR:
-          Salida.append([STR_Clas, 'No', 'Aplica', 'False'])
-        elif revisarSep(STR) and revisarPipeB(STR):
-          pos_div, sum = buscarPIPE(STR)
-          pipe_a_str = STR[:pos_div]
-          pipe_b_str = STR[pos_div+sum:]
-          Salida.append([STR_Clas, pipe_a_str, pipe_b_str, 'True'])
-        else:
-          Salida.append([STR_Clas, 'No', 'Aplica', 'False'])
-  if Salida != []: return Salida, Error_flag
-  else: return []
-
-def detectar_stat(ruta_archivo):
-  Ftitulo = []
-  FQRO = []
-  dataFrame = cargarExcel(ruta_archivo)
-  paginas_excel = list(dataFrame)
-  for key in paginas_excel:
-    titulo, QRO = cargarStat(dataFrame[key])
-    # print(titulo)
-    # print(QRO)
-    Ftitulo.extend(titulo)
-    FQRO.extend(QRO)  
-  # print(Ftitulo)
-  # print(FQRO)
-  return Ftitulo, FQRO
+def generar_informacion_libros(ruta_archivo:str):
+  '''
+  Genera una lista completa con la información de 
+  Titulo y codigo de Barras de los libros
+  '''
+  titulo = []
+  codigo_barras = []
+  dataframe = cargar_excel(ruta_archivo)
+  paginas_excel = list(dataframe)
+  
+  for hoja in paginas_excel:
+    temporal_titulo, temporal_codigo_barras = cargar_informacion_libros(dataframe[hoja])
+    titulo.extend(temporal_titulo)
+    codigo_barras.extend(temporal_codigo_barras)  
+  return titulo, codigo_barras
 
 def crear_reporte(modificados, ruta, fecha):
+  '''Genera un reporte en un txt de libros modificados'''
+  
   txt_path = f'{ruta}/{str(fecha)}_modificados.txt'
   # print(txt_path)
   modif_file = open(txt_path, 'w', encoding="utf-8")
@@ -120,4 +127,3 @@ def crear_reporte(modificados, ruta, fecha):
     modif_file.write(f'No existen modificaciones\n')
   # print('Archivo Creado')
   modif_file.close()
-    
