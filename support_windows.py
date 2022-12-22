@@ -20,8 +20,6 @@ sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
 sg.theme("MyCreatedTheme")
 
 
-
-# ? Ventanas de apoyo y configuraciones
 def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volumen:str, copia:int, encabezado:str):
   '''Modifica el contenido y parametros de una etiqueta'''
   # TODO Posibilidad de Agregar Nombre del Libro y Codigo de Barras
@@ -291,19 +289,24 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
       return position
 
 
-def ventana_config():
-  global main_config
-  global position
+def ventana_config(main_configuration: dict) -> (tuple):
+  '''
+  Establece la configuracion para impresion de etiquetas
+  Retorna una tupla con un status y una configuracion
+  '''
 
-  # * Variables base para configuración
-  ICP = [0, 0, 3.7, 4.8, 0, 0]  # Individual Configuration Parameters
-  PCP = [21.59, 27.94, 3.59, 4.65, 6, 6]  # Page Configuration Parameters
+  # * Variables base de ventana configuración
+  ICP = {'PW':0, 'PH':0, 'TW':4.8, 'TH':3.7, 'PR':0, 'PC':0} # Individual Configuration Parameters
+  PCP = {'PW':21.59, 'PH':27.94, 'TW':2.69, 'TH':4.65, 'PR':6, 'PC':8} # Page Configuration Parameters
+
+  # * Revisa si el diccionario esta vacio para asignarle valores por defecto
+  main_configuration = PCP if not any(main_configuration) else main_configuration
+  print(main_configuration)
 
   page_conf_layout = [
     [
       sg.Radio(
-        "Tamaño Carta",
-        "O1",
+        "Tamaño Carta", "O1",
         default=True,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
@@ -335,7 +338,7 @@ def ventana_config():
     [
       sg.In(
         size=(6, 1),
-        default_text=main_config[0],
+        default_text=main_configuration['PW'],
         font=("Open Sans", 12, "bold"),
         justification="center",
         enable_events=True,
@@ -344,7 +347,7 @@ def ventana_config():
       ),
       sg.In(
         size=(6, 1),
-        default_text=main_config[1],
+        default_text=main_configuration['PH'],
         font=("Open Sans", 12, "bold"),
         justification="center",
         enable_events=True,
@@ -373,7 +376,7 @@ def ventana_config():
     [
       sg.In(
         size=(4, 1),
-        default_text=main_config[4],
+        default_text=main_configuration['PC'],
         font=("Open Sans", 12, "bold"),
         justification="center",
         enable_events=True,
@@ -382,7 +385,7 @@ def ventana_config():
       ),
       sg.In(
         size=(4, 1),
-        default_text=main_config[5],
+        default_text=main_configuration['PR'],
         font=("Open Sans", 12, "bold"),
         justification="center",
         enable_events=True,
@@ -395,8 +398,7 @@ def ventana_config():
   indi_conf_layout = [
     [
       sg.Radio(
-        "Tamaño Individual",
-        "O1",
+        "Tamaño Individual", "O1",
         default=False,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
@@ -428,7 +430,7 @@ def ventana_config():
     [
       sg.In(
         size=(6, 1),
-        default_text=main_config[2],
+        default_text=main_configuration['TW'],
         font=("Open Sans", 12, "bold"),
         disabled=True,
         justification="center",
@@ -437,7 +439,7 @@ def ventana_config():
       ),
       sg.In(
         size=(6, 1),
-        default_text=main_config[3],
+        default_text=main_configuration['TH'],
         font=("Open Sans", 12, "bold"),
         disabled=True,
         justification="center",
@@ -447,8 +449,7 @@ def ventana_config():
     ],
     [
       sg.Radio(
-        "Vertical",
-        "O2",
+        "Vertical", "O2",
         default=True,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
@@ -459,8 +460,7 @@ def ventana_config():
         pad=((0, 25), (25, 0)),
       ),
       sg.Radio(
-        "Horizontal",
-        "O2",
+        "Horizontal", "O2",
         default=False,
         background_color="#FFFFFF",
         circle_color="#DEE6F7",
@@ -492,12 +492,8 @@ def ventana_config():
       )
     ],
     [
-      sg.Column(
-        page_conf_layout, background_color="#FFFFFF", element_justification="l"
-      ),
-      sg.Column(
-        indi_conf_layout, background_color="#FFFFFF", element_justification="r"
-      ),
+      sg.Column(page_conf_layout, background_color="#FFFFFF", element_justification="l"),
+      sg.Column(indi_conf_layout, background_color="#FFFFFF", element_justification="r"),
     ],
     [
       sg.Button(
@@ -517,14 +513,7 @@ def ventana_config():
     ],
   ]
 
-  layout = [
-    [
-      sg.Frame(
-        "", main_layout, background_color="#FFFFFF", element_justification="c"
-      )
-    ],
-  ]
-
+  layout = [[sg.Frame("", main_layout, background_color="#FFFFFF", element_justification="c")],]
   window = sg.Window("Generador de Etiquetas", layout, element_justification="c", icon="Assets/ticket_icon.ico")
 
   while True:
@@ -538,7 +527,7 @@ def ventana_config():
     # * Cerrar la ventana
     if event in (sg.WINDOW_CLOSED, "Exit", "Salir"):
       window.close()
-      return False
+      return False, main_configuration
 
     # * Calculo de Etiqueta Individual
     if event in ("WP", "HP", "COL", "ROW"):
@@ -553,87 +542,64 @@ def ventana_config():
     # * Seleccionar pagina
     if event == "SHEET":
       # Update Values
-      window["WP"].update(PCP[0], disabled=False)
-      window["HP"].update(PCP[1], disabled=False)
-      window["COL"].update(PCP[4], disabled=False)
-      window["ROW"].update(PCP[5], disabled=False)
+      window["WP"].update(PCP["PW"], disabled=False)
+      window["HP"].update(PCP["PH"], disabled=False)
+      window["COL"].update(PCP["PC"], disabled=False)
+      window["ROW"].update(PCP["PR"], disabled=False)
 
       # Disable Individual Values
-      window["WI"].update(PCP[2], disabled=True)
-      window["HI"].update(PCP[3], disabled=True)
+      window["WI"].update(PCP["TW"], disabled=True)
+      window["HI"].update(PCP["TH"], disabled=True)
       window["HORIZONTAL"].update(disabled=True)
       window["VERTICAL"].update(disabled=True)
 
     # * Seleccionar Individual
     if event == "INDIV":
       # Update Values
-      window["WI"].update(ICP[2], disabled=False)
-      window["HI"].update(ICP[3], disabled=False)
+      window["WI"].update(ICP["TW"], disabled=False)
+      window["HI"].update(ICP["TH"], disabled=False)
       window["HORIZONTAL"].update(disabled=False)
       window["VERTICAL"].update(disabled=False)
 
       # Disable Page Values
-      window["WP"].update(ICP[0], disabled=True)
-      window["HP"].update(ICP[1], disabled=True)
-      window["COL"].update(ICP[4], disabled=True)
-      window["ROW"].update(ICP[5], disabled=True)
+      window["WP"].update(ICP["PW"], disabled=True)
+      window["HP"].update(ICP["PH"], disabled=True)
+      window["COL"].update(ICP["PC"], disabled=True)
+      window["ROW"].update(ICP["PR"], disabled=True)
 
     # * Valores Default
     if event == "RESET":
-      if values["SHEET"] == True:
-        window["WP"].update(PCP[0])
-        window["HP"].update(PCP[1])
-        window["WI"].update(PCP[2])
-        window["HI"].update(PCP[3])
-        window["COL"].update(PCP[4])
-        window["ROW"].update(PCP[5])
-      else:
-        window["WP"].update(ICP[0])
-        window["HP"].update(ICP[1])
-        window["WI"].update(ICP[2])
-        window["HI"].update(ICP[3])
-        window["COL"].update(ICP[4])
-        window["ROW"].update(ICP[5])
+      if values["SHEET"] == True: temp = PCP
+      else: temp = ICP
+      window["WP"].update(temp["PW"])
+      window["HP"].update(temp["PH"])
+      window["WI"].update(temp["TW"])
+      window["HI"].update(temp["TH"])
+      window["COL"].update(temp["PC"])
+      window["ROW"].update(temp["PR"])
 
     # * Mandar Valores de configuración
     if event == "ACCEPT":
-      main_config[0] = values["WP"]
-      main_config[1] = values["HP"]
-      main_config[2] = values["WI"]
-      main_config[3] = values["HI"]
-      main_config[4] = values["COL"]
-      main_config[5] = values["ROW"]
-      main_config[6] = values["SHEET"]
-      if values["SHEET"]:
-        position = select_initialposition(
-          int(values["ROW"]), int(values["COL"])
-        )
-        if position != (None, None):
-          window.close()
-          return True
-        else:
-          window.close()
-          return False
+      main_configuration["PW"], main_configuration["PH"] = values['WP'], values['HP']
+      main_configuration["TW"], main_configuration["TH"] = values['WI'], values['HI']
+      main_configuration["PC"], main_configuration["PR"] = values['COL'], values['ROW']
 
-      else:
-        if values["HORIZONTAL"]:
-          main_config[3] = values["WI"]
-          main_config[2] = values["HI"]
-          window.close()
-          return True
-        else:
-          window.close()
-          return True
+      return True, main_configuration
 
 def prueba_ventana_modificacion():
   prueba = ['BF109.78.J89C791 V.2 C.1', 'BF109.J89C791', 'V.2', '1', '']
   cosa1, cosa2 = ventana_modificar_clasificacion(prueba[0], prueba[1], prueba[2], prueba[3], prueba[4])
   print(cosa1)
   print(cosa2)
+def prueba_ventana_seleccion():
+  print(seleccionar_posicion_impresion(8,6))
+def prueba_configuracion():
+  print(ventana_config({}))
 
-
+def debugeo():
+  prueba_ventana_modificacion()
+  prueba_ventana_seleccion()
+  prueba_configuracion()
 
 if __name__ == "__main__":
-  # prueba_ventana_modificacion()
-  print(seleccionar_posicion_impresion(8,6))
-  pass
+  debugeo()
