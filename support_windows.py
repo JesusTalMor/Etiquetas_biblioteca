@@ -291,7 +291,339 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
       return position
 
 
+def ventana_config():
+  global main_config
+  global position
 
+  # * Variables base para configuración
+  ICP = [0, 0, 3.7, 4.8, 0, 0]  # Individual Configuration Parameters
+  PCP = [21.59, 27.94, 3.59, 4.65, 6, 6]  # Page Configuration Parameters
+
+  page_conf_layout = [
+    [
+      sg.Radio(
+        "Tamaño Carta",
+        "O1",
+        default=True,
+        background_color="#FFFFFF",
+        circle_color="#DEE6F7",
+        font=("Open Sans", 14, "bold"),
+        key="SHEET",
+        enable_events=True,
+        pad=((30, 20), (5, 8)),
+      ),
+    ],
+    [sg.HorizontalSeparator(color="#000000")],
+    [
+      sg.Text(
+        text="Ancho (cm)",
+        size=(10, 1),
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="c",
+        pad=((5, 5), (4, 4)),
+      ),
+      sg.Text(
+        text="Alto (cm)",
+        size=(10, 1),
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="c",
+        pad=((5, 0), (4, 4)),
+      ),
+    ],
+    [
+      sg.In(
+        size=(6, 1),
+        default_text=main_config[0],
+        font=("Open Sans", 12, "bold"),
+        justification="center",
+        enable_events=True,
+        key="WP",
+        pad=((25, 0), (0, 4)),
+      ),
+      sg.In(
+        size=(6, 1),
+        default_text=main_config[1],
+        font=("Open Sans", 12, "bold"),
+        justification="center",
+        enable_events=True,
+        key="HP",
+        pad=((55, 0), (0, 4)),
+      ),
+    ],
+    [
+      sg.Text(
+        text="Columnas",
+        size=(8, 1),
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="c",
+        pad=((10, 0), (4, 4)),
+      ),
+      sg.Text(
+        text="Filas",
+        size=(8, 1),
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="c",
+        pad=((30, 0), (4, 4)),
+      ),
+    ],
+    [
+      sg.In(
+        size=(4, 1),
+        default_text=main_config[4],
+        font=("Open Sans", 12, "bold"),
+        justification="center",
+        enable_events=True,
+        key="COL",
+        pad=((35, 0), (0, 4)),
+      ),
+      sg.In(
+        size=(4, 1),
+        default_text=main_config[5],
+        font=("Open Sans", 12, "bold"),
+        justification="center",
+        enable_events=True,
+        key="ROW",
+        pad=((70, 0), (0, 4)),
+      ),
+    ],
+  ]
+
+  indi_conf_layout = [
+    [
+      sg.Radio(
+        "Tamaño Individual",
+        "O1",
+        default=False,
+        background_color="#FFFFFF",
+        circle_color="#DEE6F7",
+        font=("Open Sans", 14, "bold"),
+        key="INDIV",
+        enable_events=True,
+        pad=((20, 30), (5, 8)),
+      ),
+    ],
+    [sg.HorizontalSeparator(color="#000000")],
+    [
+      sg.Text(
+        text="Ancho (cm)",
+        size=(10, 1),
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="center",
+        pad=((5, 5), (4, 4)),
+      ),
+      sg.Text(
+        text="Alto (cm)",
+        size=(10, 1),
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="center",
+        pad=((0, 18), (4, 4)),
+      ),
+    ],
+    [
+      sg.In(
+        size=(6, 1),
+        default_text=main_config[2],
+        font=("Open Sans", 12, "bold"),
+        disabled=True,
+        justification="center",
+        key="WI",
+        pad=((0, 45), (0, 4)),
+      ),
+      sg.In(
+        size=(6, 1),
+        default_text=main_config[3],
+        font=("Open Sans", 12, "bold"),
+        disabled=True,
+        justification="center",
+        key="HI",
+        pad=((0, 45), (0, 4)),
+      ),
+    ],
+    [
+      sg.Radio(
+        "Vertical",
+        "O2",
+        default=True,
+        background_color="#FFFFFF",
+        circle_color="#DEE6F7",
+        font=("Open Sans", 12, "bold"),
+        key="VERTICAL",
+        disabled=True,
+        enable_events=True,
+        pad=((0, 25), (25, 0)),
+      ),
+      sg.Radio(
+        "Horizontal",
+        "O2",
+        default=False,
+        background_color="#FFFFFF",
+        circle_color="#DEE6F7",
+        font=("Open Sans", 12, "bold"),
+        key="HORIZONTAL",
+        disabled=True,
+        enable_events=True,
+        pad=((0, 25), (25, 0)),
+      ),
+    ],
+  ]
+
+  main_layout = [
+    [
+      sg.Text(
+        text="Configuración Etiquetas",
+        font=("Open Sans", 18, "bold", "italic"),
+        background_color="#FFFFFF",
+        justification="left",
+        pad=(0, (15, 15)),
+      ),
+    ],
+    [
+      sg.Text(
+        text="Seleccione una opción:",
+        font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF",
+        justification="left",
+      )
+    ],
+    [
+      sg.Column(
+        page_conf_layout, background_color="#FFFFFF", element_justification="l"
+      ),
+      sg.Column(
+        indi_conf_layout, background_color="#FFFFFF", element_justification="r"
+      ),
+    ],
+    [
+      sg.Button(
+        "Reset",
+        size=(6, 1),
+        font=("Open Sans", 13, "bold"),
+        key="RESET",
+        pad=((10, 10), (22, 5)),
+      ),
+      sg.Button(
+        "Aceptar",
+        size=(8, 1),
+        font=("Open Sans", 13, "bold"),
+        key="ACCEPT",
+        pad=((10, 10), (22, 5)),
+      ),
+    ],
+  ]
+
+  layout = [
+    [
+      sg.Frame(
+        "", main_layout, background_color="#FFFFFF", element_justification="c"
+      )
+    ],
+  ]
+
+  window = sg.Window("Generador de Etiquetas", layout, element_justification="c", icon="Assets/ticket_icon.ico")
+
+  while True:
+    event, values = window.read()
+
+    # print('-'*50)
+    # print(f'Eventos que suceden {event}')
+    # print(f'Valores guardaros {values}')
+    # print('-'*50 + '\n')
+
+    # * Cerrar la ventana
+    if event in (sg.WINDOW_CLOSED, "Exit", "Salir"):
+      window.close()
+      return False
+
+    # * Calculo de Etiqueta Individual
+    if event in ("WP", "HP", "COL", "ROW"):
+      try:
+        cal_height = float(float(values["HP"]) / int(values["ROW"]))
+        cal_width = float(float(values["WP"]) / int(values["COL"]))
+        window["WI"].update(cal_width)
+        window["HI"].update(cal_height)
+      except:
+        pass
+
+    # * Seleccionar pagina
+    if event == "SHEET":
+      # Update Values
+      window["WP"].update(PCP[0], disabled=False)
+      window["HP"].update(PCP[1], disabled=False)
+      window["COL"].update(PCP[4], disabled=False)
+      window["ROW"].update(PCP[5], disabled=False)
+
+      # Disable Individual Values
+      window["WI"].update(PCP[2], disabled=True)
+      window["HI"].update(PCP[3], disabled=True)
+      window["HORIZONTAL"].update(disabled=True)
+      window["VERTICAL"].update(disabled=True)
+
+    # * Seleccionar Individual
+    if event == "INDIV":
+      # Update Values
+      window["WI"].update(ICP[2], disabled=False)
+      window["HI"].update(ICP[3], disabled=False)
+      window["HORIZONTAL"].update(disabled=False)
+      window["VERTICAL"].update(disabled=False)
+
+      # Disable Page Values
+      window["WP"].update(ICP[0], disabled=True)
+      window["HP"].update(ICP[1], disabled=True)
+      window["COL"].update(ICP[4], disabled=True)
+      window["ROW"].update(ICP[5], disabled=True)
+
+    # * Valores Default
+    if event == "RESET":
+      if values["SHEET"] == True:
+        window["WP"].update(PCP[0])
+        window["HP"].update(PCP[1])
+        window["WI"].update(PCP[2])
+        window["HI"].update(PCP[3])
+        window["COL"].update(PCP[4])
+        window["ROW"].update(PCP[5])
+      else:
+        window["WP"].update(ICP[0])
+        window["HP"].update(ICP[1])
+        window["WI"].update(ICP[2])
+        window["HI"].update(ICP[3])
+        window["COL"].update(ICP[4])
+        window["ROW"].update(ICP[5])
+
+    # * Mandar Valores de configuración
+    if event == "ACCEPT":
+      main_config[0] = values["WP"]
+      main_config[1] = values["HP"]
+      main_config[2] = values["WI"]
+      main_config[3] = values["HI"]
+      main_config[4] = values["COL"]
+      main_config[5] = values["ROW"]
+      main_config[6] = values["SHEET"]
+      if values["SHEET"]:
+        position = select_initialposition(
+          int(values["ROW"]), int(values["COL"])
+        )
+        if position != (None, None):
+          window.close()
+          return True
+        else:
+          window.close()
+          return False
+
+      else:
+        if values["HORIZONTAL"]:
+          main_config[3] = values["WI"]
+          main_config[2] = values["HI"]
+          window.close()
+          return True
+        else:
+          window.close()
+          return True
 
 def prueba_ventana_modificacion():
   prueba = ['BF109.78.J89C791 V.2 C.1', 'BF109.J89C791', 'V.2', '1', '']
