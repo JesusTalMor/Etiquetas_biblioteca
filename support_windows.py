@@ -22,14 +22,13 @@ sg.theme("MyCreatedTheme")
 
 
 # ? Ventanas de apoyo y configuraciones
-# TODO Agregar que acepte otros parametros para mejor funcionamiento
 def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volumen:str, copia:int, encabezado:str):
+  '''Modifica el contenido y parametros de una etiqueta'''
+  # TODO Posibilidad de Agregar Nombre del Libro y Codigo de Barras
   bandera_agregar = False
-  # TODO actualizar el Volumen a standard
-  if 'V.' in volumen: 
-    posicion_auxiliar = volumen.index('V.')
-    volumen = volumen[posicion_auxiliar + 2]
-  else: volumen = ''
+  
+  # * actualizar el Volumen a standard
+  volumen = volumen[volumen.index('V.') + 2] if 'V.' in volumen else ''
 
   # * Seccion de Layout de la Ventana
   pipe_a = [
@@ -195,6 +194,17 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
     # print(f'Valores guardaros {values}')
     # print('-'*50 + '\n')
 
+    # * Actualizar clasificacion
+    clasif = str(values["CLAS"])
+    volumen = str(values['VOL'])
+    copia = str(values['COP'])
+    encabezado = str(values['HEAD'])
+
+    encabezado = encabezado + ' ' if encabezado != '' else ''
+    volumen = 'V.' + volumen if volumen not in ('', '0') else ''
+    clasificacion_completa = encabezado + sh.creador_clasificacion(clasif, volumen, copia)
+    window['TEXT'].update(clasificacion_completa)
+
     if event in (sg.WINDOW_CLOSED, "Exit", "Cancelar"):
       break
 
@@ -209,70 +219,32 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
             pipe_b_str = clasif[posicion_corte + diferencia :]
             window["PIPE_A"].update(pipe_a_str)
             window["PIPE_B"].update(pipe_b_str)
-            volumen = str(values['VOL'])
-            copia = str(values['COP'])
-            encabezado = str(values['HEAD'])
-
-            volumen = 'V.' + volumen if volumen not in ('', '0') else ''
-            clasificacion_completa = sh.creador_clasificacion(clasif, volumen, copia)
-            window['TEXT'].update(encabezado + ' ' + clasificacion_completa)
             bandera_agregar = True  # ? Bandera Verdadera
         else:
           window["PIPE_A"].update("NO")
           window["PIPE_B"].update("APLICA")
           bandera_agregar = False  # ? Bandera Falsa
+
     
-    # * Modificar Volumen
-    elif event == 'VOL':
-      clasif = str(values["CLAS"])
-      volumen = str(values['VOL'])
-      copia = str(values['COP'])
-      encabezado = str(values['HEAD'])
-
-      volumen = 'V.' + volumen if volumen not in ('', '0') else ''
-      clasificacion_completa = sh.creador_clasificacion(clasif, volumen, copia)
-      window['TEXT'].update(encabezado + ' ' + clasificacion_completa)
-    
-    # * Modificar Copia
-    elif event == 'COP':
-      clasif = str(values["CLAS"])
-      volumen = str(values['VOL'])
-      copia = str(values['COP'])
-      encabezado = str(values['HEAD'])
-
-      volumen = 'V.' + volumen if volumen not in ('', '0') else ''
-      clasificacion_completa = sh.creador_clasificacion(clasif, volumen, copia)
-      window['TEXT'].update(encabezado + ' ' + clasificacion_completa)
-    
-    # * Modificar Encabezado
-    elif event == 'HEAD':
-      clasif = str(values["CLAS"])
-      volumen = str(values['VOL'])
-      copia = str(values['COP'])
-      encabezado = str(values['HEAD'])
-
-      volumen = 'V.' + volumen if volumen not in ('', '0') else ''
-      clasificacion_completa = sh.creador_clasificacion(clasif, volumen, copia)
-      window['TEXT'].update(encabezado+ ' ' + clasificacion_completa)
-
     # * Modifica la etiqueta y cierra la ventana
     elif event == "Modificar" and bandera_agregar:
-      clasif = str(values["CLAS"])
-      volumen = str(values['VOL'])
-      copia = str(values['COP'])
-      encabezado = str(values['HEAD'])
+      # clasif = str(values["CLAS"])
+      # volumen = str(values['VOL'])
+      # copia = str(values['COP'])
+      # encabezado = str(values['HEAD'])
 
-      volumen = 'V.' + volumen if volumen not in ('', '0') else ''
-      clasificacion_completa = encabezado + ' ' + sh.creador_clasificacion(clasif, volumen, copia)
+      # volumen = 'V.' + volumen if volumen not in ('', '0') else ''
+      # clasificacion_completa = encabezado + ' ' + sh.creador_clasificacion(clasif, volumen, copia)
 
       window.close()
       return [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True"], [clasif, volumen, copia, encabezado]
+
   window.close()
   return [False],[False]
 
 
 if __name__ == "__main__":
-  prueba = ['BF109.78.J89 .C791 2015 V.2 C.1', 'BF109.78.J89 .C791 2015', 'V.2', '1', '']
+  prueba = ['BF109.78.J89C791 V.2 C.1', 'BF109.J89C791', 'V.2', '1', '']
   cosa1, cosa2 = ventana_modificar_clasificacion(prueba[0], prueba[1], prueba[2], prueba[3], prueba[4])
   print(cosa1)
   print(cosa2)
