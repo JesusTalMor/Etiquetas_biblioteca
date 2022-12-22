@@ -243,8 +243,65 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
   return [False],[False]
 
 
-if __name__ == "__main__":
+def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
+  '''Selecciona la posición inicial de impresion en hoja carta'''
+  position = (None,None)
+  selected_flag = False
+
+  layout = [
+    [sg.Text(text='Seleccione un casilla', font=("Open Sans", 16, "bold", "italic"), background_color='#FFFFFF')]
+  ]
+  # * Añadimos casillas para de selección
+  for row in range(num_row):
+    new_row = []
+    for column in range(num_column):
+      new_row.append(sg.Button(size=(4,2), key=(row, column)))
+    layout.append(new_row)
+  layout.append([sg.Button('Guardar', font=("Open Sans", 14, 'bold'))])
+
+  main_layout = [[sg.Frame('', layout, background_color='#FFFFFF', element_justification='c')],]
+  window = sg.Window('Selccionar Posición', main_layout)
+
+  while True:
+    event, values = window.read()
+    # print('-'*50)
+    # print(f'Eventos que suceden {event}')
+    # print(f'Valores guardaros {values}')
+    # print('-'*50 + '\n')
+
+
+    if event in (sg.WINDOW_CLOSED, 'Cancel'):
+      window.close()
+      return (None,None)
+    
+    #* Seleccionar una casilla
+    if isinstance(event, tuple):
+      if not selected_flag:
+        position = event
+        selected_flag = True
+        window[event].update(button_color='green')
+      elif event == position:
+        position = (None,None)
+        selected_flag = False
+        window[event].update(button_color='#FFFFFF')
+
+    if event == 'Guardar' and selected_flag:
+      # print(f'Salimos del Programa con la posición {position}')
+      window.close()
+      return position
+
+
+
+
+def prueba_ventana_modificacion():
   prueba = ['BF109.78.J89C791 V.2 C.1', 'BF109.J89C791', 'V.2', '1', '']
   cosa1, cosa2 = ventana_modificar_clasificacion(prueba[0], prueba[1], prueba[2], prueba[3], prueba[4])
   print(cosa1)
   print(cosa2)
+
+
+
+if __name__ == "__main__":
+  # prueba_ventana_modificacion()
+  print(seleccionar_posicion_impresion(8,6))
+  pass
