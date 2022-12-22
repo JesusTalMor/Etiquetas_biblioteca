@@ -39,7 +39,7 @@ def contar_separadores(STR: str) -> int:
   length = len(STR)
   
   # No se encontraron separadores
-  if cuenta_separador == 0: return None
+  if cuenta_separador == 0: return 0
   
   # No tienen porque existir estos parametros
   if 'MAT' in STR or 'V.' in STR: return None
@@ -146,7 +146,7 @@ def estandarizar_cadena(STR:str, maxLen:int) -> str:
   return str_salida
 
 
-def creador_clasificacion(clas:str, vol:str, cop:int):
+def creador_clasificacion(clas:str, vol:str, cop:str):
   ''' Retorna una clasificacion completa '''
   str_clasificacion_completa = clas
   # caso principal tenemos datos
@@ -155,7 +155,7 @@ def creador_clasificacion(clas:str, vol:str, cop:int):
     if 'V.' in vol:  str_clasificacion_completa += ' ' + vol
     else: str_clasificacion_completa += ' V.' + vol
   
-  if cop not in ('1',''): str_clasificacion_completa += ' C.' + cop
+  if cop not in ('1', '', '0'): str_clasificacion_completa += ' C.' + cop
   return str_clasificacion_completa
 
 

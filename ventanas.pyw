@@ -2,11 +2,11 @@ from datetime import datetime
 
 import numpy as np
 import PySimpleGUI as sg
-
 from ApoyoSTRLIST import *
 from mainEtiquetas import *
-from pop_ups import *
 from select_pos import select_initialposition
+
+from pop_ups import *
 from ticket_maker import ticket_maker_main
 
 # * Tema principal de las ventanas
@@ -61,7 +61,6 @@ today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
 """
 TODO Problema del Intercalador
 TODO Problema con el C. nan
-Hola Mami Mar y Marcos
 """
 
 # ? Ventanas de apoyo y configuraciones
