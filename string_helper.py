@@ -106,7 +106,11 @@ def revisar_pipeB(STR:str) -> bool:
   nuevo_str = STR[::-1]
   length = len(nuevo_str)
 
-  nuevo_posicion_corte = [pos for pos in range(length) if nuevo_str[pos] in letras_array][0]
+  nuevo_posicion_corte = 0
+  for pos in range(length):
+    if nuevo_str[pos] in letras_array:
+      nuevo_posicion_corte = pos
+      break
 
   nueva_posicion_pipe = length - 1 - (nuevo_posicion_corte + diferencia)
   if posicion_pipe == nueva_posicion_pipe: return True
