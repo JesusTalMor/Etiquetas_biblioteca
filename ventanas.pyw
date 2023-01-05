@@ -647,11 +647,9 @@ def ventana_archivo():
       # Pasamos a datos por defecto
       tabla_principal = []
       row_color_array = []
+      tabla_datos = []
       main_dicc = {}
       modify_flag = False
-
-      tabla_titulo = []
-      tabla_QRO = []
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
