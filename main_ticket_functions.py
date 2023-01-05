@@ -28,13 +28,21 @@ def cargar_informacion_libros(dataframe):
   ''' Carga los datos de información de los libros'''
   titulo = [False]
   codigo_barras = [False]
+  clasif = [False]
+  volumen = [False]
+  copia = [False]
+  encabezado = [False]
 
   llaves = list(dataframe)
 
-  if 'C. Barras' in llaves: titulo = dataframe['Título']
-  if 'Título' in llaves: codigo_barras = dataframe['C. Barras']
+  if 'Título' in llaves: titulo = dataframe['Título']
+  if 'C. Barras' in llaves: codigo_barras = dataframe['C. Barras']
+  if 'Clasificación' in llaves: clasif = dataframe['Clasificación']
+  if 'Volumen' in llaves: volumen = dataframe['Volumen']
+  if 'Copia' in llaves: copia = dataframe['Copia']
+  if 'Encabezado' in llaves: encabezado = dataframe['Encabezado']
   
-  return titulo, codigo_barras
+  return titulo, codigo_barras, clasif, volumen, copia, encabezado
 
 def generar_etiquetas_libros(ruta_archivo:str):
   """ Genera las etiquetas de un archivo Excel """
@@ -90,23 +98,35 @@ def generar_etiquetas_libros(ruta_archivo:str):
         salida.append([STR_Clas, 'No', 'Aplica', 'False'])
   
   if len(salida) != 0: return salida, error_flag
-  else: return [False]
+  else: return [False], False
 
 def generar_informacion_libros(ruta_archivo:str):
   '''
   Genera una lista completa con la información de 
   Titulo y codigo de Barras de los libros
   '''
-  titulo = []
-  codigo_barras = []
+  Salida = []
   dataframe = cargar_excel(ruta_archivo)
   paginas_excel = list(dataframe)
   
   for hoja in paginas_excel:
-    temporal_titulo, temporal_codigo_barras = cargar_informacion_libros(dataframe[hoja])
-    titulo.extend(temporal_titulo)
-    codigo_barras.extend(temporal_codigo_barras)  
-  return titulo, codigo_barras
+    titu, cb, clas, vol, cop, enc = cargar_informacion_libros(dataframe[hoja])
+    # * Checar si clase tiene error
+    if not clas[0]: return [False]
+
+    for index in range(len(clas)):
+      # * Creamos el diccionario
+      temp_dicc = {}
+      # * Rellenamos el diccionario
+      temp_dicc['titulo'] = titu[index] if titu[0] else ''
+      temp_dicc['cbarras'] = cb[index] if cb[0] else ''
+      temp_dicc['clasif'] = clas[index] if clas[0] else ''
+      temp_dicc['volumen'] = vol[index] if vol[0] else ''
+      temp_dicc['copia'] = cop[index] if cop[0] else ''
+      temp_dicc['encabeza'] = enc[index] if enc[0] else ''
+      # * Añadimos el diccionario
+      Salida.append(temp_dicc)
+  return Salida
 
 def crear_reporte(modificados, ruta, fecha):
   '''Genera un reporte en un txt de libros modificados'''
