@@ -638,11 +638,11 @@ def ventana_archivo():
         tabla_principal = tabla_principal.tolist()
 
         tabla_datos = np.concatenate((np.array(tabla_datos), np.array(temp_infomacion)), axis=0)
-        tabla_datos = tabla_principal.tolist()
+        tabla_datos = tabla_datos.tolist()
       # * No tenemos aun datos en la tabla 
       else: 
         tabla_principal = temp_etiquetas
-        tabla_titulo = temp_infomacion
+        tabla_datos = temp_infomacion
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
@@ -739,6 +739,7 @@ def ventana_archivo():
 
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
+      
       # * Vamos a abrir una nueva pantalla para modificar el texto
       modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
         clasificacion_completa= tabla_principal[modify_index][0],
@@ -769,7 +770,6 @@ def ventana_archivo():
       tabla_datos[modify_index]['copia'] = modif_datos[2]
       tabla_datos[modify_index]['encabeza'] = modif_datos[3]
 
-      
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Exporta los elementos seleccionados a impresión
