@@ -253,7 +253,7 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
   for row in range(num_row):
     new_row = []
     for column in range(num_column):
-      new_row.append(sg.Button(size=(4,2), key=(row, column)))
+      new_row.append(sg.Button(size=(2,2), key=(row, column)))
     layout.append(new_row)
   layout.append([sg.Button('Guardar', font=("Open Sans", 14, 'bold'))])
 
@@ -571,7 +571,7 @@ def ventana_config(main_configuration = {}) -> (tuple):
 
     # * Valores Default
     if event == "RESET":
-      if values["SHEET"] == True: temp = PCP
+      if values["SHEET"]: temp = PCP
       else: temp = ICP
       window["WP"].update(temp["PW"])
       window["HP"].update(temp["PH"])
@@ -586,7 +586,18 @@ def ventana_config(main_configuration = {}) -> (tuple):
       main_configuration["TW"], main_configuration["TH"] = values['WI'], values['HI']
       main_configuration["PC"], main_configuration["PR"] = values['COL'], values['ROW']
 
-      return True, main_configuration
+      if values['SHEET']:
+        coordenadas = seleccionar_posicion_impresion(
+          num_row=  int(main_configuration['PR']),
+          num_column= int(main_configuration["PC"])
+        ) 
+        if coordenadas[0] == None:
+          return False, main_configuration, coordenadas
+        else:
+          return True, main_configuration, coordenadas
+      else:
+        return True, main_configuration, (None, None)
+
 
 def prueba_ventana_modificacion():
   prueba = ['BF109.78.J89C791 V.2 C.1', 'BF109.J89C791', 'V.2', '1', '']

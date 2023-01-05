@@ -7,6 +7,7 @@ import main_ticket_functions as maintf
 import pop_ups as pop
 import string_helper as sh
 import support_windows as sw
+import ticket_maker as tm
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
@@ -52,6 +53,7 @@ tabla_modify = []
 
 # Configuracion para impresion
 valores_config = {}
+coordenadas = (None,None)
 
 # Configuración de la impresion de etiquetas
 # today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
@@ -498,6 +500,7 @@ def ventana_archivo():
   global tabla_datos
 
   global valores_config
+  global coordenadas
 
   # ? Variables para manejo de modificacion
   modify_flag = False
@@ -690,8 +693,9 @@ def ventana_archivo():
 
     # * Abrir ventana de configuración
     if event == "Configuración": 
-      flag, temp_valores_config = sw.ventana_config(valores_config)
+      flag, temp_valores_config, temp_coordenadas = sw.ventana_config(valores_config)
       valores_config = temp_valores_config if flag else valores_config
+      coordenadas = temp_coordenadas if flag else coordenadas
 
     # * Eventos dentro de la tabla
     if event == "TABLE":
@@ -739,7 +743,7 @@ def ventana_archivo():
 
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
-      
+
       # * Vamos a abrir una nueva pantalla para modificar el texto
       modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
         clasificacion_completa= tabla_principal[modify_index][0],
@@ -774,30 +778,35 @@ def ventana_archivo():
 
     # * Exporta los elementos seleccionados a impresión
     if event == "Exportar":
-      # Revisamos que exista una ruta de folder
+      # * Revisamos que exista una ruta de folder
       if ruta_folder == "":
-        pop_warning_folder()
+        pop.warning_folder()
         continue
+      
       selected = []  # Lista con elementos seleccionados
 
       # * LLenado de lista de elementos seleccionados
       for ind in range(len(tabla_principal)):
         status = main_dicc[ind]
+        #  TODO Modificar entrada de datos utilizando
+        # TODO Atributos de los elementos
         if status == "Selected":
+          # TODO Agregar aqui
           selected.append(tabla_principal[ind][0])
 
       # * Revisar que la tabla de seleccionado tenga valores para poder continuar
       if len(selected) != 0:
-        main_status = ventana_config()  # Pasamos a la ventana de configuración
+        # Pasamos a la ventana de configuración
+        flag, valores_config, coordenadas = sw.ventana_config(valores_config)  
         # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
         
         # * Si la ventana de configuración fue aceptada continuamos con el proceso
-        if main_status:
+        if flag:
           # ? Función para el manejo y creación de eiquetas
           # Variable para tener el dia de la consulta
           today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
-          ticket_maker_main(selected, today_date, ruta_folder, main_config, position)
-          pop_success_program()
+          tm.ticket_maker_main(selected, today_date, ruta_folder, valores_config, coordenadas)
+          pop.success_program()
 
   window.close()
 
