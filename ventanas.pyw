@@ -2,12 +2,11 @@ from datetime import datetime
 
 import numpy as np
 import PySimpleGUI as sg
-from ApoyoSTRLIST import *
-from mainEtiquetas import *
-from select_pos import select_initialposition
 
-from pop_ups import *
-from ticket_maker import ticket_maker_main
+import main_ticket_functions as maintf
+import pop_ups as pop
+import string_helper as sh
+import support_windows as sw
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
@@ -48,22 +47,13 @@ main_dicc = {}
 row_color_array = []
 
 # Manejo de datos de los libros para modificaciones
-tabla_titulo = []
-tabla_QRO = []
+# TODO Agregar un diccionario de atributos
+tabla_datos = []
 tabla_modify = []
 
 # Configuración de la impresion de etiquetas
-main_config = [22, 28, 3.66, 3.5, 6, 8, False]
-position = (None, None)
+# today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
 
-today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
-
-"""
-TODO Problema del Intercalador
-TODO Problema con el C. nan
-"""
-
-# ? Ventanas Principales
 # * Ventana para agregar individualmente eitquetas
 def ventana_elemento():
   # ? Declaración de variables para uso global
@@ -81,6 +71,8 @@ def ventana_elemento():
   global tabla_titulo
   global tabla_modify
 
+  bandera_agregar = False
+
   # Variables para manejo de modificacion
   modify_flag = False
   modify_index = 0
@@ -88,23 +80,101 @@ def ventana_elemento():
 
   # * Layout para insertar clasificaciones
   pipe_a = [
-    [sg.Text(text="PIPE A", font=("Open Sans", 12, "bold"),background_color="#FFFFFF", justification="center",pad=5,)],
-    [sg.In(size=(14, 1), font=("Open Sans", 10), justification="center", key="PIPE_A", disabled=True,)],
+    [
+      sg.Text(
+        text="PIPE A", font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF", justification="center",
+        pad=5,
+      )
+    ],
+    [
+      sg.In(
+        size=(14, 1), font=("Open Sans", 10), 
+        justification="center", key="PIPE_A", 
+        disabled=True,
+      )
+    ],
   ]
   pipe_b = [
-    [sg.Text(text="PIPE B", font=("Open Sans", 12, "bold"), background_color="#FFFFFF", justification="center", pad=5,)],
-    [sg.In(size=(14, 1), font=("Open Sans", 10), justification="center", key="PIPE_B", disabled=True,)],
+    [
+      sg.Text(
+        text="PIPE B", font=("Open Sans", 12, "bold"), 
+        background_color="#FFFFFF", justification="center", 
+        pad=5,
+      )
+    ],
+    [
+      sg.In(
+        size=(14, 1), font=("Open Sans", 10), 
+        justification="center", key="PIPE_B", 
+        disabled=True,
+      )
+    ],
   ]
   indi_layout = [
-    [sg.Text(text="Agregar Clasificación", font=("Open Sans", 14, "bold"), background_color="#FFFFFF", justification="center",)],
-    [sg.In(size=(28, 1), enable_events=True, key="CLAS", font=("Open Sans", 12), justification="center",pad=(15, 5),)],
-    [sg.Text(text="Agregar Encabezado", font=("Open Sans", 12), background_color="#FFFFFF", justification="center",)],
-    [sg.In(size=(18, 1), enable_events=True, key="HEAD", font=("Open Sans", 12), justification="center",)],
     [
-      sg.Text(text="Volumen", font=("Open Sans", 12), background_color="#FFFFFF", justification="center",),
-      sg.In(size=(2, 1), enable_events=True, key="VOL", font=("Open Sans", 10), justification="center",),
-      sg.Text(text="Copia", font=("Open Sans", 12), background_color="#FFFFFF", justification="center",),
-      sg.In(default_text="1", size=(2, 1), enable_events=True, key="COP", font=("Open Sans", 10), justification="center",),
+      sg.Text(
+        text="Agregar Clasificación", 
+        font=("Open Sans", 14, "bold"), 
+        background_color="#FFFFFF", 
+        justification="center",
+      )
+    ],
+    [
+      sg.In(
+        size=(28, 1), 
+        enable_events=True, 
+        key="CLAS", 
+        font=("Open Sans", 12), 
+        justification="center",
+        pad=(15, 5),
+      )
+    ],
+    [
+      sg.Text(
+        text="Agregar Encabezado", 
+        font=("Open Sans", 12), 
+        background_color="#FFFFFF", 
+        justification="center",
+      )
+    ],
+    [
+      sg.In(
+        size=(18, 1), 
+        enable_events=True, 
+        key="HEAD", 
+        font=("Open Sans", 12), 
+        justification="center",
+      )
+    ],
+    [
+      sg.Text(
+        text="Volumen", 
+        font=("Open Sans", 12), 
+        background_color="#FFFFFF", 
+        justification="center",
+      ),
+      sg.In(
+        size=(2, 1), 
+        enable_events=True, 
+        key="VOL", 
+        font=("Open Sans", 10), 
+        justification="center",
+      ),
+      sg.Text(
+        text="Copia", 
+        font=("Open Sans", 12), 
+        background_color="#FFFFFF", 
+        justification="center",
+      ),
+      sg.In(
+        default_text="1", 
+        size=(2, 1), 
+        enable_events=True, 
+        key="COP", 
+        font=("Open Sans", 10), 
+        justification="center",
+      ),
     ],
     [
       sg.Column(layout=pipe_a, background_color="#FFFFFF", element_justification="c"),
@@ -115,8 +185,23 @@ def ventana_elemento():
 
   layout_izq = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
-    [sg.Text(text="Generador de Etiquetas", font=("Open Sans", 20, "bold", "italic"), background_color="#FFFFFF", justification="left", pad=(0, (0, 15)),)],
-    [sg.Text(text="Seleccione una opción:", font=("Open Sans", 16, "bold"), background_color="#FFFFFF",justification="left",)],
+    [
+      sg.Text(
+        text="Generador de Etiquetas", 
+        font=("Open Sans", 20, "bold", "italic"), 
+        background_color="#FFFFFF", 
+        justification="left", 
+        pad=(0, (0, 15)),
+      )
+    ],
+    [
+      sg.Text(
+        text="Seleccione una opción:", 
+        font=("Open Sans", 16, "bold"), 
+        background_color="#FFFFFF",
+        justification="left",
+      )
+    ],
     [
       sg.Radio(
         "Cargar Archivo", "O1", default=False,
@@ -138,7 +223,14 @@ def ventana_elemento():
     [sg.HorizontalSeparator(color="#000000", pad=(0, 5))],
     [
       sg.FolderBrowse("Guardar", font=("Open Sans", 12), pad=(5, (0, 10))),
-      sg.In(default_text=ruta_folder, size=(50, 1), enable_events=True, key="FOLDER", font=("Open Sans", 9), justification="center", pad=(5, (0, 5)),),
+      sg.In(
+        default_text=ruta_folder, size=(50, 1), 
+        enable_events=True, 
+        key="FOLDER", 
+        font=("Open Sans", 9), 
+        justification="center", 
+        pad=(5, (0, 5)),
+      ),
     ],
     [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
   ]
@@ -182,7 +274,6 @@ def ventana_elemento():
       sg.Column(layout_der, background_color="#FFFFFF", element_justification="c", pad=0),
     ],
   ]
-
   window = sg.Window("Generador de Etiquetas", layout, element_justification="c", icon="Assets/ticket_icon.ico")  # Creacion de la ventana
 
   while True:
@@ -205,33 +296,36 @@ def ventana_elemento():
     elif event == "CLAS":
       # * Revisa el len de la casilla para saber si es relevante o no
       if len(str(values["CLAS"])) > 5:
-        clas = str(values["CLAS"])
+        clasificacion = str(values["CLAS"])
         # Se revisa si se puede separa la PIPE B
-        if revisarSep(clas) and revisarPipeB(clas):
-          pos_div, sum = buscarPIPE(clas)
-          if pos_div != 0:
-            pipe_a_str = clas[:pos_div]
-            pipe_b_str = clas[pos_div + sum :]
-            # Se actualiza las PIPE B
+        if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
+          posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
+          if posicion_corte != 0:
+            pipe_a_str = clasificacion[:posicion_corte]
+            pipe_b_str = clasificacion[posicion_corte + diferencia :]
             window["PIPE_A"].update(pipe_a_str)  
             window["PIPE_B"].update(pipe_b_str)
             # ? Bandera Verdadera se puede agregar
-            add_flag = True
+            bandera_agregar = True
         
         else:
           window["PIPE_A"].update("NO")
           window["PIPE_B"].update("APLICA")
           # ? Bandera Falsa no se puede agregar
-          add_flag = False
+          bandera_agregar = False
 
     # * Añadir una clasificación a la tabla DONE
-    elif event == "Agregar" and add_flag:
-      # * Generamos el elemento a agregar
-      STR_clas = clas_maker(values["CLAS"], values["VOL"], values["COP"], True)  # * Clasificación Completa
-      HEAD_STR = ""
-      if values["HEAD"] != "": HEAD_STR = values["HEAD"] + " "  # * Chequeo de Encabezado
-
-      list = [(HEAD_STR + STR_clas), values["PIPE_A"], values["PIPE_B"], "True",]  # Agregamos el encabezado al elemento
+    elif event == "Agregar" and bandera_agregar:
+      clasificacion = str(values["CLAS"])
+      volumen = str(values['VOL'])
+      copia = str(values['COP'])
+      encabezado = str(values['HEAD'])
+      
+      encabezado = encabezado + ' ' if encabezado != '' else ''
+      volumen = 'V.' + volumen if volumen not in ('', '0') else ''
+      clasificacion_completa = encabezado + sh.creador_clasificacion(clasificacion, volumen, copia)
+      
+      list = [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True",]  # Agregamos el encabezado al elemento
 
       # * Se agrega dicho elemento a las listas
       main_dicc[len(tabla_principal)] = "True"
@@ -398,14 +492,10 @@ def ventana_archivo():
   global row_color_array
   global main_dicc
 
-  global main_config
-  global position
-
-  global tabla_QRO
-  global tabla_titulo
   global tabla_modify
+  global tabla_datos
 
-  # Variables para manejo de modificacion
+  # ? Variables para manejo de modificacion
   modify_flag = False
   modify_index = 0
   modify_status = ""
@@ -511,47 +601,44 @@ def ventana_archivo():
     # * Cargar Etiquetas de un Excel
     if event == "Cargar":
       if len(str(values["EXCEL_FILE"])) == 0:
-        pop_warning_excel_file()
+        pop.warning_excel_file()
         continue
-      # print('Prueba de Fallo')
-      ruta_archivo = values["EXCEL_FILE"]  # Ruta de donde se saca el archivo
-      datos_excel, excel_flag = detectar_etiquetas(ruta_archivo)  # Sacamos los datos de las clasificaciones de etiquetas
-      aux_tabla_titulo, aux_tabla_QRO = detectar_stat(ruta_archivo)  # Sacamos la tabla de titulo de libro y de QRO
-      # TODO Falta integrar control de errores y excepciones
+      
+      # Ruta de donde se saca el archivo
+      ruta_archivo = values["EXCEL_FILE"]  
+      # Sacamos los datos de las clasificaciones de etiquetas
+      temp_etiquetas, excel_flag = maintf.generar_etiquetas_libros(ruta_archivo)  
+      # Sacamos la tabla de titulo de libro y de QRO
+      temp_infomacion = maintf.generar_informacion_libros(ruta_archivo)  
+
+      # ? Se cargaron etiquetas ?
+      if not temp_etiquetas[0]: 
+        pop.error_excel_file()
+        continue
+
+      # ? Algunas etiquetas tienen errores
+      if excel_flag: pop.warning_excel_file_data_error()
+
 
       # * Generamos la tabla de datos para el Excel
-      for ind in range(len(datos_excel)):
-        status = datos_excel[ind][3]
+      for ind in range(len(temp_etiquetas)):
+        status = temp_etiquetas[ind][3]
         main_dicc[len(tabla_principal) + ind] = status
         if status == "False": row = ((len(tabla_principal) + ind), "#F04150")
         else: row = ((len(tabla_principal) + ind), "#FFFFFF")
         row_color_array.append(row)
-
-      # TODO Falta poder ver si podemos integrar excepciones
-
-      # ? Se cargaron algunas etiquetas pero otras no contienen información
-      if excel_flag: pop_warning_excel_file_data_error()
-
-      # ? No se cargo ni una etiqueta
-      if len(datos_excel) == 0: 
-        pop_error_excel_file()
-        continue
       
-      # ? Concatenamos los nuevos datos a los antiguos
+      # * Concatenamos los nuevos datos a los antiguos
       if len(tabla_principal) != 0:
-        tabla_principal = np.concatenate((np.array(tabla_principal), np.array(datos_excel)), axis=0)
+        tabla_principal = np.concatenate((np.array(tabla_principal), np.array(temp_etiquetas)), axis=0)
         tabla_principal = tabla_principal.tolist()
 
-        tabla_titulo = np.concatenate((np.array(tabla_titulo), np.array(aux_tabla_titulo)), axis=0)
-        tabla_titulo = tabla_titulo.tolist()
-
-        tabla_QRO = np.concatenate((np.array(tabla_QRO), np.array(aux_tabla_QRO)), axis=0)
-        tabla_QRO = tabla_QRO.tolist()
-      # ? No tenemos aun datos en la tabla 
+        tabla_datos = np.concatenate((np.array(tabla_datos), np.array(temp_infomacion)), axis=0)
+        tabla_datos = tabla_principal.tolist()
+      # * No tenemos aun datos en la tabla 
       else: 
-        tabla_principal = datos_excel
-        tabla_titulo = aux_tabla_titulo
-        tabla_QRO = aux_tabla_QRO
+        tabla_principal = temp_etiquetas
+        tabla_titulo = temp_infomacion
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
