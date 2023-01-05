@@ -118,12 +118,12 @@ def generar_informacion_libros(ruta_archivo:str):
       # * Creamos el diccionario
       temp_dicc = {}
       # * Rellenamos el diccionario
-      temp_dicc['titulo'] = titu[index] if titu[0] else ''
-      temp_dicc['cbarras'] = cb[index] if cb[0] else ''
-      temp_dicc['clasif'] = clas[index] if clas[0] else ''
-      temp_dicc['volumen'] = vol[index] if vol[0] else ''
-      temp_dicc['copia'] = cop[index] if cop[0] else ''
-      temp_dicc['encabeza'] = enc[index] if enc[0] else ''
+      temp_dicc['titulo'] = str(titu[index]) if titu[0] else ''
+      temp_dicc['cbarras'] = str(cb[index]) if cb[0] else ''
+      temp_dicc['clasif'] = str(clas[index]) if clas[0] else ''
+      temp_dicc['volumen'] = str(vol[index]) if vol[0] else ''
+      temp_dicc['copia'] = str(cop[index]) if cop[0] else ''
+      temp_dicc['encabeza'] = str(enc[index]) if enc[0] else ''
       # * Añadimos el diccionario
       Salida.append(temp_dicc)
   return Salida
