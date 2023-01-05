@@ -595,7 +595,6 @@ def prueba_ventana_seleccion():
   print(seleccionar_posicion_impresion(8,6))
 def prueba_configuracion():
   print(ventana_config({}))
-
 def debugeo():
   prueba_ventana_modificacion()
   prueba_ventana_seleccion()
