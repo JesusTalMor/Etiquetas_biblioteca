@@ -47,9 +47,11 @@ main_dicc = {}
 row_color_array = []
 
 # Manejo de datos de los libros para modificaciones
-# TODO Agregar un diccionario de atributos
 tabla_datos = []
 tabla_modify = []
+
+# Configuracion para impresion
+valores_config = {}
 
 # Configuración de la impresion de etiquetas
 # today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
@@ -495,6 +497,8 @@ def ventana_archivo():
   global tabla_modify
   global tabla_datos
 
+  global valores_config
+
   # ? Variables para manejo de modificacion
   modify_flag = False
   modify_index = 0
@@ -679,13 +683,15 @@ def ventana_archivo():
     if event == "FOLDER": ruta_folder = values["FOLDER"]
 
     # * Mostrar licencia
-    if event == "Licencia": pop_info_license()
+    if event == "Licencia": pop.info_license()
 
     # * Mostrar Acerca de
-    if event == "Acerca de...": pop_info_about()
+    if event == "Acerca de...": pop.info_about()
 
     # * Abrir ventana de configuración
-    if event == "Configuración": ventana_config()
+    if event == "Configuración": 
+      flag, temp_valores_config = sw.ventana_config(valores_config)
+      valores_config = temp_valores_config if flag else valores_config
 
     # * Eventos dentro de la tabla
     if event == "TABLE":
@@ -734,21 +740,35 @@ def ventana_archivo():
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
       # * Vamos a abrir una nueva pantalla para modificar el texto
-      mod_output = vetana_modify(tabla_principal[modify_index][0])  # Manda llamar la ventana para modificar
+      modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
+        clasificacion_completa= tabla_principal[modify_index][0],
+        clasif= tabla_datos[modify_index]['clasif'],
+        copia= tabla_datos[modify_index]['copia'],
+        volumen= tabla_datos[modify_index]['volumen'],
+        encabezado= tabla_datos[modify_index]['encabeza']
+      )
+
       
-      if mod_output == []: continue # Se checa si se realizaron cambios
+      if not modif_principal[0]: continue # Se checa si se realizaron cambios
       
-      # Agregamos elemento a una tabla de modificaciones
-      mod_title = tabla_titulo[modify_index]
-      mod_QRO = tabla_QRO[modify_index]
-      aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
+      # * Agregamos elemento a una tabla de modificaciones
+      title = tabla_datos[modify_index]['titulo']
+      cbarras = tabla_datos[modify_index]['cbarras']
+      aux_modify = [title, cbarras,tabla_principal[modify_index][0], modif_principal[0]]
       tabla_modify.append(aux_modify)
 
-      # Cambiamos la apariencia del elemento en la tabla
+      # * Cambiamos la apariencia del elemento en la tabla
       main_dicc[modify_index] = "True"
-      tabla_principal[modify_index] = mod_output
+      tabla_principal[modify_index] = modif_principal
       row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
       modify_flag = False
+
+      # * Actualizar valores de tabla de datos
+      tabla_datos[modify_index]['clasif'] = modif_datos[0]
+      tabla_datos[modify_index]['volumen'] = modif_datos[1]
+      tabla_datos[modify_index]['copia'] = modif_datos[2]
+      tabla_datos[modify_index]['encabeza'] = modif_datos[3]
+
       
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 

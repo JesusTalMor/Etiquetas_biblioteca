@@ -289,19 +289,21 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
       return position
 
 
-def ventana_config(main_configuration: dict) -> (tuple):
+def ventana_config(main_configuration = {}) -> (tuple):
   '''
   Establece la configuracion para impresion de etiquetas
   Retorna una tupla con un status y una configuracion
   '''
 
   # * Variables base de ventana configuración
-  ICP = {'PW':0, 'PH':0, 'TW':4.8, 'TH':3.7, 'PR':0, 'PC':0} # Individual Configuration Parameters
-  PCP = {'PW':21.59, 'PH':27.94, 'TW':2.69, 'TH':4.65, 'PR':6, 'PC':8} # Page Configuration Parameters
+  # Individual Configuration Parameters
+  ICP = {'PW':0, 'PH':0, 'TW':4.8, 'TH':3.7, 'PR':0, 'PC':0} 
+  # Page Configuration Parameters
+  PCP = {'PW':21.59, 'PH':27.94, 'TW':2.69, 'TH':4.65, 'PR':6, 'PC':8} 
 
   # * Revisa si el diccionario esta vacio para asignarle valores por defecto
   main_configuration = PCP if not any(main_configuration) else main_configuration
-  print(main_configuration)
+  # print(main_configuration)
 
   page_conf_layout = [
     [
@@ -594,10 +596,10 @@ def prueba_ventana_modificacion():
 def prueba_ventana_seleccion():
   print(seleccionar_posicion_impresion(8,6))
 def prueba_configuracion():
-  print(ventana_config({}))
+  print(ventana_config())
 def debugeo():
-  prueba_ventana_modificacion()
-  prueba_ventana_seleccion()
+  # prueba_ventana_modificacion()
+  # prueba_ventana_seleccion()
   prueba_configuracion()
 
 if __name__ == "__main__":
