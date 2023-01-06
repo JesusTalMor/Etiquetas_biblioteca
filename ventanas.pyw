@@ -792,7 +792,13 @@ def ventana_archivo():
         # TODO Atributos de los elementos
         if status == "Selected":
           # TODO Agregar aqui
-          selected.append(tabla_principal[ind][0])
+          lista_temporal = [
+            tabla_datos[ind]['encabeza'],
+            tabla_datos[ind]['clasif'],
+            tabla_datos[ind]['volumen'],
+            tabla_datos[ind]['copia'],
+          ]
+          selected.append(lista_temporal)
 
       # * Revisar que la tabla de seleccionado tenga valores para poder continuar
       if len(selected) != 0:

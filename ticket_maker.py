@@ -3,83 +3,57 @@ import os
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
 
-from ApoyoSTRLIST import *
-from pop_ups import pop_check_images
+import pop_ups as pop
 
 # TODO Ajustar el encabezado 1 cm de margen, listo pero no me convence
 # TODO Queda pendiente PNG o PDF - Dejar en PNG etiquetas individuales
 
 alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 
-def separate_STR(STR:str):
-  """ Separa un STR en retorna una lista separada """
-  return_list = []
-  
-  # separar por espacios
+def separar_STR(STR:str):
+  """ Separa un STR y retorna una lista"""
+  lista_salida = []
+  # * Separar por espacios
   aux_list = STR.split(' ')
-  # print(aux_list)
-  split_list = 0
-  # Caso con encabezado
-  try: 
-    if aux_list[0][2] in alphabet: 
-      split_list = 1
-      # Agregamos el encabezado a la lista final
-      return_list.append(aux_list[0])
-  except:
-    return ['Failed','Error','Separation','Clase']
-
-  # Separando Pipe A en una lista
-  pipe_a_list = aux_list[split_list].split('.')
-  # print(pipe_a_list)
-
-  clas_split = 1
-  # Caso con Clase 2 letras
-  if pipe_a_list[0][1] in alphabet: clas_split = 2
-
-  # Separando clase y subclase del string
-  class_str = pipe_a_list[0][:clas_split]
-  subclass_str = pipe_a_list[0][clas_split:]
-
-  # print(class_str, subclass_str)
-  return_list.append(class_str)
-  return_list.append(subclass_str)
-
-  # Actualizar listas de elementos
-  pipe_a_list = pipe_a_list[1:]
-  aux_list = aux_list[split_list+1:]
-  # print(pipe_a_list)
-  # print(aux_list)
+  aux_list_2 = aux_list[0].split('.')
   
-  for elem in pipe_a_list: return_list.append('.' + elem)
-  for elem in aux_list: return_list.append(elem)
-
-  # print(return_list)
-  return return_list
+  for elem in aux_list_2:
+    lista_salida.append(elem)
+  for index, elem in enumerate(aux_list):
+    if index != 0: lista_salida.append(elem)
+  return lista_salida
 
 def separate_list(str_list: list):
   """ Recibe una lista de strings y retorna una lista de listas """
   return_list = []
-  for indiv_str in str_list:
-    # print(indiv_str)
-    return_list.append(separate_STR(indiv_str))
+  for index, indiv_str in enumerate(str_list):
+    if index == 1:
+      lista_temp = separar_STR(indiv_str)
+      for elem in lista_temp:
+        return_list.append(elem)
+    else:
+      return_list.append(indiv_str)
   
   return return_list
 
-def ticket_maker_main(str_list: list, date: str, root:str, config:list, position:tuple):
+def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position:tuple):
   """
-  * Toma una lista de strings y genera imagenes ya sean formato PNG o PDF
   
-  @param str_list: Es una lista que contiene las cadenas a imprimir
-  @param date: Fecha para poder nombrar los archivos
-  @param root: La ruta de guardado de los archivos generados
-  @param config: La configuración de las imagenes que se generarán
-  @param position: !Solo caso de Tamaño carta! Posición de inicio para imprimir
+  Toma una lista de strings y genera imagenes ya sean formato PNG o PDF.
+  
+  :param str_list: Es una lista que contiene las cadenas a imprimir
+  :param date: Fecha para poder nombrar los archivos
+  :param root: La ruta de guardado de los archivos generados
+  :param config: La configuración de las imagenes que se generarán
+  :param position: !Solo caso de Tamaño carta! Posición de inicio para imprimir
   """
-  #* Recibe la configuración para las etiquetas
-  PW, PH, IW, IH, COL, ROW, OPTION = config
-  #* Transforma una lista de strings a una lista de listas
-  ticket = separate_list(str_list)
-
+  # * Recibe la configuración para las etiquetas
+  PW, PH = config['PW'], config['PH'] 
+  IW, IH = config['TW'], config['TH']
+  COL, ROW = config['PC'], config['PR']
+  # * Transforma una lista de strings a una lista de listas
+  ticket = [separate_list(elem) for elem in str_list]
+  print(ticket, sep='\n')
   scale = 100  # * Escala de la etiqueta recomendado 100
   # * (Individual) Medidas de Etiqueta
   Iwidth = int(scale * float(IW))
@@ -97,7 +71,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
   # * Escalado de la tipografia
   font = ImageFont.truetype("Assets/Khmer OS Muol.otf", size=40)
 
-  if OPTION:
+  if int(COL) != 0:
     # * Definicion y Escritura del mensaje en la imagen generada
     fpdf = FPDF()
     main_image = Image.new("RGB", (Pwidth, Pheight), color=(255, 255, 255))
@@ -139,7 +113,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
     os.system(f"powershell -c {root}/{page_counter}_aux_image.png")
 
     # Mostrar pop up de confirmación
-    answer = pop_check_images()
+    answer = pop.check_images()
     if answer:
       for index in range(page_counter+1):
         fpdf.add_page()
@@ -173,4 +147,6 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:list, position
 
 
 if __name__ == "__main__":
-  pass
+  main_list = ['SLAP', 'BF109.78.J89 .C791 2010', 'V.1', 'C.1']
+  print(separate_list(main_list))
+  
