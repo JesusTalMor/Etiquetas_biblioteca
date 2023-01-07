@@ -577,7 +577,7 @@ def ventana_archivo():
   ]
 
   # * Despliegue General del layout
-  layout = [
+  layout     = [
     [sg.Menu(menu_opciones, tearoff=False)],
     [
       sg.Column(layout_izq, background_color="#FFFFFF", element_justification="c", pad=0 ),

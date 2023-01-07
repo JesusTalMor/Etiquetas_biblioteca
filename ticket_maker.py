@@ -16,9 +16,15 @@ def separar_STR(STR:str):
   # * Separar por espacios
   aux_list = STR.split(' ')
   aux_list_2 = aux_list[0].split('.')
+  if aux_list_2[0][1] in alphabet:
+    aux_list_3 = [aux_list_2[0][:2], aux_list_2[0][2:]]
+  elif aux_list_2[0][0] in alphabet:
+    aux_list_3 = [aux_list_2[0][:1], aux_list_2[0][1:]]
   
-  for elem in aux_list_2:
+  for elem in aux_list_3:
     lista_salida.append(elem)
+  for index, elem in enumerate(aux_list_2):
+    if index != 0: lista_salida.append(elem)
   for index, elem in enumerate(aux_list):
     if index != 0: lista_salida.append(elem)
   return lista_salida
@@ -27,12 +33,12 @@ def separate_list(str_list: list):
   """ Recibe una lista de strings y retorna una lista de listas """
   return_list = []
   for index, indiv_str in enumerate(str_list):
+    if index != 1 and indiv_str != '':
+      return_list.append(indiv_str)
     if index == 1:
       lista_temp = separar_STR(indiv_str)
       for elem in lista_temp:
-        return_list.append(elem)
-    else:
-      return_list.append(indiv_str)
+        if elem != '': return_list.append(elem)
   
   return return_list
 
@@ -51,10 +57,11 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position
   PW, PH = config['PW'], config['PH'] 
   IW, IH = config['TW'], config['TH']
   COL, ROW = config['PC'], config['PR']
+  
   # * Transforma una lista de strings a una lista de listas
   ticket = [separate_list(elem) for elem in str_list]
-  print(ticket, sep='\n')
   scale = 100  # * Escala de la etiqueta recomendado 100
+  
   # * (Individual) Medidas de Etiqueta
   Iwidth = int(scale * float(IW))
   Iheight = int(scale * float(IH))
@@ -66,7 +73,6 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position
   Y_pos = int(0.6*scale) # Ajuste de margen ya definido
   # * Calcular la posición del cursor en X
   X_pos = int(Iwidth / 2) - 40
-
 
   # * Escalado de la tipografia
   font = ImageFont.truetype("Assets/Khmer OS Muol.otf", size=40)
@@ -81,8 +87,6 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position
     y, x = position
     page_counter = 0
     for main_ticket in ticket:  # recibe una lista de una lista de listas
-      # print(main_ticket)
-      # Decidir donde se va a imprimir
       if x == int(COL):  # Si no podemos imprimir en la fila actual
         x = 0
         y += 1
