@@ -116,6 +116,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position
     main_image.save(f"{root}/{page_counter}_aux_image.png")
     os.system(f"powershell -c {root}/{page_counter}_aux_image.png")
 
+    
     # Mostrar pop up de confirmación
     answer = pop.check_images()
     if answer:
@@ -133,9 +134,7 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position
 
   else:
     # ? Print individual ticket
-    # print(ticket)
-    for num, main_ticket in enumerate(ticket):  # recibe una lista de una lista de listas
-
+    for num, main_ticket in enumerate(ticket): 
       main_image = Image.new("RGB", (Iwidth, Iheight), color=(255, 255, 255))
       image_draw = ImageDraw.Draw(main_image)
       color = "rgb(0, 0, 0)"
@@ -145,8 +144,6 @@ def ticket_maker_main(str_list: list, date: str, root:str, config:dict, position
         y_print += 45
 
       # * Muestreo de la Imagen (Guardar Imagen)
-      # print(str(ID) + '_' + str(date) + '.png')
-      # if num == 0: main_image.show()
       main_image.save(root + "/" + str(num) + "_" + str(date) + ".png")
 
 

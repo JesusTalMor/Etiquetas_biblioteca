@@ -590,12 +590,10 @@ def ventana_config(main_configuration = {}) -> (tuple):
           num_row=  int(main_configuration['PR']),
           num_column= int(main_configuration["PC"])
         ) 
-        if coordenadas[0] == None:
-          return False, main_configuration, coordenadas
-        else:
-          return True, main_configuration, coordenadas
-      else:
-        return True, main_configuration, (None, None)
+        window.close()
+        if coordenadas[0] == None: return False, main_configuration, coordenadas
+        else: return True, main_configuration, coordenadas
+      else: return True, main_configuration, (None, None)
 
 
 def prueba_ventana_modificacion():

@@ -492,7 +492,7 @@ def ventana_elemento():
             tabla_datos[ind]['encabeza'],
             tabla_datos[ind]['clasif'],
             tabla_datos[ind]['volumen'],
-            tabla_datos[ind]['copia'],
+            'C.' + tabla_datos[ind]['copia'] if tabla_datos[ind]['copia'] not in ('1', '', '0') else '',
           ]
           selected.append(lista_temporal)
 
@@ -826,7 +826,7 @@ def ventana_archivo():
             tabla_datos[ind]['encabeza'],
             tabla_datos[ind]['clasif'],
             tabla_datos[ind]['volumen'],
-            tabla_datos[ind]['copia'],
+            'C.' + tabla_datos[ind]['copia'] if tabla_datos[ind]['copia'] not in ('1', '', '0') else '',
           ]
           selected.append(lista_temporal)
 
