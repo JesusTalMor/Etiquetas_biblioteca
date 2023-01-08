@@ -20,12 +20,11 @@ sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
 sg.theme("MyCreatedTheme")
 
 
-def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volumen:str, copia:int, encabezado:str):
+def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volumen:str, copia:str, encabezado:str):
   '''Modifica el contenido y parametros de una etiqueta'''
-  # TODO Posibilidad de Agregar Nombre del Libro y Codigo de Barras
   bandera_agregar = False
   
-  # * actualizar el Volumen a standard
+  # * Actualizar el Volumen a standard
   volumen = volumen[volumen.index('V.') + 2] if 'V.' in volumen else ''
 
   # * Seccion de Layout de la Ventana

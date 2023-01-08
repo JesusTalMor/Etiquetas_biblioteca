@@ -55,8 +55,6 @@ tabla_modify = []
 valores_config = {}
 coordenadas = (None,None)
 
-# Configuración de la impresion de etiquetas
-# today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
 
 # * Ventana para agregar individualmente eitquetas
 def ventana_elemento():
@@ -68,16 +66,16 @@ def ventana_elemento():
   global row_color_array
   global main_dicc
 
-  global main_config
-  global position
-
-  global tabla_QRO
-  global tabla_titulo
   global tabla_modify
+  global tabla_datos
 
+  global valores_config
+  global coordenadas
+
+  # ? Bandera para agregar una nueva clasificación
   bandera_agregar = False
 
-  # Variables para manejo de modificacion
+  # ? Variables para manejo de modificacion
   modify_flag = False
   modify_index = 0
   modify_status = ""
@@ -298,25 +296,27 @@ def ventana_elemento():
 
     # * Escribir una clasificacion a la tabla
     elif event == "CLAS":
-      # * Revisa el len de la casilla para saber si es relevante o no
-      if len(str(values["CLAS"])) > 5:
-        clasificacion = str(values["CLAS"])
-        # Se revisa si se puede separa la PIPE B
-        if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
-          posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
-          if posicion_corte != 0:
-            pipe_a_str = clasificacion[:posicion_corte]
-            pipe_b_str = clasificacion[posicion_corte + diferencia :]
-            window["PIPE_A"].update(pipe_a_str)  
-            window["PIPE_B"].update(pipe_b_str)
-            # ? Bandera Verdadera se puede agregar
-            bandera_agregar = True
-        
-        else:
-          window["PIPE_A"].update("NO")
-          window["PIPE_B"].update("APLICA")
-          # ? Bandera Falsa no se puede agregar
-          bandera_agregar = False
+      
+      clasificacion = str(values["CLAS"])
+      # * Revisar si es relevante el cambio
+      if len(clasificacion) < 5: continue
+      
+      # * Se revisa si se puede separa la PIPE B
+      if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
+        posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
+        if posicion_corte != 0:
+          pipe_a_str = clasificacion[:posicion_corte]
+          pipe_b_str = clasificacion[posicion_corte + diferencia :]
+          window["PIPE_A"].update(pipe_a_str)  
+          window["PIPE_B"].update(pipe_b_str)
+          # ? Bandera Verdadera se puede agregar
+          bandera_agregar = True
+
+      else:
+        window["PIPE_A"].update("NO")
+        window["PIPE_B"].update("APLICA")
+        # ? Bandera Falsa no se puede agregar
+        bandera_agregar = False
 
     # * Añadir una clasificación a la tabla DONE
     elif event == "Agregar" and bandera_agregar:
@@ -329,15 +329,20 @@ def ventana_elemento():
       volumen = 'V.' + volumen if volumen not in ('', '0') else ''
       clasificacion_completa = encabezado + sh.creador_clasificacion(clasificacion, volumen, copia)
       
-      list = [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True",]  # Agregamos el encabezado al elemento
+      lista_principal = [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True",]
+      lista_datos = {
+        'titulo':'Sin Titulo', 'cbarras':'No Aplica', 
+        'clasif':clasificacion, 'volumen':volumen,
+        'copia':copia, 'encabeza':encabezado
+      }
+
 
       # * Se agrega dicho elemento a las listas
       main_dicc[len(tabla_principal)] = "True"
       row = ((len(tabla_principal)), "#FFFFFF")
       row_color_array.append(row)
-      tabla_principal.append(list)
-      tabla_QRO.append('NAN')
-      tabla_titulo.append('NAN')
+      tabla_principal.append(lista_principal)
+      tabla_datos.append(lista_datos)
 
       # * Actualizando la tabla principal
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
@@ -349,9 +354,7 @@ def ventana_elemento():
       row_color_array = []
       main_dicc = {}
       modify_flag = False
-
-      tabla_titulo = []
-      tabla_QRO = []
+      tabla_datos = []
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
@@ -383,13 +386,16 @@ def ventana_elemento():
     if event == "FOLDER": ruta_folder = values["FOLDER"]
 
     # * Mostrar licencia
-    if event == "Licencia":pop_info_license()
+    if event == "Licencia":pop.info_license()
 
     # * Mostrar Acerca de
-    if event == "Acerca de...":pop_info_about()
+    if event == "Acerca de...":pop.info_about()
 
     # * Abrir ventana de configuración
-    if event == "Configuración": ventana_config()
+    if event == "Configuración": 
+      flag, temp_valores_config, temp_coordenadas = sw.ventana_config(valores_config)
+      valores_config = temp_valores_config if flag else valores_config
+      coordenadas = temp_coordenadas if flag else coordenadas
 
     # * Manejo de eventos dentro de la tabla DONE
     if event == "TABLE":
@@ -438,50 +444,77 @@ def ventana_elemento():
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
       # * Vamos a abrir una nueva pantalla para modificar el texto
-      mod_output = vetana_modify(tabla_principal[modify_index][0])  # Manda llamar la ventana para modificar
+      modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
+        clasificacion_completa= tabla_principal[modify_index][0],
+        clasif= tabla_datos[modify_index]['clasif'],
+        copia= tabla_datos[modify_index]['copia'],
+        volumen= tabla_datos[modify_index]['volumen'],
+        encabezado= tabla_datos[modify_index]['encabeza']
+      )
+
       
-      if mod_output == []: continue # Se checa si se realizaron cambios
+      if not modif_principal[0]: continue # Se checa si se realizaron cambios
       
-      # Agregamos elemento a una tabla de modificaciones
-      mod_title = tabla_titulo[modify_index]
-      mod_QRO = tabla_QRO[modify_index]
-      aux_modify = [mod_title, tabla_principal[modify_index][0], mod_output[0], mod_QRO]
+      # * Agregamos elemento a una tabla de modificaciones
+      title = tabla_datos[modify_index]['titulo']
+      cbarras = tabla_datos[modify_index]['cbarras']
+      aux_modify = [title, cbarras, tabla_principal[modify_index][0], modif_principal[0]]
       tabla_modify.append(aux_modify)
 
-      # Cambiamos la apariencia del elemento en la tabla
+      # * Cambiamos la apariencia del elemento en la tabla
       main_dicc[modify_index] = "True"
-      tabla_principal[modify_index] = mod_output
+      tabla_principal[modify_index] = modif_principal
       row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
       modify_flag = False
-      
+
+      # * Actualizar valores de tabla de datos
+      tabla_datos[modify_index]['clasif'] = modif_datos[0]
+      tabla_datos[modify_index]['volumen'] = modif_datos[1]
+      tabla_datos[modify_index]['copia'] = modif_datos[2]
+      tabla_datos[modify_index]['encabeza'] = modif_datos[3]
+
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Exporta los elementos seleccionados a impresión
     if event == "Exportar":
-      # Revisamos que exista una ruta de folder
+      # * Revisamos que exista una ruta de folder
       if ruta_folder == "":
-        pop_warning_folder()
+        pop.warning_folder()
         continue
+      
       selected = []  # Lista con elementos seleccionados
 
       # * LLenado de lista de elementos seleccionados
       for ind in range(len(tabla_principal)):
         status = main_dicc[ind]
         if status == "Selected":
-          selected.append(tabla_principal[ind][0])
+          lista_temporal = [
+            tabla_datos[ind]['encabeza'],
+            tabla_datos[ind]['clasif'],
+            tabla_datos[ind]['volumen'],
+            tabla_datos[ind]['copia'],
+          ]
+          selected.append(lista_temporal)
 
       # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-      if len(selected) != 0:
-        main_status = ventana_config()  # Pasamos a la ventana de configuración
-        # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
-        
-        # * Si la ventana de configuración fue aceptada continuamos con el proceso
-        if main_status:
-          # ? Función para el manejo y creación de eiquetas
-          # Variable para tener el dia de la consulta
-          today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
-          ticket_maker_main(selected, today_date, ruta_folder, main_config, position)
-          pop_success_program()
+      if len(selected) == 0: 
+        pop.warning_select()
+        continue
+      # Pasamos a la ventana de configuración
+      flag, valores_config, coordenadas = sw.ventana_config(valores_config)  
+      # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+      
+      # * Si la ventana de configuración fue aceptada continuamos con el proceso
+      if not flag: continue
+      
+      # ? Función para el manejo y creación de eiquetas
+      # Chequeo de hora de consulta
+      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+      # LLamamos funcion para crear los tickets
+      tm.ticket_maker_main(selected, today_date, ruta_folder, valores_config, coordenadas)
+      # Generamos un reporte de modificaciones
+      maintf.crear_reporte_modificados(tabla_modify, ruta_folder, today_date)  
+      pop.success_program()
 
   window.close()
 
@@ -759,7 +792,7 @@ def ventana_archivo():
       # * Agregamos elemento a una tabla de modificaciones
       title = tabla_datos[modify_index]['titulo']
       cbarras = tabla_datos[modify_index]['cbarras']
-      aux_modify = [title, cbarras,tabla_principal[modify_index][0], modif_principal[0]]
+      aux_modify = [title, cbarras, tabla_principal[modify_index][0], modif_principal[0]]
       tabla_modify.append(aux_modify)
 
       # * Cambiamos la apariencia del elemento en la tabla
@@ -788,10 +821,7 @@ def ventana_archivo():
       # * LLenado de lista de elementos seleccionados
       for ind in range(len(tabla_principal)):
         status = main_dicc[ind]
-        #  TODO Modificar entrada de datos utilizando
-        # TODO Atributos de los elementos
         if status == "Selected":
-          # TODO Agregar aqui
           lista_temporal = [
             tabla_datos[ind]['encabeza'],
             tabla_datos[ind]['clasif'],
@@ -801,27 +831,31 @@ def ventana_archivo():
           selected.append(lista_temporal)
 
       # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-      if len(selected) != 0:
-        # Pasamos a la ventana de configuración
-        flag, valores_config, coordenadas = sw.ventana_config(valores_config)  
-        # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
-        
-        # * Si la ventana de configuración fue aceptada continuamos con el proceso
-        if flag:
-          # ? Función para el manejo y creación de eiquetas
-          # Variable para tener el dia de la consulta
-          today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
-          tm.ticket_maker_main(selected, today_date, ruta_folder, valores_config, coordenadas)
-          pop.success_program()
+      if len(selected) == 0: 
+        pop.warning_select()
+        continue
+      # Pasamos a la ventana de configuración
+      flag, valores_config, coordenadas = sw.ventana_config(valores_config)  
+      # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+      
+      # * Si la ventana de configuración fue aceptada continuamos con el proceso
+      if not flag: continue
+      
+      # ? Función para el manejo y creación de eiquetas
+      # Chequeo de hora de consulta
+      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+      # LLamamos funcion para crear los tickets
+      tm.ticket_maker_main(selected, today_date, ruta_folder, valores_config, coordenadas)
+      # Generamos un reporte de modificaciones
+      maintf.crear_reporte_modificados(tabla_modify, ruta_folder, today_date)  
+      pop.success_program()
 
   window.close()
 
 
-# * Ventana completamente funcional sin modificaciones
+
 def ventana_inicial():
-  """
-  Función para la creación de la ventana principal
-  """
+  """ Ventana principal de inicio """
   global no_mod_flag
   layout_incial_izq = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
@@ -902,5 +936,3 @@ def ventana_inicial():
 
 if __name__ == "__main__":
   ventana_inicial()
-  if len(tabla_modify) != 0: 
-    crear_reporte(tabla_modify, ruta_folder, today_date)  # Con la tabla de modificados generamos un reporte

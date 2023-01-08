@@ -3,9 +3,9 @@ from tkinter import messagebox
 
 # # ? POP_up de advertencia (Warning)
 ##########################################################
-def warning_element():
-  msg = f'!Advertencia!\nEl reporte de registros modificados no se generará.'
-  messagebox.showwarning("Inicio Elemento", msg)
+def warning_select():
+  msg = f'!Advertencia!\nSeleccione elementos a imprimir'
+  messagebox.showwarning("No Selected", msg)
 
 def warning_excel_file():
   msg = f'!Fallo!\nSeleccione un archivo de Excel'
