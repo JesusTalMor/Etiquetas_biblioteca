@@ -122,28 +122,25 @@ def generar_informacion_libros(ruta_archivo:str):
       temp_dicc['cbarras'] = str(cb[index]) if cb[0] else ''
       temp_dicc['clasif'] = str(clas[index]) if clas[0] and not pd.isna(clas[index]) else ''
       temp_dicc['volumen'] = str(vol[index]) if vol[0] and not pd.isna(vol[index]) else ''
-      temp_dicc['copia'] = 'C.' + str(cop[index]) if cop[0] and not pd.isna(cop[index]) else ''
+      temp_dicc['copia'] = str(cop[index]) if cop[0] and not pd.isna(cop[index]) else ''
       temp_dicc['encabeza'] = str(enc[index]) if enc[0] else ''
       # * Añadimos el diccionario
       Salida.append(temp_dicc)
   return Salida
 
-def crear_reporte(modificados, ruta, fecha):
+def crear_reporte_modificados(lista, ruta, fecha):
   '''Genera un reporte en un txt de libros modificados'''
   
   txt_path = f'{ruta}/{str(fecha)}_modificados.txt'
   # print(txt_path)
   modif_file = open(txt_path, 'w', encoding="utf-8")
-  if len(modificados) > 0:
+  if len(lista) != 0:
     modif_file.write(f'Lista de Clasificaciones Modificadas\n')
-    for target in modificados:
+    for target in lista:
       for elem in target:
         if len(elem) > 40:
-          modif_file.write(f' {elem[:40]}... | ')
+          modif_file.write(f'{elem[:40]}... | ')
         else:
-          modif_file.write(f' {elem} | ')
+          modif_file.write(f'{elem} | ')
       modif_file.write('\n')
-  else:
-    modif_file.write(f'No existen modificaciones\n')
-  # print('Archivo Creado')
   modif_file.close()
