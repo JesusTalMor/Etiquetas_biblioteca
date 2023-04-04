@@ -1,13 +1,18 @@
+# Editor: Jesus Talamantes Morales
+# Fecha Ultima Mod: 3 de Abril 2023
+# Versión: 0.1.0
+
 from datetime import datetime
 
-import numpy as np
-import PySimpleGUI as sg
-
 import main_ticket_functions as maintf
+import numpy as np
 import pop_ups as pop
+import PySimpleGUI as sg
 import string_helper as sh
 import support_windows as sw
 import ticket_maker as tm
+
+version = '0.1.0'
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
@@ -58,6 +63,9 @@ coordenadas = (None,None)
 
 # * Ventana para agregar individualmente eitquetas
 def ventana_elemento():
+  """
+    Esta ventana se puede agregar individualmente Claificaciones para su impresión
+  """
   # ? Declaración de variables para uso global
   global ruta_archivo
   global ruta_folder
@@ -185,6 +193,7 @@ def ventana_elemento():
     ],
   ]
 
+  #* Layout Parte Izquierda de la aplicación
   layout_izq = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
     [
@@ -268,6 +277,7 @@ def ventana_elemento():
     [sg.Button("Exportar", font=("Open Sans", 12, "bold"))],
   ]
 
+  #* Layout General de la aplicación
   layout = [
     [sg.Menu(menu_opciones, tearoff=False)],
     [
@@ -286,22 +296,21 @@ def ventana_elemento():
     # print(f'Valores guardaros {values}')
     # print('-'*50 + '\n')
 
-    # * Cerrar la ventana
+    #* Cerrar la aplicación
     if event in (sg.WINDOW_CLOSED, "Exit"): break
 
-    # * Cambiar a vetana de Archivo
+    #* Cambio de Ventana a ARCHIVO
     elif event == "FILE":
       window.close()
       ventana_archivo()
 
-    # * Escribir una clasificacion a la tabla
+    #* Revisar una clasificación
     elif event == "CLAS":
-      
       clasificacion = str(values["CLAS"])
       # * Revisar si es relevante el cambio
       if len(clasificacion) < 5: continue
       
-      # * Se revisa si se puede separa la PIPE B
+      #* Se revisa si se puede separa la PIPE B
       if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
         posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
         if posicion_corte != 0:
@@ -318,8 +327,9 @@ def ventana_elemento():
         # ? Bandera Falsa no se puede agregar
         bandera_agregar = False
 
-    # * Añadir una clasificación a la tabla DONE
+    #* Añadir una clasificación a la tabla 
     elif event == "Agregar" and bandera_agregar:
+      #* Dar formato para la clasificación Completa
       clasificacion = str(values["CLAS"])
       volumen = str(values['VOL'])
       copia = str(values['COP'])
@@ -327,9 +337,10 @@ def ventana_elemento():
       
       encabezado = encabezado + ' ' if encabezado != '' else ''
       volumen = 'V.' + volumen if volumen not in ('', '0') else ''
+
       clasificacion_completa = encabezado + sh.creador_clasificacion(clasificacion, volumen, copia)
       
-      lista_principal = [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True",]
+      lista_principal = [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "Added",]
       lista_datos = {
         'titulo':'Sin Titulo', 'cbarras':'No Aplica', 
         'clasif':clasificacion, 'volumen':volumen,
@@ -337,24 +348,28 @@ def ventana_elemento():
       }
 
 
-      # * Se agrega dicho elemento a las listas
+      #* Se agrega dicho elemento a las listas de datos
       main_dicc[len(tabla_principal)] = "True"
-      row = ((len(tabla_principal)), "#FFFFFF")
+      row = ((len(tabla_principal)), "#FFFFFF") # TODO Buscar un color para este cambio
       row_color_array.append(row)
       tabla_principal.append(lista_principal)
       tabla_datos.append(lista_datos)
 
-      # * Actualizando la tabla principal
+      #* Actualizando la tabla principal
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
-    # * Limpiar tabla por completo DONE
+    #* Limpiar datos de la tabla
     if event == "Limpiar":
       # Poner parametros a default
       tabla_principal = []
-      row_color_array = []
       main_dicc = {}
-      modify_flag = False
       tabla_datos = []
+      
+      tabla_modify = []
+      row_color_array = []
+      modify_flag = False
+      bandera_agregar = False
+      
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
@@ -389,7 +404,7 @@ def ventana_elemento():
     if event == "Licencia":pop.info_license()
 
     # * Mostrar Acerca de
-    if event == "Acerca de...":pop.info_about()
+    if event == "Acerca de...":pop.info_about(version)
 
     # * Abrir ventana de configuración
     if event == "Configuración": 
@@ -410,7 +425,7 @@ def ventana_elemento():
           tabla_principal[index_value][3] = "Selected"
           row_color_array[index_value] = (int(index_value), "#498C8A")
 
-        # * Seleccionar casilla para modfiicar
+        # * Seleccionar casilla para modificar
         elif status in ("Selected", "False") and not modify_flag:
           # Tomar datos de la casilla
           modify_status = status
@@ -441,18 +456,13 @@ def ventana_elemento():
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
-    # * Modificar un elemento de la tabla
+    #* Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
       # * Vamos a abrir una nueva pantalla para modificar el texto
       modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
-        clasificacion_completa= tabla_principal[modify_index][0],
-        clasif= tabla_datos[modify_index]['clasif'],
-        copia= tabla_datos[modify_index]['copia'],
-        volumen= tabla_datos[modify_index]['volumen'],
-        encabezado= tabla_datos[modify_index]['encabeza']
-      )
+        clasificacion_completa= tabla_principal[modify_index][0], dicc_info=tabla_datos[modify_index])
 
-      
+      #* Checar si hubieron cambios
       if not modif_principal[0]: continue # Se checa si se realizaron cambios
       
       # * Agregamos elemento a una tabla de modificaciones
@@ -464,7 +474,7 @@ def ventana_elemento():
       # * Cambiamos la apariencia del elemento en la tabla
       main_dicc[modify_index] = "True"
       tabla_principal[modify_index] = modif_principal
-      row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
+      row_color_array[modify_index] = (int(modify_index), "#D8D8D8")
       modify_flag = False
 
       # * Actualizar valores de tabla de datos
@@ -482,36 +492,43 @@ def ventana_elemento():
         pop.warning_folder()
         continue
       
-      selected = []  # Lista con elementos seleccionados
+      etiquetas_a_imprimir = []  # Lista con elementos seleccionados
 
       # * LLenado de lista de elementos seleccionados
       for ind in range(len(tabla_principal)):
         status = main_dicc[ind]
         if status == "Selected":
-          lista_temporal = [
-            tabla_datos[ind]['encabeza'],
-            tabla_datos[ind]['clasif'],
-            tabla_datos[ind]['volumen'],
-            'C.' + tabla_datos[ind]['copia'] if tabla_datos[ind]['copia'] not in ('1', '', '0') else '',
-          ]
-          selected.append(lista_temporal)
+          # Crear la lista de datos
+          encabezado = tabla_datos[ind]['encabeza']
+          clasif = tabla_datos[ind]['clasif']
+          volumen = tabla_datos[ind]['volumen']
+          copia = tabla_datos[ind]['copia']
+
+          dict_format = {'HEAD':encabezado, 'CLASS':clasif, 'VOL':volumen, 'COP':copia}
+          etiquetas_a_imprimir.append(dict_format)
 
       # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-      if len(selected) == 0: 
+      if len(etiquetas_a_imprimir) == 0: 
         pop.warning_select()
         continue
-      # Pasamos a la ventana de configuración
-      flag, valores_config, coordenadas = sw.ventana_config(valores_config)  
-      # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
       
-      # * Si la ventana de configuración fue aceptada continuamos con el proceso
-      if not flag: continue
+      #* Pasamos a la ventana de configuración
+      estatus_config, valores_config, coordenadas = sw.ventana_config(valores_config)  
+      #? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+      #? Retorna los valores
+      #? Coordenadas si son necesarias
+      
+      #* Revisar estatus de configuración
+      # True continua con el proceso, False termian el proceso
+      if not estatus_config: continue
       
       # ? Función para el manejo y creación de eiquetas
-      # Chequeo de hora de consulta
-      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+      # TODO Posible cambio en este atributo
+      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
       # LLamamos funcion para crear los tickets
-      tm.ticket_maker_main(selected, today_date, ruta_folder, valores_config, coordenadas)
+      tm.ticket_maker_main(
+        config=valores_config, etiquetas_a_imprimir=etiquetas_a_imprimir, 
+        titulo=today_date, ruta=ruta_folder, position=coordenadas)
       # Generamos un reporte de modificaciones
       maintf.crear_reporte_modificados(tabla_modify, ruta_folder, today_date)  
       pop.success_program()
@@ -544,7 +561,11 @@ def ventana_archivo():
   excel_layout = [
     [
       sg.FileBrowse("Abrir", font=("Open Sans", 12)),
-      sg.In(default_text=ruta_archivo, size=(50, 1), enable_events=True, key="EXCEL_FILE", font=("Open Sans", 9), justification="center",),
+      sg.In(
+        default_text=ruta_archivo, size=(50, 1), 
+        key="EXCEL_FILE", font=("Open Sans", 9), 
+        justification="center",
+      ),
     ],
   ]
 
@@ -610,7 +631,7 @@ def ventana_archivo():
   ]
 
   # * Despliegue General del layout
-  layout     = [
+  layout = [
     [sg.Menu(menu_opciones, tearoff=False)],
     [
       sg.Column(layout_izq, background_color="#FFFFFF", element_justification="c", pad=0 ),
@@ -639,48 +660,52 @@ def ventana_archivo():
       ventana_elemento()
 
     # * Cargar Etiquetas de un Excel
+    #TODO Probar funcionalidad
     if event == "Cargar":
-      if len(str(values["EXCEL_FILE"])) == 0:
+      #* Ruta del Archivo
+      ruta_archivo = values["EXCEL_FILE"]  
+
+      # Revisar si se tiene un archivo
+      if len(ruta_archivo) == 0:
         pop.warning_excel_file()
         continue
       
-      # Ruta de donde se saca el archivo
-      ruta_archivo = values["EXCEL_FILE"]  
-      # Sacamos los datos de las clasificaciones de etiquetas
-      temp_etiquetas, excel_flag = maintf.generar_etiquetas_libros(ruta_archivo)  
-      # Sacamos la tabla de titulo de libro y de QRO
-      temp_infomacion = maintf.generar_informacion_libros(ruta_archivo)  
+      #* Vamos a cargar toda la información del excel de una
+      # Sacar el dataframe del excel
+      dataframe = maintf.cargar_excel(ruta_archivo)
+      # Sacar las hojas del excel
+      hojas_excel = list(dataframe)
+      # Bluce para sacar la información de todo el documento
+      for hoja in hojas_excel:
+        #* Sacar todos los datos de los libros del excel
+        temp_etiquetas = maintf.generar_etiquetas_libros(dataframe[hoja])  
+        temp_infomacion = maintf.generar_informacion_libros(dataframe[hoja])  
 
-      # ? Se cargaron etiquetas ?
-      if not temp_etiquetas[0]: 
-        pop.error_excel_file()
-        continue
+        # ? Se cargaron etiquetas ?
+        if not temp_etiquetas[0]: 
+          print(f'Etiquetas no cargadas para hoja {hoja}')
+          continue
 
-      # ? Algunas etiquetas tienen errores
-      if excel_flag: pop.warning_excel_file_data_error()
-
-
-      # * Generamos la tabla de datos para el Excel
-      for ind in range(len(temp_etiquetas)):
-        status = temp_etiquetas[ind][3]
-        main_dicc[len(tabla_principal) + ind] = status
-        if status == "False": row = ((len(tabla_principal) + ind), "#F04150")
-        else: row = ((len(tabla_principal) + ind), "#FFFFFF")
-        row_color_array.append(row)
+        # * Generamos la tabla de datos para el Excel
+        for ind in range(len(temp_etiquetas)):
+          status = temp_etiquetas[ind][3]
+          main_dicc[len(tabla_principal) + ind] = status
+          row = ((len(tabla_principal) + ind), "#F04150") if status == 'False' else ((len(tabla_principal) + ind), "#FFFFFF")
+          row_color_array.append(row)
       
-      # * Concatenamos los nuevos datos a los antiguos
-      if len(tabla_principal) != 0:
-        tabla_principal = np.concatenate((np.array(tabla_principal), np.array(temp_etiquetas)), axis=0)
-        tabla_principal = tabla_principal.tolist()
+        # * Concatenamos los nuevos datos a los antiguos
+        if len(tabla_principal) != 0:
+          tabla_principal = np.concatenate((np.array(tabla_principal), np.array(temp_etiquetas)), axis=0)
+          tabla_principal = tabla_principal.tolist()
 
-        tabla_datos = np.concatenate((np.array(tabla_datos), np.array(temp_infomacion)), axis=0)
-        tabla_datos = tabla_datos.tolist()
-      # * No tenemos aun datos en la tabla 
-      else: 
-        tabla_principal = temp_etiquetas
-        tabla_datos = temp_infomacion
+          tabla_datos = np.concatenate((np.array(tabla_datos), np.array(temp_infomacion)), axis=0)
+          tabla_datos = tabla_datos.tolist()
+        # * No tenemos aun datos en la tabla 
+        else: 
+          tabla_principal = temp_etiquetas
+          tabla_datos = temp_infomacion
 
-      window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
+        window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
 
     # * Limpiar Tabla por completo
     if event == "Limpiar":
@@ -722,7 +747,7 @@ def ventana_archivo():
     if event == "Licencia": pop.info_license()
 
     # * Mostrar Acerca de
-    if event == "Acerca de...": pop.info_about()
+    if event == "Acerca de...": pop.info_about(version)
 
     # * Abrir ventana de configuración
     if event == "Configuración": 
@@ -776,17 +801,11 @@ def ventana_archivo():
 
     # * Modificar un elemento de la tabla
     if event == "Modificar" and modify_flag == True:
-
       # * Vamos a abrir una nueva pantalla para modificar el texto
       modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
-        clasificacion_completa= tabla_principal[modify_index][0],
-        clasif= tabla_datos[modify_index]['clasif'],
-        copia= tabla_datos[modify_index]['copia'],
-        volumen= tabla_datos[modify_index]['volumen'],
-        encabezado= tabla_datos[modify_index]['encabeza']
-      )
+        clasificacion_completa= tabla_principal[modify_index][0], dicc_info=tabla_datos[modify_index])
 
-      
+      #* Checar si hubieron cambios
       if not modif_principal[0]: continue # Se checa si se realizaron cambios
       
       # * Agregamos elemento a una tabla de modificaciones
@@ -798,7 +817,7 @@ def ventana_archivo():
       # * Cambiamos la apariencia del elemento en la tabla
       main_dicc[modify_index] = "True"
       tabla_principal[modify_index] = modif_principal
-      row_color_array[modify_index] = (int(modify_index), "#FFFFFF")
+      row_color_array[modify_index] = (int(modify_index), "#D8D8D8")
       modify_flag = False
 
       # * Actualizar valores de tabla de datos
@@ -808,7 +827,7 @@ def ventana_archivo():
       tabla_datos[modify_index]['encabeza'] = modif_datos[3]
 
       window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
-
+    
     # * Exporta los elementos seleccionados a impresión
     if event == "Exportar":
       # * Revisamos que exista una ruta de folder
@@ -816,36 +835,44 @@ def ventana_archivo():
         pop.warning_folder()
         continue
       
-      selected = []  # Lista con elementos seleccionados
+      etiquetas_a_imprimir = []  # Lista con elementos seleccionados
 
       # * LLenado de lista de elementos seleccionados
       for ind in range(len(tabla_principal)):
         status = main_dicc[ind]
-        if status == "Selected":
-          lista_temporal = [
-            tabla_datos[ind]['encabeza'],
-            tabla_datos[ind]['clasif'],
-            tabla_datos[ind]['volumen'],
-            'C.' + tabla_datos[ind]['copia'] if tabla_datos[ind]['copia'] not in ('1', '', '0') else '',
-          ]
-          selected.append(lista_temporal)
+        if status != "Selected": continue
+        
+        #* Crear la lista de datos
+        encabezado = tabla_datos[ind]['encabeza']
+        clasif = tabla_datos[ind]['clasif']
+        volumen = tabla_datos[ind]['volumen']
+        copia = tabla_datos[ind]['copia']
+
+        dict_format = {'HEAD':encabezado, 'CLASS':clasif, 'VOL':volumen, 'COP':copia}
+        etiquetas_a_imprimir.append(dict_format)
 
       # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-      if len(selected) == 0: 
+      if len(etiquetas_a_imprimir) == 0: 
         pop.warning_select()
         continue
-      # Pasamos a la ventana de configuración
-      flag, valores_config, coordenadas = sw.ventana_config(valores_config)  
-      # ? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
       
-      # * Si la ventana de configuración fue aceptada continuamos con el proceso
-      if not flag: continue
+      #* Pasamos a la ventana de configuración
+      estatus_config, valores_config, coordenadas = sw.ventana_config(valores_config)  
+      #? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+      #? Retorna los valores
+      #? Coordenadas si son necesarias
+      
+      #* Revisar estatus de configuración
+      # True continua con el proceso, False termian el proceso
+      if not estatus_config: continue
       
       # ? Función para el manejo y creación de eiquetas
-      # Chequeo de hora de consulta
-      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+      # TODO Posible cambio en este atributo
+      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
       # LLamamos funcion para crear los tickets
-      tm.ticket_maker_main(selected, today_date, ruta_folder, valores_config, coordenadas)
+      tm.ticket_maker_main(
+        config=valores_config, etiquetas_a_imprimir=etiquetas_a_imprimir, 
+        titulo=today_date, ruta=ruta_folder, position=coordenadas)
       # Generamos un reporte de modificaciones
       maintf.crear_reporte_modificados(tabla_modify, ruta_folder, today_date)  
       pop.success_program()
@@ -855,62 +882,42 @@ def ventana_archivo():
 
 
 def ventana_inicial():
-  """ Ventana principal de inicio """
-  global no_mod_flag
-  layout_incial_izq = [
+  ''' Ventana principal, de inicio del programa'''
+  layout_incial = [
     [sg.Image(filename="Assets/LogoTecResize.png", background_color="#FFFFFF")],
     [
       sg.Text(
         text="Generador de Etiquetas",
         font=("Open Sans", 20, "bold", "italic"),
-        background_color="#FFFFFF",
-        justification="left",
-        pad=(0, (0, 15)),
+        background_color="#FFFFFF", justification="left", pad=(0, (0, 15)),
       )
     ],
     [
       sg.Text(
         text="Seleccione una opción:",
-        font=("Open Sans", 18, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
+        font=("Open Sans", 18, "bold"), 
+        background_color="#FFFFFF", justification="center",
       )
     ],
     [
       sg.Radio(
         "Cargar Archivo",
         "O1",
-        default=False,
-        background_color="#FFFFFF",
-        circle_color="#DEE6F7",
-        font=("Open Sans", 16),
-        key="FILE",
-        enable_events=True,
+        default=False, background_color="#FFFFFF",
+        circle_color="#DEE6F7", font=("Open Sans", 16),
+        key="FILE", enable_events=True,
       ),
       sg.Radio(
         "Cargar Elemento",
         "O1",
-        default=False,
-        background_color="#FFFFFF",
-        circle_color="#DEE6F7",
-        font=("Open Sans", 16),
-        key="ELEM",
-        enable_events=True,
+        default=False, background_color="#FFFFFF",
+        circle_color="#DEE6F7", font=("Open Sans", 16),
+        key="ELEM", enable_events=True,
       ),
     ],
   ]
 
-  layout = [
-    [
-      sg.Frame(
-        "",
-        layout_incial_izq,
-        background_color="#FFFFFF",
-        element_justification="c",
-      )
-    ],
-  ]
-
+  layout = [[sg.Frame("",layout_incial, background_color="#FFFFFF", element_justification="c",)],]
   window = sg.Window("Generador de Etiquetas", layout, element_justification="c", icon="Assets/ticket_icon.ico")
 
   while True:

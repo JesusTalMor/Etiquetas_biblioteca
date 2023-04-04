@@ -137,6 +137,17 @@ def limpiar_cadena(STR:str) -> str:
   return str_salida
 
 
+def limpiar_clasif(STR:str) -> str:
+  ''' Limpiar la clasificación del libro de Caracteres no Necesarios'''
+  # * Eliminar caracteres no deseados
+  if 'LX' in STR: STR = cortar_string(STR, 'LX')
+  if 'MAT' in STR: STR = cortar_string(STR, 'MAT')
+  if 'V.' in STR: STR = cortar_string(STR, 'V.')
+  if 'C.' in STR: STR = cortar_string(STR, 'C.')
+
+  return STR
+
+
 def estandarizar_cadena(STR:str, maxLen:int) -> str:
   '''
     Estandariza las cadenas a un tamaño fijo 

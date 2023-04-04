@@ -1,5 +1,5 @@
+import pop_ups as pop
 import PySimpleGUI as sg
-
 import string_helper as sh
 
 """En este modulo se almacenan las ventanas auxiliares de trabajo."""
@@ -20,27 +20,53 @@ sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
 sg.theme("MyCreatedTheme")
 
 
-def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volumen:str, copia:str, encabezado:str):
-  '''Modifica el contenido y parametros de una etiqueta'''
-  bandera_agregar = False
-  
-  # * Actualizar el Volumen a standard
-  volumen = volumen[volumen.index('V.') + 2] if 'V.' in volumen else ''
+def ventana_modificar_clasificacion(clasificacion_completa:str, dicc_info:dict):
+  '''
+    Modifica el contenido y parametros de una etiqueta
 
-  # * Seccion de Layout de la Ventana
+    Parametros:
+      clasificacion_completa: Clasificación completa del libro a modificar
+      Dicc_info:
+        titulo: Titulo del libro a modificar
+        cbarras: Codigo de Barras del Libro a modificar
+        clasif: Clasificación Basica
+        volumen: Volumen expresado en V.(Num)
+        copia: Copia expresado en Num.
+        encabeza: Encabezado anterior a Clasificación
+    
+        Retorna:
+          2 Listas con datos, en caso de finalizar correctamente.
+          Caso contrario regresa 2 listas de la siguiente manera [False],[False]
+  '''
+  
+  bandera_agregar = False
+  # print('Clasificación Completa')
+  # print('Entrada de datos', dicc_info, sep='\n')
+  # * Actualizar el Volumen a standard
+  clasif = dicc_info['clasif']
+  volumen = dicc_info['volumen']
+  copia = dicc_info['copia']
+  encabezado = dicc_info['encabeza']
+  titulo = dicc_info['titulo']
+  # Este comando extrae el número de una cadena. Ejemplo V.2 -> 2
+  volumen = volumen[volumen.index('V.') + 2] if 'V.' in volumen else '0'
+
+  # * Seccion de Estructura visual de la Ventana
   pipe_a = [
     [
       sg.Text(
         text="PIPE A", 
         font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF", 
-        justification="center", 
+        background_color="#FFFFFF", justification="center", 
         pad=5,
       )
     ],
     [
-      sg.In(default_text="ESPERA", size=(14, 1), font=("Open Sans", 10),
-      justification="center", key="PIPE_A", disabled=True,)
+      sg.In(
+        default_text="ESPERA", 
+        size=(14, 1), font=("Open Sans", 10),
+        justification="center", key="PIPE_A", disabled=True,
+      )
     ],
   ]
   pipe_b = [
@@ -48,52 +74,45 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
       sg.Text(
         text="PIPE B", 
         font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF", 
-        justification="center", 
-        pad=5,
+        background_color="#FFFFFF", justification="center", pad=5,
       )
     ],
     [
-      sg.In(default_text="MODIFICAR", size=(12, 1),
-      font=("Open Sans", 10), justification="center",
-      key="PIPE_B", disabled=True,)
+      sg.In(
+        default_text="MODIFICAR", 
+        size=(12, 1), font=("Open Sans", 10), 
+        justification="center", key="PIPE_B", disabled=True,
+      )
     ],
   ]
   indi_layout = [
     [
       sg.Text(
-        text="Modif. Clasificación", 
+        text="Clasificación", 
         font=("Open Sans", 14, "bold"), 
-        background_color="#FFFFFF", 
-        justification="center",
+        background_color="#FFFFFF", justification="center",
       )
     ],
     [
       sg.In(
         default_text=clasif, 
-        size=(28, 1), 
-        enable_events=True,
-        key="CLAS",
-        font=("Open Sans", 12), 
-        justification="center", 
-        pad=(15, 5),
+        size=(25, 1), enable_events=True,
+        key="CLAS", font=("Open Sans", 12), 
+        justification="center", pad=(15, 5),
       )
     ],
     [
       sg.Text(
         text="Agregar Encabezado",
         font=("Open Sans", 12),
-        background_color="#FFFFFF",
-        justification="center",
+        background_color="#FFFFFF", justification="center",
       )
     ],
     [
       sg.In(
         default_text=encabezado, 
-        size=(18, 1),
-        enable_events=True,
-        key="HEAD",
-        font=("Open Sans", 10),
+        size=(18, 1), enable_events=True,
+        key="HEAD", font=("Open Sans", 10),
         justification="center",
       )
     ],
@@ -101,88 +120,62 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
       sg.Text(
         text="Volumen",
         font=("Open Sans", 12),
-        background_color="#FFFFFF",
-        justification="center",
+        background_color="#FFFFFF", justification="center",
       ),
       sg.In(
         default_text=volumen, 
-        size=(2, 1),
-        enable_events=True,
-        key="VOL",
-        font=("Open Sans", 10),
+        size=(2, 1), enable_events=True,
+        key="VOL", font=("Open Sans", 10),
         justification="center",
       ),
       sg.Text(
         text="Copia",
         font=("Open Sans", 12),
-        background_color="#FFFFFF",
-        justification="center",
+        background_color="#FFFFFF", justification="center",
       ),
       sg.In(
         default_text=copia, 
-        size=(2, 1),
-        enable_events=True,
-        key="COP",
-        font=("Open Sans", 10),
+        size=(2, 1), enable_events=True,
+        key="COP", font=("Open Sans", 10),
         justification="center",
       ),
     ],
     [
-      sg.Column(
-        layout=pipe_a, 
-        background_color="#FFFFFF", 
-        element_justification="c"
-      ),
+      sg.Column(layout=pipe_a, background_color="#FFFFFF", element_justification="c"),
       sg.VSeperator(),
-      sg.Column(
-        layout=pipe_b, 
-        background_color="#FFFFFF", 
-        element_justification="c"
-      ),
+      sg.Column(layout=pipe_b, background_color="#FFFFFF", element_justification="c"),
     ],
   ]
   layout = [
     [
       sg.Text(
-        text="Modificar una Etiqueta",
+        text="Modificar Etiqueta",
         font=("Open Sans", 18, "bold", "italic"),
-        background_color="#FFFFFF",
-        justification="center",
-        pad=(0, (0, 15)),
-      )
+        background_color="#FFFFFF", justification="center",
+        pad=(0, (0, 10)),
+      ),
+      sg.Button(image_source='Assets/info_icon.png', image_subsample=10, border_width=0, key='INFO', pad=(5,(0,10)))
     ],
     [
       sg.Text(
         text=clasificacion_completa,
         font=("Open Sans", 16, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
+        background_color="#FFFFFF", justification="center",
         key="TEXT",
       )
     ],
     [sg.HorizontalSeparator(color="#000000", pad=(0, (10, 6)))],
-    [
-      sg.Frame(
-        "",
-        layout=indi_layout,
-        background_color="#FFFFFF",
-        element_justification="c",
-      )
-    ],
+    [sg.Frame("", layout=indi_layout, background_color="#FFFFFF", element_justification="c",)],
     [sg.HorizontalSeparator(color="#000000", pad=(0, (6, 10)))],
     [
-      sg.Button("Cancelar", font=("Open Sans", 14, "bold")),
-      sg.Button("Modificar", font=("Open Sans", 14, "bold")),
+      sg.Button("Cancelar", font=("Open Sans", 12, "bold")),
+      sg.Button("Modificar", font=("Open Sans", 12, "bold")),
     ],
   ]
-  main_layout = [
-    [
-      sg.Frame("", layout, background_color="#FFFFFF", element_justification="c", pad=0)
-    ]
-  ]
+  main_layout = [[sg.Frame("", layout, background_color="#FFFFFF", element_justification="c", pad=0)]]
 
-  # * Creacion de la ventana
-  window = sg.Window("Modificar una Etiqueta", main_layout, element_justification="c", icon="Assets/ticket_icon.ico")
+  #* Crear la ventana
+  window = sg.Window("Modificar una Etiqueta", main_layout, element_justification="c", icon="Assets/book_icon.ico")
 
   while True:
     event, values = window.read()
@@ -191,24 +184,31 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
     # print(f'Valores guardaros {values}')
     # print('-'*50 + '\n')
 
+    if event in (sg.WINDOW_CLOSED, "Exit", "Cancelar"):
+      window.close() 
+      return [False],[False]
+
     # * Actualizar clasificacion
-    clasif = str(values["CLAS"])
+    # Toma de datos de la pagina
+    clasif = values["CLAS"]
     volumen = str(values['VOL'])
     copia = str(values['COP'])
     encabezado = str(values['HEAD'])
 
-    encabezado = encabezado + ' ' if encabezado != '' else ''
+    # Adaptar datos para formato
+    encabezado = encabezado + ' ' if encabezado else ''
     volumen = 'V.' + volumen if volumen not in ('', '0') else ''
     clasificacion_completa = encabezado + sh.creador_clasificacion(clasif, volumen, copia)
+    # Actualizar datos en pagina
     window['TEXT'].update(clasificacion_completa)
 
-    if event in (sg.WINDOW_CLOSED, "Exit", "Cancelar"):
-      break
 
-    # * Modificar clase
-    elif event == "CLAS":
-      if len(str(values["CLAS"])) > 5:
-        clasif = str(values["CLAS"])
+    # * Modificar Clasificación Basica
+    if event == "CLAS":
+      clasif = values["CLAS"]
+
+      # Revisa si se puede realiza la separación de datos
+      if len(clasif) > 5:
         if sh.revisar_corte_pipe(clasif) and sh.revisar_pipeB(clasif):
           posicion_corte, diferencia = sh.buscar_pipe(clasif)
           if posicion_corte != 0:
@@ -221,23 +221,16 @@ def ventana_modificar_clasificacion(clasificacion_completa:str, clasif:str, volu
           window["PIPE_A"].update("NO")
           window["PIPE_B"].update("APLICA")
           bandera_agregar = False  # ? Bandera Falsa
-
     
     # * Modifica la etiqueta y cierra la ventana
     elif event == "Modificar" and bandera_agregar:
-      # clasif = str(values["CLAS"])
-      # volumen = str(values['VOL'])
-      # copia = str(values['COP'])
-      # encabezado = str(values['HEAD'])
-
-      # volumen = 'V.' + volumen if volumen not in ('', '0') else ''
-      # clasificacion_completa = encabezado + ' ' + sh.creador_clasificacion(clasif, volumen, copia)
-
+      encabezado = str(values['HEAD'])
+      
       window.close()
-      return [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True"], [clasif, volumen, copia, encabezado]
+      # print([clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True"], [clasif, volumen, copia, encabezado], sep='\n')
+      return [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "Modified"], [clasif, volumen, copia, encabezado]
 
-  window.close()
-  return [False],[False]
+    elif event == 'INFO': pop.show_info_libro(titulo)
 
 
 def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
@@ -245,9 +238,7 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
   position = (None,None)
   selected_flag = False
 
-  layout = [
-    [sg.Text(text='Seleccione un casilla', font=("Open Sans", 16, "bold", "italic"), background_color='#FFFFFF')]
-  ]
+  layout = [[sg.Text(text='Seleccione un casilla', font=("Open Sans", 16, "bold", "italic"), background_color='#FFFFFF')]]
   # * Añadimos casillas para de selección
   for row in range(num_row):
     new_row = []
@@ -288,21 +279,18 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
       return position
 
 
-def ventana_config(main_configuration = {}) -> (tuple):
+def ventana_config(main_config = {}) -> (tuple):
   '''
   Establece la configuracion para impresion de etiquetas
-  Retorna una tupla con un status y una configuracion
+  Retorna una tupla con un status, configuración y Posición
   '''
 
   # * Variables base de ventana configuración
-  # Individual Configuration Parameters
-  ICP = {'PW':0, 'PH':0, 'TW':4.8, 'TH':3.7, 'PR':0, 'PC':0} 
-  # Page Configuration Parameters
-  PCP = {'PW':21.59, 'PH':27.94, 'TW':2.69, 'TH':4.65, 'PR':6, 'PC':8} 
+  ICP = {'PW':0, 'PH':0, 'TW':4.8, 'TH':3.7, 'PR':0, 'PC':0}  # Individual Configuration Parameters
+  PCP = {'PW':21.59, 'PH':27.94, 'TW':2.69, 'TH':4.65, 'PR':6, 'PC':8} # Page Configuration Parameters
 
   # * Revisa si el diccionario esta vacio para asignarle valores por defecto
-  main_configuration = PCP if not any(main_configuration) else main_configuration
-  # print(main_configuration)
+  main_config = PCP if not any(main_config) else main_config
 
   page_conf_layout = [
     [
@@ -321,63 +309,51 @@ def ventana_config(main_configuration = {}) -> (tuple):
     [
       sg.Text(
         text="Ancho (cm)",
-        size=(10, 1),
-        font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="c",
+        size=(10, 1), font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF", justification="c",
         pad=((5, 5), (4, 4)),
       ),
       sg.Text(
         text="Alto (cm)",
-        size=(10, 1),
-        font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="c",
+        size=(10, 1), font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF", justification="c",
         pad=((5, 0), (4, 4)),
       ),
     ],
     [
       sg.In(
         size=(6, 1),
-        default_text=main_configuration['PW'],
+        default_text=main_config['PW'],
         font=("Open Sans", 12, "bold"),
-        justification="center",
-        enable_events=True,
-        key="WP",
-        pad=((25, 0), (0, 4)),
+        justification="center", enable_events=True,
+        key="WP", pad=((25, 0), (0, 4)),
       ),
       sg.In(
         size=(6, 1),
-        default_text=main_configuration['PH'],
+        default_text=main_config['PH'],
         font=("Open Sans", 12, "bold"),
-        justification="center",
-        enable_events=True,
-        key="HP",
-        pad=((55, 0), (0, 4)),
+        justification="center", enable_events=True,
+        key="HP", pad=((55, 0), (0, 4)),
       ),
     ],
     [
       sg.Text(
-        text="Columnas",
-        size=(8, 1),
+        text="Columnas", size=(8, 1),
         font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="c",
+        background_color="#FFFFFF", justification="c",
         pad=((10, 0), (4, 4)),
       ),
       sg.Text(
-        text="Filas",
-        size=(8, 1),
+        text="Filas", size=(8, 1),
         font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="c",
+        background_color="#FFFFFF", justification="c",
         pad=((30, 0), (4, 4)),
       ),
     ],
     [
       sg.In(
         size=(4, 1),
-        default_text=main_configuration['PC'],
+        default_text=main_config['PC'],
         font=("Open Sans", 12, "bold"),
         justification="center",
         enable_events=True,
@@ -386,7 +362,7 @@ def ventana_config(main_configuration = {}) -> (tuple):
       ),
       sg.In(
         size=(4, 1),
-        default_text=main_configuration['PR'],
+        default_text=main_config['PR'],
         font=("Open Sans", 12, "bold"),
         justification="center",
         enable_events=True,
@@ -400,12 +376,9 @@ def ventana_config(main_configuration = {}) -> (tuple):
     [
       sg.Radio(
         "Tamaño Individual", "O1",
-        default=False,
-        background_color="#FFFFFF",
-        circle_color="#DEE6F7",
-        font=("Open Sans", 14, "bold"),
-        key="INDIV",
-        enable_events=True,
+        default=False, background_color="#FFFFFF",
+        circle_color="#DEE6F7", font=("Open Sans", 14, "bold"),
+        key="INDIV", enable_events=True,
         pad=((20, 30), (5, 8)),
       ),
     ],
@@ -413,39 +386,31 @@ def ventana_config(main_configuration = {}) -> (tuple):
     [
       sg.Text(
         text="Ancho (cm)",
-        size=(10, 1),
-        font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
+        size=(10, 1), font=("Open Sans", 12, "bold"),
+        background_color="#FFFFFF", justification="center",
         pad=((5, 5), (4, 4)),
       ),
       sg.Text(
-        text="Alto (cm)",
-        size=(10, 1),
+        text="Alto (cm)", size=(10, 1),
         font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="center",
+        background_color="#FFFFFF", justification="center",
         pad=((0, 18), (4, 4)),
       ),
     ],
     [
       sg.In(
         size=(6, 1),
-        default_text=main_configuration['TW'],
+        default_text=main_config['TW'],
         font=("Open Sans", 12, "bold"),
-        disabled=True,
-        justification="center",
-        key="WI",
-        pad=((0, 45), (0, 4)),
+        disabled=True, justification="center",
+        key="WI", pad=((0, 45), (0, 4)),
       ),
       sg.In(
         size=(6, 1),
-        default_text=main_configuration['TH'],
+        default_text=main_config['TH'],
         font=("Open Sans", 12, "bold"),
-        disabled=True,
-        justification="center",
-        key="HI",
-        pad=((0, 45), (0, 4)),
+        disabled=True, justification="center",
+        key="HI", pad=((0, 45), (0, 4)),
       ),
     ],
     [
@@ -479,8 +444,7 @@ def ventana_config(main_configuration = {}) -> (tuple):
       sg.Text(
         text="Configuración Etiquetas",
         font=("Open Sans", 18, "bold", "italic"),
-        background_color="#FFFFFF",
-        justification="left",
+        background_color="#FFFFFF", justification="left",
         pad=(0, (15, 15)),
       ),
     ],
@@ -488,8 +452,7 @@ def ventana_config(main_configuration = {}) -> (tuple):
       sg.Text(
         text="Seleccione una opción:",
         font=("Open Sans", 12, "bold"),
-        background_color="#FFFFFF",
-        justification="left",
+        background_color="#FFFFFF", justification="left",
       )
     ],
     [
@@ -498,18 +461,14 @@ def ventana_config(main_configuration = {}) -> (tuple):
     ],
     [
       sg.Button(
-        "Reset",
-        size=(6, 1),
+        "Reset", size=(6, 1),
         font=("Open Sans", 13, "bold"),
-        key="RESET",
-        pad=((10, 10), (22, 5)),
+        key="RESET", pad=((10, 10), (22, 5)),
       ),
       sg.Button(
-        "Aceptar",
-        size=(8, 1),
+        "Aceptar", size=(8, 1),
         font=("Open Sans", 13, "bold"),
-        key="ACCEPT",
-        pad=((10, 10), (22, 5)),
+        key="ACCEPT", pad=((10, 10), (22, 5)),
       ),
     ],
   ]
@@ -528,9 +487,9 @@ def ventana_config(main_configuration = {}) -> (tuple):
     # * Cerrar la ventana
     if event in (sg.WINDOW_CLOSED, "Exit", "Salir"):
       window.close()
-      return False, main_configuration
+      return False, main_config, (None,None)
 
-    # * Calculo de Etiqueta Individual
+    #* Calcular Tamaño etiqueta individual
     if event in ("WP", "HP", "COL", "ROW"):
       try:
         cal_height = float(float(values["HP"]) / int(values["ROW"]))
@@ -581,34 +540,21 @@ def ventana_config(main_configuration = {}) -> (tuple):
 
     # * Mandar Valores de configuración
     if event == "ACCEPT":
-      main_configuration["PW"], main_configuration["PH"] = values['WP'], values['HP']
-      main_configuration["TW"], main_configuration["TH"] = values['WI'], values['HI']
-      main_configuration["PC"], main_configuration["PR"] = values['COL'], values['ROW']
+      main_config["PW"], main_config["PH"] = values['WP'], values['HP']
+      main_config["TW"], main_config["TH"] = values['WI'], values['HI']
+      main_config["PC"], main_config["PR"] = values['COL'], values['ROW']
 
-      if values['SHEET']:
-        coordenadas = seleccionar_posicion_impresion(
-          num_row=  int(main_configuration['PR']),
-          num_column= int(main_configuration["PC"])
-        ) 
-        window.close()
-        if coordenadas[0] == None: return False, main_configuration, coordenadas
-        else: return True, main_configuration, coordenadas
-      else: return True, main_configuration, (None, None)
+      #* Valores para etiqueta individual
+      window.close()
+      if values['INDIV']: return True, main_config, (None, None)
+      #* Valores para configuración de Página
+      coordenadas = seleccionar_posicion_impresion(num_row=int(main_config['PR']), num_column=int(main_config["PC"])) 
+      if coordenadas[0] == None: return False, main_config, coordenadas
+      else: return True, main_config, coordenadas
 
 
-def prueba_ventana_modificacion():
-  prueba = ['BF109.78.J89C791 V.2 C.1', 'BF109.J89C791', 'V.2', '1', '']
-  cosa1, cosa2 = ventana_modificar_clasificacion(prueba[0], prueba[1], prueba[2], prueba[3], prueba[4])
-  print(cosa1)
-  print(cosa2)
-def prueba_ventana_seleccion():
-  print(seleccionar_posicion_impresion(8,6))
-def prueba_configuracion():
-  print(ventana_config())
-def debugeo():
-  # prueba_ventana_modificacion()
   # prueba_ventana_seleccion()
   prueba_configuracion()
 
 if __name__ == "__main__":
-  debugeo()
+  pass
