@@ -4,15 +4,16 @@
 
 from datetime import datetime
 
-import main_ticket_functions as maintf
 import numpy as np
-import pop_ups as pop
 import PySimpleGUI as sg
+
+import main_ticket_functions as maintf
+import pop_ups as pop
 import string_helper as sh
 import support_windows as sw
 import ticket_maker as tm
 
-version = '0.1.0'
+version = '0.3.2'
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
@@ -350,7 +351,7 @@ def ventana_elemento():
 
       #* Se agrega dicho elemento a las listas de datos
       main_dicc[len(tabla_principal)] = "True"
-      row = ((len(tabla_principal)), "#FFFFFF") # TODO Buscar un color para este cambio
+      row = ((len(tabla_principal)), "#696D7D") # TODO Buscar un color para este cambio
       row_color_array.append(row)
       tabla_principal.append(lista_principal)
       tabla_datos.append(lista_datos)
