@@ -125,7 +125,7 @@ def imprimir_etiqueta(lista_a_imprimir: list, config: dict, ruta: str, titulo:st
     image_draw.text((X_pos, y_print), texto, fill=COLOR, font=MAIN_FONT)
     y_print += jump_size
   #* Guardar la imagen
-  ruta_img = f'{ruta}/{num}_{titulo}.png'
+  ruta_img = f'{ruta}/{num}.png'
   main_img.save(ruta_img)
   return ruta_img
 
@@ -245,10 +245,13 @@ def ticket_maker_main(etiquetas_a_imprimir: list, titulo: str, ruta:str, config:
       ruta=ruta, titulo=titulo)
   #? Imprimir etiquetas individuales
   else:
+    #* Crear carpeta nueva
+    nueva_ruta = f'{ruta}/{titulo}'
+    os.mkdir(nueva_ruta)
     lista_imagenes_auxiliares = []
     for ind, etiqueta in enumerate(lista_a_imprimir):
       ruta_aux = imprimir_etiqueta(
-        lista_a_imprimir=etiqueta, config=config, ruta=ruta, 
+        lista_a_imprimir=etiqueta, config=config, ruta=nueva_ruta, 
         titulo=titulo, num=ind
       )
       lista_imagenes_auxiliares.append(ruta_aux)
