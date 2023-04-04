@@ -1,5 +1,6 @@
-import pop_ups as pop
 import PySimpleGUI as sg
+
+import pop_ups as pop
 import string_helper as sh
 
 """En este modulo se almacenan las ventanas auxiliares de trabajo."""
@@ -248,7 +249,7 @@ def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
   layout.append([sg.Button('Guardar', font=("Open Sans", 14, 'bold'))])
 
   main_layout = [[sg.Frame('', layout, background_color='#FFFFFF', element_justification='c')],]
-  window = sg.Window('Selccionar Posición', main_layout)
+  window = sg.Window('Selccionar Posición', main_layout, icon='Assets/ticket_icon.ico')
 
   while True:
     event, values = window.read()
