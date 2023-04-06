@@ -295,9 +295,11 @@ def image_viewer(lista_de_rutas: list, flag: bool):
       window.close()
       os.remove('temp.png')
       if flag:
-        answer = pop.check_images()
+        answer = pop.check_pdf()
         return answer
-      else: return False
+      else: 
+        answer = pop.check_images()
+        return False
     
     #? Esperar evento de teclado
     else:

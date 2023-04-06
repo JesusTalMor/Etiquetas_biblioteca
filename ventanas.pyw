@@ -13,7 +13,7 @@ import string_helper as sh
 import support_windows as sw
 import ticket_maker as tm
 
-version = '0.3.2'
+version = '0.4.2'
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {

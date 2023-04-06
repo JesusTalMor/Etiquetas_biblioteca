@@ -48,8 +48,12 @@ def show_info_libro(titulo:str):
 
 # # ? up de OkCancel Ask (askokcancel)
 ##########################################################
+def check_pdf():
+  msg = f'Hojas Generadas\n Presione Aceptar para continuar con su PDF'
+  answer = messagebox.askokcancel("Confirmar", msg)
+  return answer
 def check_images():
-  msg = f'Imágenes Generadas\n Presione Aceptar para continuar con su PDF'
+  msg = f'Imágenes Prueba Generadas\n Presione Aceptar para generar todas las etiquetas'
   answer = messagebox.askokcancel("Confirmar", msg)
   return answer
 
