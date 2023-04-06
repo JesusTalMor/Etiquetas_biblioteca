@@ -182,8 +182,9 @@ def limitador_string(STR:str, size:int) -> str:
 
 def cortar_string(STR:str, char:str) -> str:
   '''Corta la cadena a partir de un caracter especial'''
-  posicion_corte = STR.index(char)
-  return STR[:posicion_corte]
+  len_char = len(char)
+  posicion_corte = STR.index(char) - (len_char + 1)
+  return STR[:posicion_corte] if posicion_corte >= 0 else STR[:posicion_corte + len_char + 1]
 
 if __name__ == '__main__':
   # TODO Añadir pruebas para checar este modulo
