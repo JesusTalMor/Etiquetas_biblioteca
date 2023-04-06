@@ -1,6 +1,6 @@
 # Editor: Jesus Talamantes Morales
 # Fecha Ultima Mod: 3 de Abril 2023
-# Versión: 0.1.0
+# Versión: 0.4.3
 
 from datetime import datetime
 
@@ -13,7 +13,7 @@ import string_helper as sh
 import support_windows as sw
 import ticket_maker as tm
 
-version = '0.4.2'
+version = '0.4.3'
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
@@ -661,7 +661,6 @@ def ventana_archivo():
       ventana_elemento()
 
     # * Cargar Etiquetas de un Excel
-    #TODO Probar funcionalidad
     if event == "Cargar":
       #* Ruta del Archivo
       ruta_archivo = values["EXCEL_FILE"]  
