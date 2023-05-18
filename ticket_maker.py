@@ -130,6 +130,19 @@ def imprimir_etiqueta(lista_a_imprimir: list, config: dict, ruta: str, titulo:st
   main_img.save(ruta_img)
   return ruta_img
 
+def crear_base_datos_etiquetas(lista_a_imprimir:list, ruta: str, titulo: str):
+  if len(lista_a_imprimir) == 0: return # Revisar si tenemos datos
+  
+  txt_path = f'{ruta}/{titulo}_etiquetas.txt'
+  ticket_database = open(txt_path, 'w', encoding="utf-8")
+  #* Recorrer todas las etiquetas a imprimir
+  for etiqueta in lista_a_imprimir:
+    limpiar_lista = [x for ind, x in enumerate(etiqueta) if x != '' or ind == 0]
+    #* Recorrer todos los elementos de la etiqueta.
+    for elem in limpiar_lista: ticket_database.write(f'{elem},')
+    ticket_database.write('\n')
+  ticket_database.close()
+
 
 def imprimir_pagina(lista_a_imprimir:list, config: dict, ruta: str, titulo:str, position:tuple):
   global FONT_SIZE
@@ -240,24 +253,29 @@ def ticket_maker_main(etiquetas_a_imprimir: list, titulo: str, ruta:str, config:
   
   #* Transforma la lista de diccionarios a una lista para imprimir
   lista_a_imprimir = [separate_list(elem) for elem in etiquetas_a_imprimir]
+  #? Imprimir pagina completa
   if position[0] != None:
     imprimir_pagina(
       config=config, lista_a_imprimir=lista_a_imprimir, position=position,
       ruta=ruta, titulo=titulo)
   #? Imprimir etiquetas individuales
   else:
-    #* Crear carpeta nueva
-    nueva_ruta = f'{ruta}/{titulo}'
-    os.mkdir(nueva_ruta)
-    lista_imagenes_auxiliares = []
-    for ind, etiqueta in enumerate(lista_a_imprimir):
-      ruta_aux = imprimir_etiqueta(
-        lista_a_imprimir=etiqueta, config=config, ruta=nueva_ruta, 
-        titulo=titulo, num=ind
-      )
-      lista_imagenes_auxiliares.append(ruta_aux)
-    # Visualizar o Generar PDF
-    image_viewer(lista_imagenes_auxiliares, False)
+    #! Implementacion para crear imagenes
+    # #* Crear carpeta nueva
+    # nueva_ruta = f'{ruta}/{titulo}'
+    # os.mkdir(nueva_ruta)
+    # lista_imagenes_auxiliares = []
+    # for ind, etiqueta in enumerate(lista_a_imprimir):
+    #   ruta_aux = imprimir_etiqueta(
+    #     lista_a_imprimir=etiqueta, config=config, ruta=nueva_ruta, 
+    #     titulo=titulo, num=ind
+    #   )
+    #   lista_imagenes_auxiliares.append(ruta_aux)
+    # # Visualizar o Generar PDF
+    # image_viewer(lista_imagenes_auxiliares, False)
+    #* Crear una base de datos para una maquina de etiquetas
+    crear_base_datos_etiquetas(lista_a_imprimir, ruta, titulo)
+
 
 
 def image_viewer(lista_de_rutas: list, flag: bool):

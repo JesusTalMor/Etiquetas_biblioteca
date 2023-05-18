@@ -1,5 +1,5 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Ultima Mod: 3 de Abril 2023
+# Fecha Ultima Mod: 04 de Mayo 2023
 # Versión: 0.4.3
 
 from datetime import datetime
@@ -16,7 +16,7 @@ import ticket_maker as tm
 version = '0.4.3'
 
 # * Tema principal de las ventanas
-sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
+sg.LOOK_AND_FEEL_TABLE["TEC_Theme"] = {
   "BACKGROUND": "#3016F3",
   "TEXT": "#000000",
   "INPUT": "#DEE6F7",
@@ -28,7 +28,7 @@ sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
   "SLIDER_DEPTH": 0,
   "PROGRESS_DEPTH": 0,
 }
-sg.theme("MyCreatedTheme")
+sg.theme("TEC_Theme")
 
 # * Configuración de la tabla
 colum = ["Clasificación", "PIPE_A", "PIPE_B", "STATUS"]

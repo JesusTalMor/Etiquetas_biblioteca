@@ -126,11 +126,9 @@ def generar_informacion_libros(dataframe):
 
 def crear_reporte_modificados(lista, ruta, fecha):
   '''Genera un reporte en un txt de libros modificados'''
-  
-  txt_path = f'{ruta}/{str(fecha)}_modificados.txt'
-  
   if len(lista) == 0: return # Revisar si tenemos datos
   
+  txt_path = f'{ruta}/{str(fecha)}_modificados.txt'
   modif_file = open(txt_path, 'w', encoding="utf-8")
   modif_file.write(f'Lista de Clasificaciones Modificadas\n')
   for target in lista:
