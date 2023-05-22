@@ -69,18 +69,225 @@ def resource_path(relative_path):
     base_path = os.path.abspath(".")
   return os.path.join(base_path, relative_path)
 
-# # ? Variables Globales para mejor manejo del programa
-# # ! Variables Globales no modificar
-# # Variables para guardar rutas de archivos
-# ruta_archivo = ""
-# ruta_folder = ""
+class VentanaConfiguracion:
+  """ Establecer la configuracion para impresion de etiquetas
+  """
+  INDI_CONFIG = {
+    'PAGE_W':0.0, 'PAGE_H':0.0,
+    'INDI_W':4.8, 'INDI_H':0.0,
+    'ROW':0, 'COL':0
+  }
+  PAGE_CONFIG = {
+    'PAGE_W':21.59, 'PAGE_H':27.94,
+    'INDI_W':2.69, 'INDI_H':4.65,
+    'ROW':6, 'COL':8
+  }
+  titulo_ventana = 'Configuración Etiquetas'
+  def __init__(self, config=PAGE_CONFIG) -> None:
+    self.main_config = config
+  
+  def create_layout(self):
+    page_layout = self.create_page_layout()
+    indi_layout = self.create_indi_layout()
+    title_config = {
+      'font':("Open Sans", 18, "bold", "italic"),
+      'background_color':"#FFFFFF", 
+      'justification':"c",
+    }
+    text_config = {
+      'font':("Open Sans", 12, "bold"),
+      'background_color':"#FFFFFF", 
+      'justification':"c",
+    }
+    colum_config = {
+      'background_color':"#FFFFFF", 
+      'element_justification':"c"
+    }
+    button_config = {
+      'size':(8, 1),
+      'font':("Open Sans", 13, "bold"),
+    }
+    radio_config = {
+      'background_color':"#FFFFFF",
+      'circle_color':"#DEE6F7", 
+      'font':("Open Sans", 14, "bold"),
+      'enable_events':True,
+    }
+    MAIN_LAYOUT = [
+      [sg.Text(text=self.titulo_ventana, ** title_config),],
+      [sg.Text(text="Seleccione una opción:", **text_config)],
+      [
+        sg.Radio(
+          "Tamaño Carta", "O1", key="SHEET",
+          default=True, **radio_config
+        ),
+        sg.Radio(
+          "Tamaño Individual", "O1", key="INDIV",
+          default=False, **radio_config
+        ),
+      ],
+      [sg.HorizontalSeparator()],
+      [
+        sg.Column(page_layout, **colum_config),
+        sg.Column(indi_layout, **colum_config),
+      ],
+      [
+        sg.Button("Reset", key="RESET", **button_config),
+        sg.Button("Aceptar", key="ACCEPT", **button_config),
+      ],
+    ]
+    return MAIN_LAYOUT
+  
+  def create_page_layout(self):
+    main_config = self.main_config
+    text_config = {
+      'size':(10, 1), 
+      'font':("Open Sans", 12, "bold"),
+      'background_color':"#FFFFFF", 
+      'justification':"c",
+    }
+    in_config = {
+      'size':(10, 1),
+      'font':("Open Sans", 12, "bold"),
+      'justification':"center", 
+      'enable_events':True,
+    }
+    width_height_layout = [
+      [
+        sg.Text(text="Ancho (cm)", **text_config),
+        sg.Text(text="Alto (cm)", **text_config),
+      ],
+      [
+        sg.In(default_text=main_config['PAGE_W'], key="PAGE_W",**in_config),
+        sg.In(default_text=main_config['PAGE_H'], key="PAGE_H", **in_config),
+      ],    
+    ]
+    text_config = {
+      'size':(10, 1), 
+      'font':("Open Sans", 12, "bold"),
+      'background_color':"#FFFFFF", 
+      'justification':"c",
+    }
+    in_config = {
+      'size':(10, 1),
+      'font':("Open Sans", 12, "bold"),
+      'justification':"center", 
+      'enable_events':True,
+    }
+    colum_row_layout = [
+      [
+        sg.Text(text="Columnas", **text_config),
+        sg.Text(text="Filas", **text_config),
+      ],
+      [
+        sg.In(default_text=main_config['COL'], key="COL", **in_config),
+        sg.In(default_text=main_config['ROW'], key="ROW", **in_config),
+      ],
+    ]
+    frame_config = {
+      'background_color':'#FFFFFF', 
+      'element_justification':'c', 
+      'border_width':0
+    }
+    radio_config = {
+      'background_color':"#FFFFFF",
+      'circle_color':"#DEE6F7",
+      'font':("Open Sans", 14, "bold"),
+      'enable_events':True,
+    }
+    PAGE_LAYOUT = [
+      [sg.Frame('', width_height_layout, **frame_config)],
+      [sg.Frame('', colum_row_layout, **frame_config)],
+    ]
+    return PAGE_LAYOUT
+  def create_indi_layout(self):
+    main_config = self.main_config
+    text_config = {
+      'size':(10, 1), 
+      'font':("Open Sans", 12, "bold"),
+      'background_color':"#FFFFFF", 
+      'justification':"center",
+    }
+    in_config = {
+      'size':(10, 1),
+      'font':("Open Sans", 12, "bold"),
+      'disabled':True, 
+      'justification':"c",
+    }
+    width_height_layout = [
+      [
+        sg.Text(text="Ancho (cm)", **text_config),
+        sg.Text(text="Alto (cm)", **text_config),
+      ],
+      [
+        sg.In(default_text=main_config['INDI_W'], key="INDI_W", **in_config),
+        sg.In(default_text=main_config['INDI_H'], key="INDI_H", **in_config),
+      ],
+    ]
+    frame_config = {
+      'background_color':"#FFFFFF", 
+      'element_justification':'c', 
+      'border_width':0
+    }
+    INDI_LAYOUT = [
+      [sg.Frame('', width_height_layout, **frame_config)]
+    ]
+    return INDI_LAYOUT
 
-# # Manejo de datos de los libros para modificaciones
-# tabla_modify = []
+  def create_window(self):
+    LAYOUT = self.create_layout()
+    MAIN_LAYOUT = [[sg.Frame('', LAYOUT, background_color='#FFFFFF', element_justification='c')]]
+    window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, icon=resource_path('Assets/ticket_icon.ico'))
+    return window
+  
+  def run_window(self):
+    window = self.create_window()
+    while True:
+      event, values = window.read()
+      # * Cerrar la ventana
+      if event in (sg.WINDOW_CLOSED, "Exit", "Salir"):
+        window.close()
+        return False
+      #* Calcular Tamaño etiqueta individual
+      if event in ("PAGE_W", "PAGE_H", "COL", "ROW"):
+        self.calcular_etiquetas(window, values)
+      # * Seleccionar pagina
+      if event == "SHEET":
+        self.cambiar_pagina(window)
+      if event == "RESET":
+        self.resetear_valores(window)
+      
+  
+  def calcular_etiquetas(self, window, values):
+    try:
+      cal_height = float(float(values["PAGE_H"]) / int(values["ROW"]))
+      cal_width = float(float(values["PAGE_W"]) / int(values["COL"]))
+      window["INDI_W"].update(cal_width)
+      window["INDI_H"].update(cal_height)
+    except:
+      return
+  
+  def cambiar_pagina(self, window):
+    page_config = self.PAGE_CONFIG
+    #* Actualizar valores de Pagina
+    window["PAGE_W"].update(page_config["PAGE_W"], disabled=False)
+    window["PAGE_H"].update(page_config["PAGE_H"], disabled=False)
+    window["COL"].update(page_config["COL"], disabled=False)
+    window["ROW"].update(page_config["ROW"], disabled=False)
 
-# # Configuracion para impresion
-# valores_config = {}
-# coordenadas = (None,None)
+    #* Desactivar valores individuales
+    window["INDI_W"].update(page_config["INDI_W"], disabled=True)
+    window["INDI_H"].update(page_config["INDI_H"], disabled=True)
+
+  def resetear_valores(self, window, values):
+    if values["SHEET"]: config = self.PAGE_CONFIG
+    else: config = self.INDI_CONFIG
+    window["PAGE_W"].update(config["PAGE_W"])
+    window["PAGE_H"].update(config["PAGE_H"])
+    window["INDI_W"].update(config["INDI_W"])
+    window["INDI_H"].update(config["INDI_H"])
+    window["COL"].update(config["COL"])
+    window["ROW"].update(config["ROW"])
 class VentanaModificar:
   """ Ventana inicial del programa.
   
@@ -949,4 +1156,6 @@ def main():
   VE.run_window()
 
 if __name__ == '__main__':
-  main()
+  # main()
+  VC = VentanaConfiguracion()
+  VC.run_window()
