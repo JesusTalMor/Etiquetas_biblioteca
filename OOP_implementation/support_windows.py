@@ -21,40 +21,6 @@ sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
 sg.theme("MyCreatedTheme")
 
 
-def ventana_modificar_clasificacion(clasificacion_completa:str, dicc_info:dict):
-  '''
-    Modifica el contenido y parametros de una etiqueta
-
-    Parametros:
-      clasificacion_completa: Clasificación completa del libro a modificar
-      Dicc_info:
-        titulo: Titulo del libro a modificar
-        cbarras: Codigo de Barras del Libro a modificar
-        clasif: Clasificación Basica
-        volumen: Volumen expresado en V.(Num)
-        copia: Copia expresado en Num.
-        encabeza: Encabezado anterior a Clasificación
-    
-        Retorna:
-          2 Listas con datos, en caso de finalizar correctamente.
-          Caso contrario regresa 2 listas de la siguiente manera [False],[False]
-  '''
-
-    # * Actualizar clasificacion
-    # Toma de datos de la pagina
-
-
-    # * Modifica la etiqueta y cierra la ventana
-    elif event == "Modificar" and bandera_agregar:
-      encabezado = str(values['HEAD'])
-      
-      window.close()
-      # print([clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "True"], [clasif, volumen, copia, encabezado], sep='\n')
-      return [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "Modified"], [clasif, volumen, copia, encabezado]
-
-    elif event == 'INFO': pop.show_info_libro(titulo)
-
-
 def seleccionar_posicion_impresion(num_row:int, num_column:int) -> tuple:
   '''Selecciona la posición inicial de impresion en hoja carta'''
   position = (None,None)

@@ -93,6 +93,23 @@ class VentanaModificar:
   Metodos
   -------
   """
+  '''
+    Modifica el contenido y parametros de una etiqueta
+
+    Parametros:
+      clasificacion_completa: Clasificación completa del libro a modificar
+      Dicc_info:
+        titulo: Titulo del libro a modificar
+        cbarras: Codigo de Barras del Libro a modificar
+        clasif: Clasificación Basica
+        volumen: Volumen expresado en V.(Num)
+        copia: Copia expresado en Num.
+        encabeza: Encabezado anterior a Clasificación
+    
+        Retorna:
+          2 Listas con datos, en caso de finalizar correctamente.
+          Caso contrario regresa 2 listas de la siguiente manera [False],[False]
+  '''
   titulo_ventana = 'Modificar Etiqueta'
   def __init__(self, clas_completa:str, dicc_info:dict) -> None:
     self.clasif_completa = clas_completa
@@ -260,7 +277,7 @@ class VentanaModificar:
       #* Cerrar programa sin resultados
       if event in (sg.WINDOW_CLOSED, "Exit", "Cancelar"):
         window.close() 
-        return [False],[False]
+        return False,False
       
       #* Actualizar elemento de Clasificacion Completa
       clasif_completa = self.actualizar_clasif(values)
@@ -335,6 +352,7 @@ class TableManager:
   tabla_datos = []
   tabla_formato = []
   diccionario_estatus = {}
+  diccionario_modificados = {}
   def agregar_elemento(self, principal:list, datos:dict, estatus:str, color="#FFFFFF"):
     """ Agregar un elemento a la tabla general """
     largo_tabla = self.get_len()
@@ -344,6 +362,16 @@ class TableManager:
     self.tabla_formato.append(formato)
     self.diccionario_estatus[largo_tabla] = estatus
   
+  def agregar_modificado(self, index:int, new_clasif:str):
+    """ Agregar un elemento a un diccionario de modificaciones
+    o en su defecto lo actualiza.
+    """
+    titulo = self.tabla_datos[index]['titulo']
+    cbarras = self.tabla_datos[index]['cbarras']
+    clasificacion = self.tabla_principal[index][0]
+    aux_modify = [titulo, cbarras, clasificacion, new_clasif]
+    self.diccionario_modificados[index] = aux_modify
+
   def actualizar_elemento(self, index:int, estatus:str, color="#FFFFFF"):
     """ Actualizar el color y el status del elemento seleccionado """
     if index > self.get_len(): return False
@@ -351,7 +379,7 @@ class TableManager:
     self.tabla_principal[index][3] = estatus
     self.tabla_formato[index] = (int(index), color)
     return True
-    
+
   def reset_table(self):
     self.tabla_principal = []
     self.tabla_datos = []
@@ -360,10 +388,15 @@ class TableManager:
   
   def get_len(self):
     return len(self.tabla_principal)
-  
   def get_status_element(self, index):
     return self.diccionario_estatus[index] if index in self.diccionario_estatus else ''
-
+  def get_data_element(self, index):
+    return self.tabla_datos[index] if index < self.get_len() else {}
+  
+  def set_data_element(self, index, data):
+    self.tabla_datos[index] = data
+  def set_element(self, index, data):
+    self.tabla_principal[index] = data
 
 class VentanaInicial:
   """ Ventana inicial del programa.
@@ -698,8 +731,7 @@ class VentanaElementos:
         modify_object = (index_modificar, bandera_modificar, estatus_modificar)
         index_modificar, bandera_modificar, estatus_modificar = self.table_management(window, values, modify_object)
       elif event == "Modificar" and bandera_modificar is True:
-        self.modificar_elemento(index_modificar)
-        
+        bandera_modificar = self.modificar_elemento(window, index_modificar)
 
   def show_window_events(self, event, values):
     print('-'*50)
@@ -829,38 +861,41 @@ class VentanaElementos:
       row_colors=self.table_manager.tabla_formato)
     return modify_index, modify_flag, modify_status
 
-  def modificar_elemento(self, modify_index):
+  def modificar_elemento(self, window, modify_index):
     #* Sacar los datos de esa etiqueta
     clasif_completa = self.table_manager.tabla_principal[modify_index][0]
     datos_etiqueta = self.table_manager.tabla_datos[modify_index]
     #* Mandar llamar ventana modificar
     VM = VentanaModificar(clasif_completa, datos_etiqueta)
-    VM.run_window()
-    # modif_principal, modif_datos = sw.ventana_modificar_clasificacion(
-    #   clasificacion_completa= tabla_principal[modify_index][0], dicc_info=tabla_datos[modify_index])
-
-    # #* Checar si hubieron cambios
-    # if not modif_principal[0]: return # Se checa si se realizaron cambios
+    aux_principal, aux_datos = VM.run_window()
+    #* Checar si hubieron cambios
+    if aux_principal is False: return True
     
-    # # * Agregamos elemento a una tabla de modificaciones
-    # title = tabla_datos[modify_index]['titulo']
-    # cbarras = tabla_datos[modify_index]['cbarras']
-    # aux_modify = [title, cbarras, tabla_principal[modify_index][0], modif_principal[0]]
-    # tabla_modify.append(aux_modify)
+    # * Agregamos elemento a una tabla de modificaciones
+    self.table_manager.agregar_modificado(modify_index, aux_principal[0])
 
-    # # * Cambiamos la apariencia del elemento en la tabla
-    # main_dicc[modify_index] = "True"
-    # tabla_principal[modify_index] = modif_principal
-    # row_color_array[modify_index] = (int(modify_index), "#D8D8D8")
-    # modify_flag = False
+    # * Cambiamos la apariencia del elemento en la tabla
+    self.table_manager.actualizar_elemento(modify_index, 'True', '#D8D8D8')
 
-    # # * Actualizar valores de tabla de datos
-    # tabla_datos[modify_index]['clasif'] = modif_datos[0]
-    # tabla_datos[modify_index]['volumen'] = modif_datos[1]
-    # tabla_datos[modify_index]['copia'] = modif_datos[2]
-    # tabla_datos[modify_index]['encabeza'] = modif_datos[3]
+    # * Actualizar valores de tabla de datos
+    aux_tabla_datos = self.table_manager.get_data_element(modify_index)
+    aux_tabla_datos['clasif'] = aux_datos[0]
+    aux_tabla_datos['volumen'] = aux_datos[1]
+    aux_tabla_datos['copia'] = aux_datos[2]
+    aux_tabla_datos['encabeza'] = aux_datos[3]
+    self.table_manager.set_data_element(modify_index, aux_tabla_datos)
 
-    # window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
+    #* Actualizar valores de tabla principal
+    self.table_manager.set_element(modify_index, aux_principal)
+    
+    #* Actualizar apariencia de la tabla
+    window["TABLE"].update(
+      values=self.table_manager.tabla_principal, 
+      row_colors=self.table_manager.tabla_formato
+    )
+
+    return False
+
 
 
 def main():
