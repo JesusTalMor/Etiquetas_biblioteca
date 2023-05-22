@@ -1,36 +1,5 @@
 def ventana_elemento():
-  """
-    Esta ventana se puede agregar individualmente Claificaciones para su impresión
-  """
-  # ? Declaración de variables para uso global
-  global ruta_archivo
-  global ruta_folder
-
-  global tabla_principal
-  global row_color_array
-  global main_dicc
-
-  global tabla_modify
-  global tabla_datos
-
-  global valores_config
-  global coordenadas
-
-  # ? Bandera para agregar una nueva clasificación
-  bandera_agregar = False
-
-  # ? Variables para manejo de modificacion
-  modify_flag = False
-  modify_index = 0
-  modify_status = ""
-
-
-
-
   while True:
-    event, values = window.read()
-
-
     # * Dar ruta para guardar el archivo DONE
     if event == "FOLDER": ruta_folder = values["FOLDER"]
 
@@ -47,56 +16,11 @@ def ventana_elemento():
       coordenadas = temp_coordenadas if flag else coordenadas
 
 
-    #* Modificar un elemento de la tabla
-    if event == "Modificar" and modify_flag == True:
-
     # * Exporta los elementos seleccionados a impresión
     if event == "Exportar":
-      # * Revisamos que exista una ruta de folder
-      if ruta_folder == "":
-        pop.warning_folder()
-        continue
       
-      etiquetas_a_imprimir = []  # Lista con elementos seleccionados
-
-      # * LLenado de lista de elementos seleccionados
-      for ind in range(len(tabla_principal)):
-        status = main_dicc[ind]
-        if status == "Selected":
-          # Crear la lista de datos
-          encabezado = tabla_datos[ind]['encabeza']
-          clasif = tabla_datos[ind]['clasif']
-          volumen = tabla_datos[ind]['volumen']
-          copia = tabla_datos[ind]['copia']
-
-          dict_format = {'HEAD':encabezado, 'CLASS':clasif, 'VOL':volumen, 'COP':copia}
-          etiquetas_a_imprimir.append(dict_format)
-
-      # * Revisar que la tabla de seleccionado tenga valores para poder continuar
-      if len(etiquetas_a_imprimir) == 0: 
-        pop.warning_select()
-        continue
       
-      #* Pasamos a la ventana de configuración
-      estatus_config, valores_config, coordenadas = sw.ventana_config(valores_config)  
-      #? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
-      #? Retorna los valores
-      #? Coordenadas si son necesarias
       
-      #* Revisar estatus de configuración
-      # True continua con el proceso, False termian el proceso
-      if not estatus_config: continue
-      
-      # ? Función para el manejo y creación de eiquetas
-      # TODO Posible cambio en este atributo
-      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
-      # LLamamos funcion para crear los tickets
-      tm.ticket_maker_main(
-        config=valores_config, etiquetas_a_imprimir=etiquetas_a_imprimir, 
-        titulo=today_date, ruta=ruta_folder, position=coordenadas)
-      # Generamos un reporte de modificaciones
-      maintf.crear_reporte_modificados(tabla_modify, ruta_folder, today_date)  
-      pop.success_program()
 
   window.close()
 

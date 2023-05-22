@@ -732,6 +732,9 @@ class VentanaElementos:
         index_modificar, bandera_modificar, estatus_modificar = self.table_management(window, values, modify_object)
       elif event == "Modificar" and bandera_modificar is True:
         bandera_modificar = self.modificar_elemento(window, index_modificar)
+      elif event == 'Exportar':
+        pass
+
 
   def show_window_events(self, event, values):
     print('-'*50)
@@ -896,6 +899,48 @@ class VentanaElementos:
 
     return False
 
+  def exportar_etiquetas(self, values):
+    etiquetas_a_imprimir = []
+    # * LLenado de lista de elementos seleccionados
+    for ind in range(self.table_manager.get_len()):
+      status = self.table_manager.get_status_element(ind)
+      if status == "Selected":
+        # Crear la lista de datos
+        aux_datos = self.table_manager.get_data_element(ind)
+        encabezado = aux_datos['encabeza']
+        clasif = aux_datos['clasif']
+        volumen = aux_datos['volumen']
+        copia = aux_datos['copia']
+
+        dict_format = {'HEAD':encabezado, 'CLASS':clasif, 'VOL':volumen, 'COP':copia}
+        etiquetas_a_imprimir.append(dict_format)
+    # * Revisar que la tabla de seleccionado tenga valores para poder continuar
+    if len(etiquetas_a_imprimir) == 0: 
+      pop.warning_select()
+      return False
+
+    #* Pasamos a la ventana de configuración
+    #TODO Crear ventana configuracion
+    estatus_config, valores_config, coordenadas = sw.ventana_config(valores_config)  
+    #? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
+    #? Retorna los valores
+    #? Coordenadas si son necesarias
+    #* Revisar estatus de configuración
+    # True continua con el proceso, False termian el proceso
+    if estatus_config is False: return False
+
+    # ? Función para el manejo y creación de eiquetas
+    # TODO Posible cambio en este atributo
+    today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
+    # LLamamos funcion para crear los tickets
+    tm.ticket_maker_main(
+      config=valores_config, etiquetas_a_imprimir=etiquetas_a_imprimir, 
+      titulo=today_date, ruta=ruta_folder, position=coordenadas)
+    # Generamos un reporte de modificaciones
+    maintf.crear_reporte_modificados(tabla_modify, ruta_folder, today_date)  
+    pop.success_program()
+    return True
+    # TODO Preguntar por la ruta a guardar
 
 
 def main():
