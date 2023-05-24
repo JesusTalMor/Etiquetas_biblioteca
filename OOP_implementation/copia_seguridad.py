@@ -21,7 +21,7 @@ def ventana_elemento():
       
       
       
-
+  
   window.close()
 
 

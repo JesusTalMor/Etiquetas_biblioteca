@@ -18,6 +18,7 @@ VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 #?#********** IMPORTAR MODULOS **********#
 import os
 import sys
+from datetime import datetime
 
 # import numpy as np
 import PySimpleGUI as sg
@@ -26,9 +27,6 @@ import PySimpleGUI as sg
 import pop_ups as pop
 import string_helper as sh
 from string_helper import creador_clasificacion
-
-# from datetime import datetime
-
 
 # import support_windows as sw
 # import ticket_maker as tm
@@ -69,12 +67,58 @@ def resource_path(relative_path):
     base_path = os.path.abspath(".")
   return os.path.join(base_path, relative_path)
 
+class VentanaSeleccionarPosicion:
+  """ Ventana encargada para seleccionar la posicion de una pagina """
+  def __init__(self, num_row:int, num_column:int):
+    self.num_row = num_row
+    self.num_column = num_column
+  
+  def create_layout(self):
+    layout = [[sg.Text(text='Seleccione un casilla', font=("Open Sans", 16, "bold", "italic"), background_color='#FFFFFF')]]
+    # * Añadimos casillas para de selección
+    for row in range(self.num_row):
+      new_row = []
+      for column in range(self.num_column):
+        new_row.append(sg.Button(size=(2,2), key=(row, column)))
+      layout.append(new_row)
+    layout.append([sg.Button('Guardar', font=("Open Sans", 14, 'bold'))])
+    return layout
+
+  def create_window(self):
+    LAYOUT = self.create_layout()
+    MAIN_LAYOUT = [[sg.Frame('', LAYOUT, background_color='#FFFFFF', element_justification='c')],]
+    WINDOW = sg.Window('Seleccionar Posición', MAIN_LAYOUT, icon=resource_path('Assets/ticket_icon.ico'))
+    return WINDOW
+  
+  def run_window(self):
+    window = self.create_window()
+    select_flag = False
+    while True:
+      event, values = window.read()
+      if event in (sg.WINDOW_CLOSED, 'Cancel'):
+        window.close()
+        return False
+      
+      #* Seleccionar una casilla
+      if isinstance(event, tuple):
+        if select_flag is False:
+          position = event
+          selected_flag = True
+          window[event].update(button_color='green')
+        elif event == position:
+          selected_flag = False
+          window[event].update(button_color='#FFFFFF')
+
+      if event == 'Guardar' and selected_flag:
+        window.close()
+        return position
+      
 class VentanaConfiguracion:
   """ Establecer la configuracion para impresion de etiquetas
   """
   INDI_CONFIG = {
     'PAGE_W':0.0, 'PAGE_H':0.0,
-    'INDI_W':4.8, 'INDI_H':0.0,
+    'INDI_W':4.8, 'INDI_H':3.7,
     'ROW':0, 'COL':0
   }
   PAGE_CONFIG = {
@@ -247,21 +291,29 @@ class VentanaConfiguracion:
       # * Cerrar la ventana
       if event in (sg.WINDOW_CLOSED, "Exit", "Salir"):
         window.close()
-        return False
+        return False, self.main_config
       #* Calcular Tamaño etiqueta individual
       if event in ("PAGE_W", "PAGE_H", "COL", "ROW"):
         self.calcular_etiquetas(window, values)
       # * Seleccionar pagina
       if event == "SHEET":
         self.cambiar_pagina(window)
+      if event == "INDIV":
+        self.cambiar_individual(window)
       if event == "RESET":
-        self.resetear_valores(window)
-      
+        self.resetear_valores(window, values["SHEET"])
+      if event == 'ACCEPT':
+        window.close()
+        return True, self.crear_configuracion(values)
   
   def calcular_etiquetas(self, window, values):
     try:
-      cal_height = float(float(values["PAGE_H"]) / int(values["ROW"]))
-      cal_width = float(float(values["PAGE_W"]) / int(values["COL"]))
+      #* Calcular tamaños de las etiquetas
+      cal_height = float(values["PAGE_H"]) / float(values["ROW"])
+      cal_width = float(values["PAGE_W"]) / float(values["COL"])
+      #* Redondear tamaños de las etiquetas
+      cal_height = round(cal_height, 2)
+      cal_width = round(cal_width, 2)
       window["INDI_W"].update(cal_width)
       window["INDI_H"].update(cal_height)
     except:
@@ -279,8 +331,20 @@ class VentanaConfiguracion:
     window["INDI_W"].update(page_config["INDI_W"], disabled=True)
     window["INDI_H"].update(page_config["INDI_H"], disabled=True)
 
-  def resetear_valores(self, window, values):
-    if values["SHEET"]: config = self.PAGE_CONFIG
+  def cambiar_individual(self, window):
+    page_config = self.INDI_CONFIG
+    #* Actualizar valores de Pagina
+    window["PAGE_W"].update(page_config["PAGE_W"], disabled=True)
+    window["PAGE_H"].update(page_config["PAGE_H"], disabled=True)
+    window["COL"].update(page_config["COL"], disabled=True)
+    window["ROW"].update(page_config["ROW"], disabled=True)
+
+    #* Desactivar valores individuales
+    window["INDI_W"].update(page_config["INDI_W"], disabled=False)
+    window["INDI_H"].update(page_config["INDI_H"], disabled=False)
+
+  def resetear_valores(self, window, flag):
+    if flag is True: config = self.PAGE_CONFIG
     else: config = self.INDI_CONFIG
     window["PAGE_W"].update(config["PAGE_W"])
     window["PAGE_H"].update(config["PAGE_H"])
@@ -288,6 +352,13 @@ class VentanaConfiguracion:
     window["INDI_H"].update(config["INDI_H"])
     window["COL"].update(config["COL"])
     window["ROW"].update(config["ROW"])
+
+  def crear_configuracion(self, values):
+    main_config = {}
+    main_config["PAGE_W"], main_config["PAGE_H"] = values['PAGE_W'], values['PAGE_H']
+    main_config["INDI_W"], main_config["INDI_H"] = values['INDI_W'], values['INDI_H']
+    main_config["COL"], main_config["ROW"] = values['COL'], values['ROW']
+    return main_config
 class VentanaModificar:
   """ Ventana inicial del programa.
   
@@ -620,7 +691,6 @@ class VentanaInicial:
   def create_layout(self):
     pass
 
-# * Ventana para agregar individualmente eitquetas
 class VentanaElementos:
   """ Ventana para cargar elementos (Clasificaciones) individualmente, para su impresion
 
@@ -635,6 +705,7 @@ class VentanaElementos:
   No Hay.
   """
   titulo_ventana = 'Generador de Etiquetas'
+  today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
   def __init__(self, excel_file='', ruta_folder='', table_manager=TableManager()) -> None:
     self.ruta_archivo = excel_file
     self.ruta_folder = ruta_folder
@@ -785,17 +856,10 @@ class VentanaElementos:
       [sg.Frame("",layout=CLASIF_LAYOUT, **frame_format)],
       [sg.HSep(pad=(0, 5))],
       [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
-      # [
-      #   sg.FolderBrowse("Guardar", font=("Open Sans", 12), pad=(5, (0, 10))),
-      #   sg.In(
-      #     default_text=ruta_folder, size=(50, 1), 
-      #     enable_events=True, 
-      #     key="FOLDER", 
-      #     font=("Open Sans", 9), 
-      #     justification="center", 
-      #     pad=(5, (0, 5)),
-      #   ),
-      # ],
+      [
+        sg.Input(key="FOLDER", visible=False),
+        sg.FolderBrowse("Guardar", target='FOLDER', visible=False),
+      ],
     ]
     return GENERAL_LAYOUT
   
@@ -939,8 +1003,8 @@ class VentanaElementos:
         index_modificar, bandera_modificar, estatus_modificar = self.table_management(window, values, modify_object)
       elif event == "Modificar" and bandera_modificar is True:
         bandera_modificar = self.modificar_elemento(window, index_modificar)
-      elif event == 'Exportar':
-        pass
+      elif event == 'EXPORTAR':
+        self.exportar_etiquetas(window, values, event)
 
 
   def show_window_events(self, event, values):
@@ -1078,6 +1142,7 @@ class VentanaElementos:
     #* Mandar llamar ventana modificar
     VM = VentanaModificar(clasif_completa, datos_etiqueta)
     aux_principal, aux_datos = VM.run_window()
+    del VM
     #* Checar si hubieron cambios
     if aux_principal is False: return True
     
@@ -1106,7 +1171,7 @@ class VentanaElementos:
 
     return False
 
-  def exportar_etiquetas(self, values):
+  def exportar_etiquetas(self, window, values, event):
     etiquetas_a_imprimir = []
     # * LLenado de lista de elementos seleccionados
     for ind in range(self.table_manager.get_len()):
@@ -1127,19 +1192,27 @@ class VentanaElementos:
       return False
 
     #* Pasamos a la ventana de configuración
-    #TODO Crear ventana configuracion
-    estatus_config, valores_config, coordenadas = sw.ventana_config(valores_config)  
-    #? Esta ventana retorna un True o False dependiendo si se modifico la configuración o no
-    #? Retorna los valores
-    #? Coordenadas si son necesarias
-    #* Revisar estatus de configuración
-    # True continua con el proceso, False termian el proceso
-    if estatus_config is False: return False
+    VC = VentanaConfiguracion()
+    estatus, configuracion = VC.run_window()
+    del VC
+    # * Revisar que tengamos configuraciones
+    if estatus is False: return False
 
+    # * Checar si se uso el formato de pagina
+    position = False
+    if int(configuracion['COL']) != 0: 
+      # * Formato de pagina
+      VSP = VentanaSeleccionarPosicion(int(configuracion['ROW']),int(configuracion['COL']))
+      position = VSP.run_window()
+      del VSP
+      if position is False: return False
+
+    # * Pedir Folder para guardar
+    window['Guardar'].click()
+    ruta = window['FOLDER'].get()
+    if len(ruta) == 0: return False
+    # today_date
     # ? Función para el manejo y creación de eiquetas
-    # TODO Posible cambio en este atributo
-    today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
-    # LLamamos funcion para crear los tickets
     tm.ticket_maker_main(
       config=valores_config, etiquetas_a_imprimir=etiquetas_a_imprimir, 
       titulo=today_date, ruta=ruta_folder, position=coordenadas)
@@ -1155,7 +1228,26 @@ def main():
   VE = VentanaElementos()
   VE.run_window()
 
-if __name__ == '__main__':
-  # main()
+def prueba():
+  #* Pasamos a la ventana de configuración
   VC = VentanaConfiguracion()
-  VC.run_window()
+  estatus, configuracion = VC.run_window()
+  del VC
+  # * Revisar que tengamos configuraciones
+  if estatus is False: return False
+
+  # * Checar si se uso el formato de pagina
+  if int(configuracion['COL']) != 0: 
+    # * Formato de pagina
+    VSP = VentanaSeleccionarPosicion(int(configuracion['ROW']),int(configuracion['COL']))
+    position = VSP.run_window()
+    del VSP
+    if position is False: return False
+
+  return True
+
+
+if __name__ == '__main__':
+  main()
+  # print(prueba())
+
