@@ -14,33 +14,6 @@ def ventana_elemento():
 
     # * Cargar Etiquetas de un Excel
     if event == "Cargar":
-
-        # ? Se cargaron etiquetas ?
-        if not temp_etiquetas[0]: 
-          print(f'Etiquetas no cargadas para hoja {hoja}')
-          continue
-
-        # * Generamos la tabla de datos para el Excel
-        for ind in range(len(temp_etiquetas)):
-          status = temp_etiquetas[ind][3]
-          main_dicc[len(tabla_principal) + ind] = status
-          row = ((len(tabla_principal) + ind), "#F04150") if status == 'False' else ((len(tabla_principal) + ind), "#FFFFFF")
-          row_color_array.append(row)
-      
-        # * Concatenamos los nuevos datos a los antiguos
-        if len(tabla_principal) != 0:
-          tabla_principal = np.concatenate((np.array(tabla_principal), np.array(temp_etiquetas)), axis=0)
-          tabla_principal = tabla_principal.tolist()
-
-          tabla_datos = np.concatenate((np.array(tabla_datos), np.array(temp_infomacion)), axis=0)
-          tabla_datos = tabla_datos.tolist()
-        # * No tenemos aun datos en la tabla 
-        else: 
-          tabla_principal = temp_etiquetas
-          tabla_datos = temp_infomacion
-
-        window["TABLE"].update(values=tabla_principal, row_colors=row_color_array)
-
     # * Limpiar Tabla por completo
     if event == "Limpiar":
       # Pasamos a datos por defecto

@@ -1,5 +1,7 @@
 import pandas as pd
 
+import string_helper as sh
+
 
 class TableManager:
   """ Clase creada para el manejo de los datos de la tabla 
@@ -27,7 +29,22 @@ class TableManager:
     clasificacion = self.tabla_principal[index][0]
     aux_modify = [titulo, cbarras, clasificacion, new_clasif]
     self.diccionario_modificados[index] = aux_modify
-
+  
+  def crear_reporte_modificados(self, path:str, nombre:str,):
+    '''Genera un reporte en un txt de libros modificados'''
+    if not self.diccionario_modificados: return False # Revisar si tenemos datos
+    
+    txt_path = f'{path}/{str(nombre)}_modificados.txt'
+    modif_file = open(txt_path, 'w', encoding="utf-8")
+    modif_file.write(f'Lista de Clasificaciones Modificadas\n')
+    for target in self.diccionario_modificados.values():
+      for elem in target:
+        if len(elem) > 40: modif_file.write(f'{elem[:40]}... | ')
+        else: modif_file.write(f'{elem} | ')
+      modif_file.write('\n')
+    modif_file.close()
+    return True
+  
   def actualizar_elemento(self, index:int, estatus:str, color="#FFFFFF"):
     """ Actualizar el color y el status del elemento seleccionado """
     if index > self.get_len(): return False
@@ -54,137 +71,146 @@ class TableManager:
   def set_element(self, index, data):
     self.tabla_principal[index] = data
 
+
 class ExcelManager:
   """ Clase Diseñada para el manejo de archivo de excel
   """
-  dataframe = {}
-  def cargar_datos_excel(self, ruta_archivo):
+  def cargar_datos_excel(self, ruta_archivo, table_manager=TableManager()):
     #* Vamos a cargar toda la información del excel de una
+    estatus = False
     # Sacar el dataframe del excel
-    self.dataframe = self.cargar_datos_excel(ruta_archivo)
+    dataframe = self.cargar_excel(ruta_archivo)
     # Sacar las hojas del excel
-    hojas_excel = list(self.dataframe)
+    hojas_excel = list(dataframe)
     # Bluce para sacar la información de todo el documento
     for hoja in hojas_excel:
       #* Sacar todos los datos de los libros del excel
-      temp_etiquetas = self.generar_etiquetas_libros(self.dataframe[hoja])  
-      temp_infomacion = self.generar_informacion_libros(self.dataframe[hoja])  
+      temp_etiquetas = self.generar_etiquetas_libros(dataframe[hoja])  
+      temp_infomacion = self.generar_informacion_libros(dataframe[hoja])
+
+      # ? Se cargaron etiquetas para esta hoja ?
+      if temp_etiquetas is False or temp_infomacion is False:
+        print(f"Etiquetas no cargadas para hoja {hoja}")
+        continue
+        
+      # * Generamos la tabla de datos para el Excel
+      for ind in range(len(temp_etiquetas)):
+        etiqueta_principal = temp_etiquetas[ind]
+        etiqueta_datos = temp_infomacion[ind]
+        estatus_etiqueta = etiqueta_principal[3]
+        color = "#F04150" if estatus_etiqueta == "False" else "#FFFFFF"
+        table_manager.agregar_elemento(
+          principal= etiqueta_principal,
+          datos= etiqueta_datos,
+          estatus= estatus_etiqueta, 
+          color= color
+        )
+      
+      # * si cargamos algunos datos 
+      estatus = True
+    
+    return estatus
+  
   def cargar_excel(self, path:str):
     '''Obtiene todo el dataframe de datos de un excel'''
     Datos = pd.read_excel(path, sheet_name=None)
     return Datos
   
-def cargar_clasif_libros(dataframe):
-  '''
-    Carga los datos para generar clasificaciones
-    NOTA: Unicamente carga los datos de las columnas de Excel, no realiza modificaciones
-  '''
-  encabeza = []
-  clasif = [False]
-  volumen = [False]
-  copia = [False]
-
-  llaves = list(dataframe)
-
-  # Revisar si podemos extraer los datos necesarios
-  if 'Clasificación' in llaves and 'Volumen' in llaves and 'Copia' in llaves:
-    clasif = dataframe['Clasificación']
-    volumen = dataframe['Volumen']
-    copia = dataframe['Copia']
-  
-  return clasif, volumen, copia
-
-
-def cargar_informacion_libros(dataframe):
-  ''' 
-    Carga los datos de información de los libros
-    NOTA: Unicamente carga los datos de las columnas de Excel, no realiza modificaciones
-  '''
-  titulo = [False]
-  codigo_barras = [False]
-  clasif = [False]
-  volumen = [False]
-  copia = [False]
-  encabezado = [False]
-
-  llaves = list(dataframe)
-
-  if 'Título' in llaves: titulo = dataframe['Título']
-  if 'C. Barras' in llaves: codigo_barras = dataframe['C. Barras']
-  if 'Clasificación' in llaves: clasif = dataframe['Clasificación']
-  if 'Volumen' in llaves: volumen = dataframe['Volumen']
-  if 'Copia' in llaves: copia = dataframe['Copia']
-  if 'Encabezado' in llaves: encabezado = dataframe['Encabezado']
-  
-  return titulo, codigo_barras, clasif, volumen, copia, encabezado
-
-
-def generar_etiquetas_libros(dataframe):
-  """ Genera las etiquetas de un archivo Excel """
-  salida = []
-  
-  # * Solo vamos a usar una pagina en este programa
-  CLAS, VOL, COP = cargar_clasif_libros(dataframe)
-  len_data = len(CLAS)
-  
-  # * Checa si se cargaron todos los datos
-  if not CLAS[0]: return [False]
-  
-  # * Inicia proceso de sacar todas las clasificaciones
-  for i in range(len_data):
-    STR = CLAS[i] # ya vienen como String por defecto
-    STR_C = str(COP[i])
-    STR_V = VOL[i] # ya vienen como String por defecto
-
-    # * Checar si el atributo CLAS esta vacio
-    if pd.isna(STR):
-      salida.append(['None', 'No', 'Aplica', 'False'])
-      continue
-
-    STR = sh.limpiar_clasif(STR)
-
-    # * Checar si el atributo VOL esta vacio
-    if pd.isna(STR_V): STR_V = ''
-
-    # * Checar si el atributo COP esta vacio
-    if pd.isna(STR_C): STR_C = ''
-
-    STR_Clas = sh.creador_clasificacion(STR, STR_V, STR_C)
+  def generar_etiquetas_libros(self, dataframe):
+    """ Genera las etiquetas de un archivo Excel """
+    salida = []
     
-    # * Revisamos si se puede dividir Pipe A y Pipe B
-    if sh.revisar_corte_pipe(STR) and sh.revisar_pipeB(STR):
-      pos_div, sum = sh.buscar_pipe(STR)
-      pipe_a_str = STR[:pos_div]
-      pipe_b_str = STR[pos_div+sum:]
-      salida.append([STR_Clas, pipe_a_str, pipe_b_str, 'True'])
-    else:
-      salida.append([STR_Clas, 'No', 'Aplica', 'False'])
+    # * Solo vamos a usar una pagina en este programa
+    llaves = list(dataframe)
+    print(llaves)
+    CLAS = dataframe['Clasificación'] if 'Clasificación' in llaves else False
+    VOL = dataframe['Volumen'] if 'Volumen' in llaves else False
+    COP = dataframe['Copia'] if 'Copia' in llaves else False
+    HEAD = dataframe['Encabezado'] if 'Encabezado' in llaves else False
+    
+    #! Manejo de Excepciones
+    if CLAS is False: 
+      #? No se encontro la columna de Clasificacion
+      # TODO Mostrar Popup error
+      return False
+    if len(CLAS) == 0:
+      #? No se tienen datos en la columna de clasificacion
+      # TODO Mostrar Popup error
+      return False    
+    
+    print("Crear etiquetas")
+    # * Inicia proceso de sacar todas las clasificaciones
+    for i in range(len(CLAS)):
+      STR = CLAS[i] # ya vienen como String por defecto
+      STR_C = str(COP[i]) if COP is not False else ''
+      STR_V = VOL[i] if VOL is not False else '' # ya vienen como String por defecto
+      STR_H = HEAD[i] if HEAD is not False else ''
+
+      # * Checar si el atributo CLAS esta vacio
+      if pd.isna(STR):
+        salida.append(['None', 'No', 'Aplica', 'False'])
+        continue
+
+      STR = sh.limpiar_clasif(STR)
+
+      # * Checar si el atributo VOL esta vacio
+      if pd.isna(STR_V): STR_V = ''
+
+      # * Checar si el atributo COP esta vacio
+      if pd.isna(STR_C): STR_C = ''
+
+      # * Checar si el encabezado esta vacio
+      if pd.isna(STR_H): STR_H = ''
+
+      STR_Clas = sh.creador_clasificacion(STR, STR_H, STR_V, STR_C)
+      
+      # * Revisamos si se puede dividir Pipe A y Pipe B
+      if sh.revisar_corte_pipe(STR) and sh.revisar_pipeB(STR):
+        pos_div, sum = sh.buscar_pipe(STR)
+        pipe_a_str = STR[:pos_div]
+        pipe_b_str = STR[pos_div+sum:]
+        salida.append([STR_Clas, pipe_a_str, pipe_b_str, 'True'])
+      else:
+        salida.append([STR_Clas, 'No', 'Aplica', 'False'])
+    
+    if len(salida) != 0: return salida
+    else: return False
   
-  if len(salida) != 0: return salida
-  else: return [False]
+  def generar_informacion_libros(self, dataframe):
+    ''' 
+      Carga los datos de información de los libros
+      NOTA: Unicamente carga los datos de las columnas de Excel, no realiza modificaciones
+    '''
+    # Saca las columnas del excel
+    llaves = list(dataframe)
 
-
-def cargar_informacion_libros(dataframe):
-  '''
-  Genera una lista completa con la información de 
-  Titulo y codigo de Barras de los libros
-  '''
-  llaves = list(dataframe)
-  
-  titu, cb, clas, vol, cop, enc = cargar_informacion_libros(dataframe)
-  # * Checar si clase tiene error
-  if not clas[0]: return [False]
-
-  for index in range(len(clas)):
-    # * Creamos el diccionario
-    temp_dicc = {}
-    # * Rellenamos el diccionario
-    temp_dicc['titulo'] = str(titu[index]) if titu[0] else ''
-    temp_dicc['cbarras'] = str(cb[index]) if cb[0] else ''
-    temp_dicc['clasif'] = str(sh.limpiar_clasif(clas[index])) if clas[0] and not pd.isna(clas[index]) else ''
-    temp_dicc['volumen'] = str(vol[index]) if vol[0] and not pd.isna(vol[index]) else ''
-    temp_dicc['copia'] = str(cop[index]) if cop[0] and not pd.isna(cop[index]) else ''
-    temp_dicc['encabeza'] = str(enc[index]) if enc[0] else ''
-    # * Añadimos el diccionario
-    Salida.append(temp_dicc)
-  return Salida
+    clasif = dataframe['Clasificación'] if 'Clasificación' in llaves else False
+    #! Manejo de Excepciones
+    if clasif is False: 
+      #? No se encontro la columna de Clasificacion
+      # TODO Mostrar Popup error
+      return False
+    if len(clasif) == 0:
+      #? No se tienen datos en la columna de clasificacion
+      # TODO Mostrar Popup error
+      return False
+    
+    lista_columnas_deseadas = [
+      ('Título', 'titulo', 'Título' in llaves),
+      ('C. Barras', 'cbarras', 'C. Barras' in llaves),
+      ('Clasificación', 'clasif', 'Clasificación' in llaves),
+      ('Volumen', 'volumen', 'Volumen' in llaves),
+      ('Copia', 'copia', 'Copia' in llaves),
+      ('Encabezado', 'encabeza', 'Encabezado' in llaves),
+    ]
+    lista_salida = []
+    #* Generar diccionarios
+    for index in range(len(clasif)):
+      temp_dict = {} # Diccionario temporal
+      # * Rellenamos el diccionario
+      for columna, llave, bandera in lista_columnas_deseadas:
+        temp_dict[llave] = str(dataframe[columna][index]) if bandera and not pd.isna(dataframe[columna][index]) else ''
+      # * Añadimos el diccionario
+      lista_salida.append(temp_dict)
+    
+    return lista_salida

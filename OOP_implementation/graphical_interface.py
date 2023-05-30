@@ -1,6 +1,6 @@
 #############################################################
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 21 de Mayo 2023
+# Fecha Trabajo: 30 de Mayo 2023
 # Versión: 0.4.3
 # Implementacion utilizando OOP
 #
@@ -20,15 +20,14 @@ import os
 import sys
 from datetime import datetime
 
-# import numpy as np
 import PySimpleGUI as sg
 
-import main_ticket_functions as maintf
 import pop_ups as pop
 import string_helper as sh
 from string_helper import creador_clasificacion
-from table_manager import TableManager
-# import support_windows as sw
+from support_windows import (VentanaConfiguracion, VentanaModificar,
+                             VentanaSeleccionarPosicion)
+from table_manager import ExcelManager, TableManager
 from ticket_maker import TicketMaker
 
 # * Tema principal de las ventanas
@@ -84,10 +83,11 @@ class VentanaGeneral:
   """
   titulo_ventana = 'Generador de Etiquetas'
   today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
-  def __init__(self, excel_file='', ruta_folder='', table_manager=TableManager()) -> None:
-    self.ruta_archivo = excel_file
-    self.ruta_folder = ruta_folder
-    self.table_manager = table_manager
+  def __init__(self) -> None:
+    self.ruta_archivo = ''
+    self.ruta_folder = ''
+    self.table_manager = TableManager()
+    self.excel_manager = ExcelManager()
 
   def create_clasification_layout(self):
     """ Layout para insertar clasificaciones 
@@ -435,7 +435,7 @@ class VentanaGeneral:
       event, values = window.read()
       self.show_window_events(event, values)
       #* Cerrar la aplicación
-      if event in (sg.WINDOW_CLOSED, "Exit"):
+      if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__"):
         window.close()
         return "TRUE"
       #* Cambio de Ventana a ARCHIVO
@@ -453,7 +453,7 @@ class VentanaGeneral:
         nombre_archivo = self.ruta_archivo.split('/')[-1]
         window["EXCEL_TEXT"].update(nombre_archivo)
       elif event == "Cargar":
-        self.cargar_excel()
+        self.cargar_excel(window)
       
       #?#********** FUNCIONALIDAD INDIVIDUAL **********#?#      
       #* Revisar una clasificación
@@ -482,7 +482,7 @@ class VentanaGeneral:
       elif event == "Modificar" and bandera_modificar is True:
         bandera_modificar = self.modificar_elemento(window, index_modificar)
       elif event == 'EXPORTAR':
-        self.exportar_etiquetas(window, values, event)
+        self.exportar_etiquetas(window)
 
 
   def show_window_events(self, event, values):
@@ -649,7 +649,7 @@ class VentanaGeneral:
 
     return False
 
-  def exportar_etiquetas(self, window, values, event):
+  def exportar_etiquetas(self, window):
     etiquetas_a_imprimir = []
     # * LLenado de lista de elementos seleccionados
     for ind in range(self.table_manager.get_len()):
@@ -698,17 +698,24 @@ class VentanaGeneral:
     except:
       return False
     # Generamos un reporte de modificaciones
-    maintf.crear_reporte_modificados(self.table_manager.diccionario_modificados, ruta, self.today_date)  
+    self.table_manager.crear_reporte_modificados(ruta, self.today_date)
     pop.success_program()
     return True
-    # TODO Preguntar por la ruta a guardar
 
-  def cargar_excel(self):
+  def cargar_excel(self, window):
     # Revisar que tengamos un archivo excel
     if len(self.ruta_archivo) == 0:
       pop.warning_excel_file()
       return False
     
+    # * Cargar datos del Excel
+    estatus = self.excel_manager.cargar_datos_excel(self.ruta_archivo, self.table_manager)
+    if estatus is False: return False
+    #* Actualizar apariencia de la tabla
+    window["TABLE"].update(
+      values=self.table_manager.tabla_principal, 
+      row_colors=self.table_manager.tabla_formato
+    )
 
 
 def main():
@@ -716,7 +723,7 @@ def main():
   VG = VentanaGeneral()
   formato = "FILE"
   VG_window = VG.create_window(formato)
-  while formato != "TRUE":
+  while formato in ("FILE", "ELEM"):
     formato = VG.run_window(VG_window)
     VG_window = VG.create_window(formato)
 

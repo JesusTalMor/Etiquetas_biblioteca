@@ -94,8 +94,11 @@ def revisar_corte_pipe(STR:str) -> bool:
   separadores_PIPE_B = contar_separadores(PIPE_B)
   
   # Estandar de separadores
-  if separadores_PIPE_A > 3: return False
-  if separadores_PIPE_B > 1: return False
+  try:
+    if separadores_PIPE_A > 3: return False
+    if separadores_PIPE_B > 1: return False
+  except:
+    return False
   
   return True
 

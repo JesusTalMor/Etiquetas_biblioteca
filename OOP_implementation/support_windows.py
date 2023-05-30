@@ -1,7 +1,11 @@
+import os
+import sys
+
 import PySimpleGUI as sg
 
 import pop_ups as pop
 import string_helper as sh
+from string_helper import creador_clasificacion
 
 """En este modulo se almacenan las ventanas auxiliares de trabajo."""
 
@@ -19,6 +23,17 @@ sg.LOOK_AND_FEEL_TABLE["MyCreatedTheme"] = {
   "PROGRESS_DEPTH": 0,
 }
 sg.theme("MyCreatedTheme")
+
+#?#********** Función apoyo para relative path *********#
+def resource_path(relative_path):
+  """ Get absolute path to resource, works for dev and for PyInstaller """
+  try:
+    # PyInstaller creates a temp folder and stores path in _MEIPASS
+    base_path = sys._MEIPASS
+  except Exception:
+    base_path = os.path.abspath(".")
+  return os.path.join(base_path, relative_path)
+
 
 class VentanaSeleccionarPosicion:
   """ Ventana encargada para seleccionar la posicion de una pagina """
@@ -397,7 +412,7 @@ class VentanaModificar:
       [sg.HorizontalSeparator(pad=(0, (6, 10)))],
       [
         sg.Button("Cancelar", font=("Open Sans", 12, "bold")),
-        sg.Button("Modificar", font=("Open Sans", 12, "bold"),),
+        sg.Button("Modificar", font=("Open Sans", 12, "bold"), disabled=True),
       ],    
     ]
     return GENERAL_LAYOUT
@@ -502,10 +517,11 @@ class VentanaModificar:
     while True:
       event, values = window.read()
       self.show_window_events(event, values)
-      #* Actualizar boton de modificar
-      if bandera_agregar is True: window['Modificar'].update(disabled=False)
-      else: window['Modificar'].update(disabled=True)
-      
+      # #* Actualizar boton de modificar
+      # try:
+      #   if bandera_agregar is True: window['Modificar'].update(disabled=False)
+      #   else: window['Modificar'].update(disabled=True)
+      # except: return False, False
       #* Cerrar programa sin resultados
       if event in (sg.WINDOW_CLOSED, "Exit", "Cancelar"):
         window.close() 
@@ -570,10 +586,15 @@ class VentanaModificar:
         window["PIPE_A"].update(pipe_a_str)  
         window["PIPE_B"].update(pipe_b_str)
         # ? Bandera Verdadera se puede agregar
+        window["Modificar"].update(disabled=False)
         return True
+      else:
+        window["Modificar"].update(disabled=True)
+        return False
     else:
       window["PIPE_A"].update("NO")
       window["PIPE_B"].update("APLICA")
+      window["Modificar"].update(disabled=True)
       # ? Bandera Falsa no se puede agregar
       return False
 
