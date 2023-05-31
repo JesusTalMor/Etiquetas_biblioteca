@@ -44,6 +44,18 @@ class TableManager:
       modif_file.write('\n')
     modif_file.close()
     return True
+
+  def crear_reporte_QRO(self, path:str, nombre:str,):
+    '''Genera un reporte en un txt de libros modificados'''
+    if not self.diccionario_modificados: return False # Revisar si tenemos datos
+    
+    txt_path = f'{path}/{str(nombre)}_QRO.txt'
+    modif_file = open(txt_path, 'w', encoding="utf-8")
+    for target in self.diccionario_modificados.values():
+        modif_file.write(f'{target[1]}')
+        modif_file.write('\n')
+    modif_file.close()
+    return True
   
   def actualizar_elemento(self, index:int, estatus:str, color="#FFFFFF"):
     """ Actualizar el color y el status del elemento seleccionado """

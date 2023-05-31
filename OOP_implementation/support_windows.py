@@ -60,16 +60,18 @@ class VentanaSeleccionarPosicion:
   
   def run_window(self):
     window = self.create_window()
-    select_flag = False
+    selected_flag = False
     while True:
       event, values = window.read()
+      print(event, values, sep='\n')
+      print(selected_flag)
       if event in (sg.WINDOW_CLOSED, 'Cancel'):
         window.close()
         return False
       
       #* Seleccionar una casilla
       if isinstance(event, tuple):
-        if select_flag is False:
+        if selected_flag is False:
           position = event
           selected_flag = True
           window[event].update(button_color='green')
@@ -397,7 +399,7 @@ class VentanaModificar:
           pad=(0, (0, 10)), ** text_format,
         ),
         sg.Button(
-          image_source='Assets/info_icon.png', image_subsample=10, 
+          image_source=resource_path('Assets/info_icon.png'), image_subsample=10, 
           border_width=0, key='INFO', pad=(5,(0,10))
         )
       ],
@@ -600,4 +602,6 @@ class VentanaModificar:
 
 
 if __name__ == "__main__":
+  # VS = VentanaSeleccionarPosicion(10,10)
+  # print(VS.run_window())
   pass

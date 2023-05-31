@@ -82,7 +82,6 @@ class VentanaGeneral:
   No Hay.
   """
   titulo_ventana = 'Generador de Etiquetas'
-  today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
   def __init__(self) -> None:
     self.ruta_archivo = ''
     self.ruta_folder = ''
@@ -689,16 +688,18 @@ class VentanaGeneral:
     window['Guardar'].click()
     ruta = window['FOLDER'].get()
     if len(ruta) == 0: return False
+    today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
 
     # ? Función para el manejo y creación de eiquetas
     try:
-      TM = TicketMaker(etiquetas_a_imprimir, self.today_date, ruta, configuracion, position)
+      TM = TicketMaker(etiquetas_a_imprimir, today_date, ruta, configuracion, position)
       if position is False: TM.crear_base_datos_etiquetas()
       else: TM.imprimir_paginas()
     except:
       return False
     # Generamos un reporte de modificaciones
-    self.table_manager.crear_reporte_modificados(ruta, self.today_date)
+    self.table_manager.crear_reporte_modificados(ruta, today_date)
+    self.table_manager.crear_reporte_QRO(ruta, today_date)
     pop.success_program()
     return True
 

@@ -291,7 +291,7 @@ def image_viewer(lista_de_rutas: list, flag: bool):
   #* Inicializar Ventana
   window = sg.Window(
     'Visualizador Etiquetas', main_layout, element_justification='c', 
-    icon='Assets/book_icon.ico', finalize=True, return_keyboard_events=True)
+    icon=resource_path('Assets/book_icon.ico'), finalize=True, return_keyboard_events=True)
 
   #* Loop principal
   while True:
