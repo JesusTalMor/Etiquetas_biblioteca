@@ -286,8 +286,11 @@ class VentanaConfiguracion:
       cal_width = round(cal_width, 2)
       window["INDI_W"].update(cal_width)
       window["INDI_H"].update(cal_height)
+      window["ACCEPT"].update(disabled=False)
     except:
-      return
+      window["INDI_W"].update("####")
+      window["INDI_H"].update("####")
+      window["ACCEPT"].update(disabled=True)
   
   def cambiar_pagina(self, window):
     page_config = self.PAGE_CONFIG
@@ -322,6 +325,7 @@ class VentanaConfiguracion:
     window["INDI_H"].update(config["INDI_H"])
     window["COL"].update(config["COL"])
     window["ROW"].update(config["ROW"])
+    window["ACCEPT"].update(disabled=False)
 
   def crear_configuracion(self, values):
     main_config = {}
@@ -360,14 +364,15 @@ class VentanaModificar:
           Caso contrario regresa 2 listas de la siguiente manera [False],[False]
   '''
   titulo_ventana = 'Modificar Etiqueta'
-  def __init__(self, clas_completa:str, dicc_info:dict) -> None:
+  def __init__(self, clas_completa:str, dicc_info:dict):
     self.clasif_completa = clas_completa
     self.clasif = dicc_info['clasif']
-    self.volumen = dicc_info['volumen']
+    volumen = dicc_info['volumen']
     self.copia = dicc_info['copia']
     self.encabezado = dicc_info['encabeza']
     self.titulo = dicc_info['titulo']
-    self.volumen = self.volumen[self.volumen.index('V.' + 2):] if 'V.' in self.volumen else '0'
+    self.volumen = volumen[(volumen.index('V.') + 2):] if 'V.' in volumen else volumen
+    # self.volumen = self.volumen[self.volumen.index('V.' + 2):] if 'V.' in self.volumen else '0'
   
   def create_layout(self):
     """ Crea el layout General de Esta Ventana 

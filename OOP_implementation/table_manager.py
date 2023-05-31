@@ -134,7 +134,6 @@ class ExcelManager:
     
     # * Solo vamos a usar una pagina en este programa
     llaves = list(dataframe)
-    print(llaves)
     CLAS = dataframe['Clasificación'] if 'Clasificación' in llaves else False
     VOL = dataframe['Volumen'] if 'Volumen' in llaves else False
     COP = dataframe['Copia'] if 'Copia' in llaves else False
@@ -150,7 +149,6 @@ class ExcelManager:
       # TODO Mostrar Popup error
       return False    
     
-    print("Crear etiquetas")
     # * Inicia proceso de sacar todas las clasificaciones
     for i in range(len(CLAS)):
       STR = CLAS[i] # ya vienen como String por defecto

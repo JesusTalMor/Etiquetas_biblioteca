@@ -11,8 +11,8 @@
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 0
-FUNCIONALIDAD = 4
-BUGS = 3
+FUNCIONALIDAD = 6
+BUGS = 7
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -320,7 +320,7 @@ class VentanaGeneral:
       ],
       [
         sg.In(key="EXCEL_FILE", visible=False),
-        sg.FileBrowse("Abrir", target='EXCEL_FILE',visible=False),
+        sg.FileBrowse("Abrir", target='EXCEL_FILE',visible=False, file_types=(("Excel Files", "*.xlsx"),)),
       ],
     ]
     return GENERAL_LAYOUT  
@@ -518,7 +518,7 @@ class VentanaGeneral:
     copia = str(values['COP'])
     encabezado = str(values['HEAD'])
     
-    volumen = 'V.' + volumen if volumen not in ('', '0') else ''
+    volumen = 'V.' + volumen if volumen not in (' ', '0') else ' '
 
     clasificacion_completa = creador_clasificacion(clasificacion, encabezado, volumen, copia)
     
@@ -635,6 +635,7 @@ class VentanaGeneral:
     aux_tabla_datos['volumen'] = aux_datos[1]
     aux_tabla_datos['copia'] = aux_datos[2]
     aux_tabla_datos['encabeza'] = aux_datos[3]
+    print(aux_tabla_datos)
     self.table_manager.set_data_element(modify_index, aux_tabla_datos)
 
     #* Actualizar valores de tabla principal

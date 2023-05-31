@@ -42,10 +42,6 @@ sg.LOOK_AND_FEEL_TABLE['MyCreatedTheme'] = {
 sg.theme('MyCreatedTheme')
 
 
-
-
-
-
 class TicketMaker:
 
   """ Clase para la creacion de Etiquetas 
