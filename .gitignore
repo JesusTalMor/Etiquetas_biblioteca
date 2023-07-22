@@ -2,6 +2,5 @@ venv/
 env
 output
 Recursos
-Assets
 __pycache__
 pruebas.py
