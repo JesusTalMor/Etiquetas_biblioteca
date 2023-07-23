@@ -7,8 +7,8 @@
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 0
-BUGS = 0
+FUNCIONALIDAD = 1
+BUGS = 2
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -419,6 +419,7 @@ class VentanaGeneral:
     window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, element_justification="c", icon=resource_path("Assets/ticket_icon.ico"))  
     return window
 
+#?#********* FUNCIONAMIENTO PRINCIPAL DE LA VENTANA #?#*********
   def run_window(self, window):
     #?#********** MANEJO DE VARIABLES #?#**********
     bandera_agregar = False
@@ -428,7 +429,8 @@ class VentanaGeneral:
     #?#**********  LOOP PRINCIPAL#?#**********
     while True:
       event, values = window.read()
-      # self.show_window_events(event, values)
+      self.show_window_events(event, values)
+      #?#********** FUNCIONALIDAD BASICA VENTANA **********#?#
       #* Cerrar la aplicación
       if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__"):
         window.close()
@@ -441,6 +443,12 @@ class VentanaGeneral:
       elif event == "ELEM":
         window.close()
         return "ELEM"
+      
+      elif event == "Licencia":
+        pop.info_license()
+      
+      elif event == "Acerca de...":
+        pop.info_about(VERSION)
       
       #?#********** FUNCIONALIDAD ARCHIVO **********#?#
       elif event == "UPLOAD":
