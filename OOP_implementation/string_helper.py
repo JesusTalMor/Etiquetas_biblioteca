@@ -92,7 +92,6 @@ def revisar_corte_pipe(STR:str) -> bool:
   
   separadores_PIPE_A = contar_separadores(PIPE_A)
   separadores_PIPE_B = contar_separadores(PIPE_B)
-  print(PIPE_B)
   
   # Estandar de separadores
   try:
