@@ -1,18 +1,14 @@
 #############################################################
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 30 de Mayo 2023
-# Versión: 0.4.3
-# Implementacion utilizando OOP
-#
-#
-#
+# Fecha Trabajo: 22 de Julio 2023
+# Implementación usando OOP, funcionalidad mejorada
 #
 
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
-ALPHA = 0
-FUNCIONALIDAD = 6
-BUGS = 7
+ALPHA = 1
+FUNCIONALIDAD = 0
+BUGS = 0
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -20,14 +16,13 @@ import os
 import sys
 from datetime import datetime
 
-import PySimpleGUI as sg
-
 import pop_ups as pop
+import PySimpleGUI as sg
 import string_helper as sh
+from managers import ExcelManager, TableManager
 from string_helper import creador_clasificacion
 from support_windows import (VentanaConfiguracion, VentanaModificar,
                              VentanaSeleccionarPosicion)
-from table_manager import ExcelManager, TableManager
 from ticket_maker import TicketMaker
 
 # * Tema principal de las ventanas
@@ -88,6 +83,7 @@ class VentanaGeneral:
     self.table_manager = TableManager()
     self.excel_manager = ExcelManager()
 
+#?#********* LAYOUTS DE OBJETO #?#*********
   def create_clasification_layout(self):
     """ Layout para insertar clasificaciones 
     
@@ -432,7 +428,7 @@ class VentanaGeneral:
     #?#**********  LOOP PRINCIPAL#?#**********
     while True:
       event, values = window.read()
-      self.show_window_events(event, values)
+      # self.show_window_events(event, values)
       #* Cerrar la aplicación
       if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__"):
         window.close()
@@ -445,11 +441,12 @@ class VentanaGeneral:
       elif event == "ELEM":
         window.close()
         return "ELEM"
+      
       #?#********** FUNCIONALIDAD ARCHIVO **********#?#
       elif event == "UPLOAD":
         window["Abrir"].click()
         self.ruta_archivo = window['EXCEL_FILE'].get()
-        nombre_archivo = self.ruta_archivo.split('/')[-1]
+        nombre_archivo = self.ruta_archivo.split('/')[-1] if len(self.ruta_archivo) != 0 else 'Sin Archivo'
         window["EXCEL_TEXT"].update(nombre_archivo)
       elif event == "Cargar":
         self.cargar_excel(window)
@@ -483,6 +480,7 @@ class VentanaGeneral:
       elif event == 'EXPORTAR':
         self.exportar_etiquetas(window)
 
+#?#********* FUNCIONALIDAD #?#*********
 
   def show_window_events(self, event, values):
     print('-'*50)
@@ -746,8 +744,6 @@ def prueba():
     if position is False: return False
 
   return True
-  
-
 
 if __name__ == '__main__':
   main()
