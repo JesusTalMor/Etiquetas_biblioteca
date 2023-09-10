@@ -1,14 +1,13 @@
 import pandas as pd
-
 import string_helper as sh
+from pandas import read_excel
 
 
 class TableManager:
-  """ Clase creada para el manejo de los datos de la tabla 
-  """
+  """ Clase creada para el manejo de los datos de la tabla """
   tabla_principal = []
-  tabla_datos = []
   tabla_formato = []
+  tabla_datos = []
   diccionario_estatus = {}
   diccionario_modificados = {}
   def agregar_elemento(self, principal:list, datos:dict, estatus:str, color="#FFFFFF"):
@@ -85,8 +84,7 @@ class TableManager:
 
 
 class ExcelManager:
-  """ Clase Diseñada para el manejo de archivo de excel
-  """
+  """ Clase Diseñada para el manejo de archivo de excel"""
   def cargar_datos_excel(self, ruta_archivo, table_manager=TableManager()):
     #* Vamos a cargar toda la información del excel de una
     estatus = False
@@ -94,7 +92,7 @@ class ExcelManager:
     dataframe = self.cargar_excel(ruta_archivo)
     # Sacar las hojas del excel
     hojas_excel = list(dataframe)
-    # Bluce para sacar la información de todo el documento
+    # Bucle para sacar la información de todo el documento
     for hoja in hojas_excel:
       #* Sacar todos los datos de los libros del excel
       temp_etiquetas = self.generar_etiquetas_libros(dataframe[hoja])  
@@ -224,3 +222,117 @@ class ExcelManager:
       lista_salida.append(temp_dict)
     
     return lista_salida
+  
+
+class Libro:
+  """ Clase para generar objectos de tipo libro con todos sus datos """
+  all = []
+  def __init__(self, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
+    # Asignar Valores al objeto
+    self._titulo = aTitulo
+    self._cbarras = aCbarras
+    self._clasif = self.limpiar_clasif(aClasif)
+    self._volumen = aVolumen[2:] if 'V.' in aVolumen or 'v.' in aVolumen else '0'
+    self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
+    self._encabezado = aEncabezado
+    self._clasif_completa = ''
+    
+    # Agregar libro a una lista de objetos
+    self.crear_clasif_completa()
+    Libro.all.append(self)
+
+  #? GETTERS Y SETTERS
+  @property
+  def titulo(self):
+    return self._titulo
+  
+  @property
+  def cbarras(self):
+    return self._cbarras
+  
+  @property
+  def clasif(self):
+    return self._clasif
+  
+  @clasif.setter
+  def clasif(self, aClasif):
+    self._clasif = self.limpiar_clasif(aClasif)
+    self.crear_clasif_completa()
+  
+  def limpiar_clasif(self, STR:str) -> str:
+    ''' Limpiar la clasificación del libro de Caracteres no Necesarios'''
+    # * Eliminar caracteres no deseados
+    if 'LX' in STR: STR = sh.cortar_string(STR, 'LX')
+    if 'MAT' in STR: STR = sh.cortar_string(STR, 'MAT')
+    if 'V.' in STR: STR = sh.cortar_string(STR, 'V.')
+    if 'C.' in STR: STR = sh.cortar_string(STR, 'C.')
+
+    return STR
+
+  @property
+  def volumen(self):
+    return self._volumen
+  
+  @volumen.setter
+  def volumen(self, aVolumen):
+    #* Unicamente acepta numeros
+    self._volumen = aVolumen if aVolumen not in ['', ' ', 'nan'] else '0'
+    self.crear_clasif_completa()
+  
+  @property
+  def copia(self):
+    return self._copia
+  
+  @copia.setter
+  def copia(self, aCopia):
+    #* Unicamente acepta numeros
+    #* No acepta {'', ' ', '1'}
+    self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
+    self.crear_clasif_completa()
+  
+  @property
+  def encabezado(self):
+    return self._encabezado
+  
+  @property
+  def clasif_completa(self):
+    return self._clasif_completa
+  
+  def crear_clasif_completa(self):
+    ''' Genera un atributo completo de clasificacion '''
+    clasificacion_completa = self.clasif
+    #* Manejo de el parametro de Encabezado
+    clasificacion_completa = self._clasif + ' ' + clasificacion_completa if self.encabezado != '' else clasificacion_completa
+
+    #* Manejo de el parametro de volumen
+    clasificacion_completa += ' V.' + self.volumen if self.volumen != '0' else ''
+
+    #* Manejo de el parametro de copia
+    clasificacion_completa += ' C.' + self.copia if self.copia != '1' else ''
+    
+    self._clasif_completa = clasificacion_completa
+  
+  @classmethod
+  def llenar_desde_excel(cls, ruta):
+    df = read_excel(ruta, header=0)
+    header = df.head(0)
+
+    for ind in df.index:
+      Libro(
+        aTitulo= str(df['Título'][ind]) if 'Título' in header else '',
+        aCbarras= str(df['C. Barras'][ind]) if 'C. Barras' in header else '',
+        aClasif= str(df['Clasificación'][ind]) if 'Clasificación' in header else '',
+        aCopia= str(df['Copia'][ind]) if 'Copia' in header else '',
+        aEncabezado= str(df['Encabezado'][ind]) if 'Encabezado' in header else '',
+        aVolumen= str(df['Volumen'][ind]) if 'Volumen' in header else '',
+      )
+
+if __name__ == '__main__':
+  ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Intercalador/Pruebas/Prueba_grande.xlsx'
+  ruta2 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
+  Libro.llenar_desde_excel(ruta1)
+  print(len(Libro.all))
+  print(Libro.all[1].clasif_completa)
+  Libro.all[1].volumen = '3'
+  print(Libro.all[1].clasif_completa)
+  

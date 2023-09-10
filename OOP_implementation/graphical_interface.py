@@ -1,9 +1,8 @@
-#############################################################
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 22 de Julio 2023
-# Implementación usando OOP, funcionalidad mejorada
+# Fecha Trabajo: 08 de Agosto 2023
+# Implementacion Orientada a Objetos
 #
-
+#############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
@@ -40,11 +39,6 @@ sg.LOOK_AND_FEEL_TABLE["TEC_Theme"] = {
 }
 sg.theme("TEC_Theme")
 
-# * Configuración de la tabla
-colum = ["Clasificación", "PIPE_A", "PIPE_B", "STATUS"]
-col_width = [25, 15, 15, 10]
-col_just = ["c", "l", "l", "c"]
-
 # ? Menu superior de opciones
 menu_opciones = [
   ["Ayuda", ["Tutoriales", "Licencia", "Acerca de..."]],
@@ -64,18 +58,7 @@ def resource_path(relative_path):
 
 
 class VentanaGeneral:
-  """ Ventana para cargar elementos (Clasificaciones) individualmente, para su impresion
-
-  ...
-
-  Atributos
-  ---------
-  En proceso.
-  
-  Metodos
-  -------
-  No Hay.
-  """
+  """ Ventana General para el Generador de Etiquetas """
   titulo_ventana = 'Generador de Etiquetas'
   def __init__(self) -> None:
     self.ruta_archivo = ''
@@ -83,19 +66,18 @@ class VentanaGeneral:
     self.table_manager = TableManager()
     self.excel_manager = ExcelManager()
 
-#?#********* LAYOUTS DE OBJETO #?#*********
-  def create_clasification_layout(self):
+  #? LAYOUTS PARA LA VENTANA **********************************
+  def clasification_layout(self):
     """ Layout para insertar clasificaciones 
     
-    Llaves que Maneja
-    -----------------
+    Atributos del libro
+    -------------------
       PIPE_A: (str) PIPE A de la clasificacion
       PIPE_B: (str) PIPE B de la clasificacion
       VOL: (int) Volumen del Libro
       COP: (int) Copia del Libro
       CLAS: (str) Clasificacion del Libro
       HEAD: (str) Encabezado del Libro
-
     """
     #?#********* LAYOUT PARA MANEJO DE PIPE'S #?#*********
     text_format = {
@@ -103,21 +85,29 @@ class VentanaGeneral:
       'background_color':"#FFFFFF", 
       'justification':"center",
     }
+    
     in_format = {
       'size':(14, 1), 
       'font':("Open Sans", 10), 
       'justification':"center", 
       'disabled':True,
     }
+    
     pipe_a_layout = [
       [sg.Text(text="PIPE A", pad=5, **text_format)],
       [sg.In(key="PIPE_A", ** in_format)],
     ]
+    
     pipe_b_layout = [
       [sg.Text(text="PIPE B", pad=5, **text_format)],
       [sg.In(key="PIPE_B", ** in_format)],
     ]
-    colum_format = {'background_color':"#FFFFFF", 'element_justification':"c"}
+    
+    colum_format = {
+      'background_color':"#FFFFFF", 
+      'element_justification':"c"
+    }
+    
     PIPE_AB_LAYOUT = [[
       sg.Column(layout=pipe_a_layout, **colum_format),
       sg.VSeperator(),
@@ -170,13 +160,12 @@ class VentanaGeneral:
     ]
     return LAYOUT_GENERAL
 
-  def create_col_izq_indi(self):
+  def individual_layout(self):
     """ Layout columna izquierda del programa
     
     LLaves que Maneja
     -----------------
-    FILE: (Ventana) Maneja el cambio de ventana en la aplicacion
-    ELEM: (Ventana) Maneja el cambio de ventana en la aplicacion
+    FILE & ELEM: (Ventana) Maneja el cambio de ventana en la aplicacion
     Agregar: (Boton) Agrega una nueva clasificacion
     
     Llaves que Hereda
@@ -189,7 +178,7 @@ class VentanaGeneral:
     HEAD: (str) Encabezado del Libro
 
     """
-    CLASIF_LAYOUT = self.create_clasification_layout()
+    CLASIF_LAYOUT = self.clasification_layout()
     #?#********* LAYOUT PARA SELECIONAR TIPO DE PROGRAMA #?#*********
     text_format = {
       'font':("Open Sans", 16, "bold"), 
@@ -223,12 +212,16 @@ class VentanaGeneral:
       #* Logo del Tec de Monterrey
       [sg.Image(filename=resource_path("Assets/LogoTecResize.png"), background_color="#FFFFFF")],
       #* Titulo de la aplicacion
-      [sg.Text(text=self.titulo_ventana, **text_format)], #pad=(0, (0, 15)),
+      [sg.Text(text=self.titulo_ventana, **text_format)],
+      #* Cambiar entre ventanas
       [sg.Frame("",layout=SELECCIONAR_LAYOUT, border_width=0, **frame_format)],
-      [sg.HSep(pad=(0, 5))],
+      [sg.HSep(pad=(0, 5))], # Separadores
+      #* Layout para agregar etiquetas individuales
       [sg.Frame("",layout=CLASIF_LAYOUT, **frame_format)],
-      [sg.HSep(pad=(0, 5))],
+      [sg.HSep(pad=(0, 5))], # Separadores
       [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
+
+      #* Layout invisible para guardar en la carpeta
       [
         sg.Input(key="FOLDER", visible=False),
         sg.FolderBrowse("Guardar", target='FOLDER', visible=False),
@@ -236,23 +229,17 @@ class VentanaGeneral:
     ]
     return GENERAL_LAYOUT
   
-  def create_col_izq_file(self):
+  def file_layout(self):
     """ Layout columna izquierda del programa
     
     LLaves que Maneja
     -----------------
-    FILE: (Ventana) Maneja el cambio de ventana en la aplicacion
-    ELEM: (Ventana) Maneja el cambio de ventana en la aplicacion
+    FILE & ELEM: (Ventana) Maneja el cambio de ventana en la aplicacion
     Agregar: (Boton) Agrega una nueva clasificacion
     
     Llaves que Hereda
     -----------------
-    PIPE_A: (str) PIPE A de la clasificacion
-    PIPE_B: (str) PIPE B de la clasificacion
-    VOL: (int) Volumen del Libro
-    COP: (int) Copia del Libro
-    CLAS: (str) Clasificacion del Libro
-    HEAD: (str) Encabezado del Libro
+    TODO
 
     """
     #?#********* LAYOUT PARA SELECIONAR TIPO DE PROGRAMA #?#*********
@@ -284,8 +271,8 @@ class VentanaGeneral:
     SELECCIONAR_ARCHIVO = [
       [
         sg.Button(
-          image_source=resource_path('Assets/subir_icon.png'), image_subsample=5, 
-          border_width=0, key='UPLOAD'
+          image_source=resource_path('Assets/subir_icon.png'), 
+          image_subsample=5, border_width=0, key='UPLOAD'
         )
       ],
       [sg.Text(text=ruta_excel, key="EXCEL_TEXT", **text_format)],
@@ -304,16 +291,21 @@ class VentanaGeneral:
       #* Logo del Tec de Monterrey
       [sg.Image(filename=resource_path("Assets/LogoTecResize.png"), background_color="#FFFFFF")],
       #* Titulo de la aplicacion
-      [sg.Text(text=self.titulo_ventana, **text_format)], #pad=(0, (0, 15)),
+      [sg.Text(text=self.titulo_ventana, **text_format)],
+      #* Seleccion de ventana
       [sg.Frame("",layout=SELECCIONAR_LAYOUT, border_width=0, **frame_format)],
-      [sg.HSep(pad=(0, 5))],
+      [sg.HSep(pad=(0, 5))], # Separador 
+      #* Seleccion de Archivo
       [sg.Frame("",layout=SELECCIONAR_ARCHIVO, border_width=0, **frame_format)],
-      [sg.HSep(pad=(0, (5,30)))],
+      [sg.HSep(pad=(0, (5,30)))], # Separador
       [sg.Button("Cargar", font=("Open Sans", 14, 'bold'))],
+      #* Layout Invisible para guardar el archivo
       [
         sg.Input(key="FOLDER", visible=False),
         sg.FolderBrowse("Guardar", target='FOLDER', visible=False),
       ],
+      
+      #* Layout Invisible para escoger archivo de excel
       [
         sg.In(key="EXCEL_FILE", visible=False),
         sg.FileBrowse("Abrir", target='EXCEL_FILE',visible=False, file_types=(("Excel Files", "*.xlsx"),)),
@@ -321,7 +313,7 @@ class VentanaGeneral:
     ]
     return GENERAL_LAYOUT  
   
-  def create_col_der(self):
+  def table_layout(self):
     """ Layout columna izquierda del programa
     
     LLaves que Maneja
@@ -335,6 +327,9 @@ class VentanaGeneral:
     
     """
     #?#********** DEFINIR VARIABLES UTILIZADAS #?#**********
+    # * Configuración de la tabla
+    colum = ["Clasificación", "PIPE_A", "PIPE_B", "STATUS"]
+    col_width = [25, 15, 15, 10]
     tabla_principal = self.table_manager.tabla_principal
     row_color_array = self.table_manager.tabla_formato
     boton_font = {'font':("Open Sans", 12),}
@@ -349,7 +344,7 @@ class VentanaGeneral:
           row_height=25,
           num_rows=15,
           auto_size_columns=False,
-          display_row_numbers=True,
+          display_row_numbers=False,
           justification="l",
           expand_y=False,
           enable_events=True,
@@ -371,33 +366,14 @@ class VentanaGeneral:
     return LAYOUT
 
   def create_layout(self, formato = "FILE"):
-    """ Crea el layout principal para esta ventana 
-    
-    Llaves que Hereda
-    -----------------    
-    FILE: (Ventana) Maneja el cambio de ventana en la aplicacion
-    ELEM: (Ventana) Maneja el cambio de ventana en la aplicacion
-    Agregar: (Boton) Agrega una nueva clasificacion
-    PIPE_A: (str) PIPE A de la clasificacion
-    PIPE_B: (str) PIPE B de la clasificacion
-    VOL: (int) Volumen del Libro
-    COP: (int) Copia del Libro
-    CLAS: (str) Clasificacion del Libro
-    HEAD: (str) Encabezado del Libro
-    TABLE : (Tabla) Manejo general de la tabla
-    Modificar : (Tabla/ Click Derecho) Modificar una etiqueta de la tabla
-    SELECT-ALL : (Boton) Seleccionar todas las etiquetas
-    LIMPIAR : (Boton) Reiniciar todo el programa
-    DESELECT-ALL : (Boton) Para deseleccionar todas las etiquetas
-    EXPORTAR : (Boton) Lanzar la siguiente parte del programa
-    """
+    """ Crea el layout principal para esta ventana """
     colum_format = {
       'background_color':"#FFFFFF", 
       'element_justification':"c", 
       'pad':0
     }
-    COL_IZQ_LAYOUT = self.create_col_izq_file() if formato == "FILE" else self.create_col_izq_indi()
-    COL_DER_LAYOUT = self.create_col_der()
+    COL_IZQ_LAYOUT = self.file_layout() if formato == "FILE" else self.individual_layout()
+    COL_DER_LAYOUT = self.table_layout()
     LAYOUT = [
       [
         sg.Column(COL_IZQ_LAYOUT, **colum_format),
@@ -419,18 +395,20 @@ class VentanaGeneral:
     window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, element_justification="c", icon=resource_path("Assets/ticket_icon.ico"))  
     return window
 
-#?#********* FUNCIONAMIENTO PRINCIPAL DE LA VENTANA #?#*********
+
+  #? FUNCIONAMIENTO PRINCIPAL DE LA VENTANA ***********************
   def run_window(self, window):
-    #?#********** MANEJO DE VARIABLES #?#**********
+    #? MANEJO DE VARIABLES
     bandera_agregar = False
     bandera_modificar = False
     index_modificar = 0
     estatus_modificar = 'K'
-    #?#**********  LOOP PRINCIPAL#?#**********
+    
+    #? LOOP PRINCIPAL
     while True:
       event, values = window.read()
       self.show_window_events(event, values)
-      #?#********** FUNCIONALIDAD BASICA VENTANA **********#?#
+      #? ******** FUNCIONALIDAD BASICA VENTANA  ***************
       #* Cerrar la aplicación
       if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__"):
         window.close()
@@ -443,23 +421,26 @@ class VentanaGeneral:
       elif event == "ELEM":
         window.close()
         return "ELEM"
-      
+      #* Mostrar licencia del Programa
       elif event == "Licencia":
         pop.info_license()
-      
+      #* Mostrar version del Programa
       elif event == "Acerca de...":
         pop.info_about(VERSION)
       
-      #?#********** FUNCIONALIDAD ARCHIVO **********#?#
+      #? ********** FUNCIONALIDAD ARCHIVO *******************
       elif event == "UPLOAD":
-        window["Abrir"].click()
-        self.ruta_archivo = window['EXCEL_FILE'].get()
+        window["Abrir"].click() # Activar funcionalidad para abrir archivo
+        self.ruta_archivo = window['EXCEL_FILE'].get() # Actualizar ruta del archivo
+        # Actualizar nombre del archivo de la ventana
         nombre_archivo = self.ruta_archivo.split('/')[-1] if len(self.ruta_archivo) != 0 else 'Sin Archivo'
         window["EXCEL_TEXT"].update(nombre_archivo)
+      
+      # * Cargar excel completo de un archivo
       elif event == "Cargar":
         self.cargar_excel(window)
       
-      #?#********** FUNCIONALIDAD INDIVIDUAL **********#?#      
+      #? ********** FUNCIONALIDAD INDIVIDUAL ****************
       #* Revisar una clasificación
       elif event in ("CLAS", 'VOL', 'COP', 'HEAD'):
         bandera_agregar = self.checar_clasificacion(window, values)
