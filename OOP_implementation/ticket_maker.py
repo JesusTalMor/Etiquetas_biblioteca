@@ -1,11 +1,10 @@
 import os
 import sys
 
+import pop_ups as pop
 import PySimpleGUI as sg
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
-
-import pop_ups as pop
 
 
 # TODO Ajustar el encabezado 1 cm de margen, listo pero no me convence
@@ -253,10 +252,14 @@ class TicketMaker:
     txt_path = f'{ruta}/{titulo}_etiquetas.txt'
     ticket_database = open(txt_path, 'w', encoding="utf-8")
     #* Recorrer todas las etiquetas a imprimir
+    for num in range(9):
+      ticket_database.write(f'C{num},')
+    ticket_database.write('\n')
     for etiqueta in lista_a_imprimir:
       limpiar_lista = [x for ind, x in enumerate(etiqueta) if x != '' or ind == 0]
       #* Recorrer todos los elementos de la etiqueta.
       for elem in limpiar_lista: ticket_database.write(f'{elem},')
+      if len(limpiar_lista) < 9: ticket_database.write(','*(9-len(limpiar_lista)))
       ticket_database.write('\n')
     ticket_database.close()
 
