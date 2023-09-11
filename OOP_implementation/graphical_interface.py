@@ -528,6 +528,15 @@ class VentanaGeneral:
       row_colors=self.table_manager.tabla_formato
     )
 
+    #* Limpiar datos de agregar clasificacion
+    window["CLAS"].update('')
+    window["VOL"].update('')
+    window["COP"].update('1')
+    window["HEAD"].update('')
+    window["PIPE_A"].update('')  
+    window["PIPE_B"].update('')
+
+
   def reset_window(self, window):
     """ Reiniciar todos los valores de la tabla que se trabaja """
     self.table_manager.reset_table()
