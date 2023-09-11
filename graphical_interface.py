@@ -688,7 +688,7 @@ class VentanaGeneral:
     today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
 
     # ? Función para el manejo y creación de eiquetas
-    print(etiquetas_a_imprimir)
+    # print(etiquetas_a_imprimir)
     try:
       TM = TicketMaker(etiquetas_a_imprimir, today_date, ruta, configuracion, position)
       if position is False: TM.crear_base_datos_etiquetas()
