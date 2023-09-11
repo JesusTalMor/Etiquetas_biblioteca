@@ -19,6 +19,7 @@ class TableManager:
     self.tabla_datos.append(datos)
     self.tabla_formato.append(formato)
     self.diccionario_estatus[largo_tabla] = estatus
+
   
   def agregar_modificado(self, index:int, new_clasif:str):
     """ Agregar un elemento a un diccionario de modificaciones
@@ -234,6 +235,7 @@ class Etiqueta:
     self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
     self._PIPE_A = 'XXXXXX'
     self._PIPE_B = 'XXXXXX'
+    self._clasif_estatus = 'FALSO'
     self._clasif_valida = False
     self._clasif_completa = ''
 
@@ -257,7 +259,11 @@ class Etiqueta:
     if 'V.' in STR: STR = sh.cortar_string(STR, 'V.')
     if 'C.' in STR: STR = sh.cortar_string(STR, 'C.')
     return STR
-
+  
+  @property
+  def PIPE_A(self): return self._PIPE_A
+  def PIPE_B(self): return self._PIPE_B
+  def clasif_estatus(self): return self._clasif_estatus
   def revisar_clasificacion(self):
     """ Revisar si la clasificacion cumple el estandar """
     if sh.revisar_corte_pipe(self.clasif) and sh.revisar_pipeB(self.clasif):
@@ -265,6 +271,7 @@ class Etiqueta:
       self._PIPE_A = self.clasif[:pos_div]
       self._PIPE_B = '.' + self.clasif[pos_div+sum:]
       self._clasif_valida = True
+      self._clasif_estatus = 'VALIDO'
       self._clasif = self._PIPE_A + ' ' + self._PIPE_B
 
   @property
@@ -303,6 +310,7 @@ class Etiqueta:
     #* Manejo de el parametro de copia
     clasif_completa += ' C.' + self.copia if self.copia != '1' else ''
     self._clasif_completa = clasif_completa
+    
 
 
   def __str__(self) -> str:
@@ -318,12 +326,9 @@ class Etiqueta:
       Clasificacion: {self._clasif} PIPES: {self._PIPE_A}|{self._PIPE_B}
       """
 
-  
-
-
-
 class Libro:
   """ Clase para generar objectos de tipo libro con todos sus datos """
+  # TODO Considerar una bandera para agregar estatus de libros
   all = []
   def __init__(self, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
     # Asignar Valores al objeto
@@ -359,6 +364,26 @@ class Libro:
         aEncabezado= str(df['Encabezado'][ind]) if 'Encabezado' in header else '',
         aVolumen= str(df['Volumen'][ind]) if 'Volumen' in header else '',
       )
+
+class ManejoTabla:
+  """ Clase para manejo de Tabla """
+  tabla_principal = []
+  formato_tabla = []
+  lista_libros = []
+  tabla_len = 0
+
+  def agregar_elemento(self, aLibro:Libro, aColor='#FFFFFF'):
+    """ Agregar un elemento a la tabla general """
+    formato = (self.tabla_len, aColor)
+    principal = [Etiqueta.clasif, Etiqueta.PIPE_A, Etiqueta.PIPE_B, Etiqueta.clasif_estatus]
+    self.tabla_principal.append(principal)
+    self.tabla_datos.append(aLibro)
+    self.tabla_formato.append(formato)
+    # self.diccionario_estatus[largo_tabla] = estatus    
+
+  def crear_tabla(self, lista:list):
+    for 
+  
 
 if __name__ == '__main__':
   ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'

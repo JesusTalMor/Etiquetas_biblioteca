@@ -19,7 +19,7 @@ import PySimpleGUI as sg
 
 import pop_ups as pop
 import string_helper as sh
-from managers import ExcelManager, TableManager
+from managers import ExcelManager, Libro, TableManager
 from string_helper import creador_clasificacion
 from support_windows import (VentanaConfiguracion, VentanaModificar,
                              VentanaSeleccionarPosicion)
@@ -708,9 +708,10 @@ class VentanaGeneral:
       pop.warning_excel_file()
       return False
     
-    # * Cargar datos del Excel
-    estatus = self.excel_manager.cargar_datos_excel(self.ruta_archivo, self.table_manager)
-    if estatus is False: return False
+    #* Generar libros del excel
+    Libro.llenar_desde_excel(self.ruta_archivo)
+    # Recorrer libros
+
     #* Actualizar apariencia de la tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
