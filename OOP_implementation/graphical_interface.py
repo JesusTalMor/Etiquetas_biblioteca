@@ -487,7 +487,7 @@ class VentanaGeneral:
       posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
       if posicion_corte != 0:
         pipe_a_str = clasificacion[:posicion_corte]
-        pipe_b_str = clasificacion[posicion_corte + diferencia :]
+        pipe_b_str = '.' + clasificacion[posicion_corte + diferencia :]
         window["PIPE_A"].update(pipe_a_str)  
         window["PIPE_B"].update(pipe_b_str)
         # ? Bandera Verdadera se puede agregar

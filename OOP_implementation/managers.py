@@ -222,7 +222,6 @@ class ExcelManager:
       lista_salida.append(temp_dict)
     
     return lista_salida
-  
 
 class Libro:
   """ Clase para generar objectos de tipo libro con todos sus datos """
@@ -330,9 +329,12 @@ class Libro:
 if __name__ == '__main__':
   ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Intercalador/Pruebas/Prueba_grande.xlsx'
   ruta2 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
-  Libro.llenar_desde_excel(ruta1)
-  print(len(Libro.all))
-  print(Libro.all[1].clasif_completa)
-  Libro.all[1].volumen = '3'
-  print(Libro.all[1].clasif_completa)
+  for _ in range(3):
+    Libro.llenar_desde_excel(ruta1)
+    print(len(Libro.all))
+    print(Libro.all[1].clasif_completa)
+    Libro.all[1].volumen = '3'
+    print(Libro.all[1].clasif_completa)
+    Libro.all = []
+    print(len(Libro.all))
   
