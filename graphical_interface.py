@@ -6,8 +6,8 @@
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 1
-BUGS = 2
+FUNCIONALIDAD = 3
+BUGS = 3
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -15,8 +15,9 @@ import os
 import sys
 from datetime import datetime
 
-import pop_ups as pop
 import PySimpleGUI as sg
+
+import pop_ups as pop
 import string_helper as sh
 from managers import ExcelManager, TableManager
 from string_helper import creador_clasificacion

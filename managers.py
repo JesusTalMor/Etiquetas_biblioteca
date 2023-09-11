@@ -1,6 +1,7 @@
 import pandas as pd
-import string_helper as sh
 from pandas import read_excel
+
+import string_helper as sh
 
 
 class TableManager:
@@ -223,36 +224,26 @@ class ExcelManager:
     
     return lista_salida
 
-class Libro:
-  """ Clase para generar objectos de tipo libro con todos sus datos """
-  all = []
-  def __init__(self, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
-    # Asignar Valores al objeto
-    self._titulo = aTitulo
-    self._cbarras = aCbarras
+class Etiqueta:
+  """ Objeto de tipo Etiqueta que contenga toda la informacion de una etiqueta comun """
+  def __init__(self, aClasif='', aEncabezado='', aVolumen='', aCopia='') -> None:
+    # Asignar valores al objeto
     self._clasif = self.limpiar_clasif(aClasif)
+    self._encabezado = aEncabezado
     self._volumen = aVolumen[2:] if 'V.' in aVolumen or 'v.' in aVolumen else '0'
     self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
-    self._encabezado = aEncabezado
+    self._PIPE_A = 'XXXXXX'
+    self._PIPE_B = 'XXXXXX'
+    self._clasif_valida = False
     self._clasif_completa = ''
-    
-    # Agregar libro a una lista de objetos
-    self.crear_clasif_completa()
-    Libro.all.append(self)
 
-  #? GETTERS Y SETTERS
+    # llenar pipe_a_b y marcar como correcta la etiqueta
+    self.revisar_clasificacion()
+    # Crear clasificacion completa
+    self.crear_clasif_completa()
+    
   @property
-  def titulo(self):
-    return self._titulo
-  
-  @property
-  def cbarras(self):
-    return self._cbarras
-  
-  @property
-  def clasif(self):
-    return self._clasif
-  
+  def clasif(self): return self._clasif
   @clasif.setter
   def clasif(self, aClasif):
     self._clasif = self.limpiar_clasif(aClasif)
@@ -265,51 +256,94 @@ class Libro:
     if 'MAT' in STR: STR = sh.cortar_string(STR, 'MAT')
     if 'V.' in STR: STR = sh.cortar_string(STR, 'V.')
     if 'C.' in STR: STR = sh.cortar_string(STR, 'C.')
-
     return STR
 
+  def revisar_clasificacion(self):
+    """ Revisar si la clasificacion cumple el estandar """
+    if sh.revisar_corte_pipe(self.clasif) and sh.revisar_pipeB(self.clasif):
+      pos_div, sum = sh.buscar_pipe(self.clasif)
+      self._PIPE_A = self.clasif[:pos_div]
+      self._PIPE_B = '.' + self.clasif[pos_div+sum:]
+      self._clasif_valida = True
+      self._clasif = self._PIPE_A + ' ' + self._PIPE_B
+
   @property
-  def volumen(self):
-    return self._volumen
-  
+  def volumen(self): return self._volumen
   @volumen.setter
   def volumen(self, aVolumen):
     #* Unicamente acepta numeros
     self._volumen = aVolumen if aVolumen not in ['', ' ', 'nan'] else '0'
     self.crear_clasif_completa()
-  
+
   @property
-  def copia(self):
-    return self._copia
-  
+  def copia(self):return self._copia
   @copia.setter
   def copia(self, aCopia):
     #* Unicamente acepta numeros
     #* No acepta {'', ' ', '1'}
     self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
     self.crear_clasif_completa()
+
+  @property
+  def encabezado(self): return self._encabezado
+  @encabezado.setter
+  def encabezado(self, aEncabezado):
+    self._encabezado = aEncabezado
+    self.crear_clasif_completa()
   
   @property
-  def encabezado(self):
-    return self._encabezado
-  
-  @property
-  def clasif_completa(self):
-    return self._clasif_completa
-  
+  def clasif_completa(self):return self._clasif_completa
   def crear_clasif_completa(self):
     ''' Genera un atributo completo de clasificacion '''
-    clasificacion_completa = self.clasif
+    clasif_completa = self.clasif
     #* Manejo de el parametro de Encabezado
-    clasificacion_completa = self._clasif + ' ' + clasificacion_completa if self.encabezado != '' else clasificacion_completa
-
+    clasif_completa = self._clasif + ' ' + clasif_completa if self.encabezado != '' else clasif_completa
     #* Manejo de el parametro de volumen
-    clasificacion_completa += ' V.' + self.volumen if self.volumen != '0' else ''
-
+    clasif_completa += ' V.' + self.volumen if self.volumen != '0' else ''
     #* Manejo de el parametro de copia
-    clasificacion_completa += ' C.' + self.copia if self.copia != '1' else ''
-    
-    self._clasif_completa = clasificacion_completa
+    clasif_completa += ' C.' + self.copia if self.copia != '1' else ''
+    self._clasif_completa = clasif_completa
+
+
+  def __str__(self) -> str:
+    return f"""  
+      Imprimiendo Etiqueta:
+      ---------------------
+      Clasificacion completa: {self._clasif_completa}
+      Clasificacion correcta? {self._clasif_valida}
+      
+      Atributos:
+      ----------
+      Volumen: {self._volumen} Copia: {self._copia} Encabezado: {self._encabezado}
+      Clasificacion: {self._clasif} PIPES: {self._PIPE_A}|{self._PIPE_B}
+      """
+
+  
+
+
+
+class Libro:
+  """ Clase para generar objectos de tipo libro con todos sus datos """
+  all = []
+  def __init__(self, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
+    # Asignar Valores al objeto
+    self._titulo = aTitulo
+    self._cbarras = aCbarras
+    # Crear objeto de tipo etiqueta
+    self._etiqueta = Etiqueta(
+      aClasif= aClasif,
+      aEncabezado= aEncabezado,
+      aVolumen= aVolumen,
+      aCopia= aCopia,
+    )
+    # Agregar libro a una lista de objetos
+    Libro.all.append(self)
+
+  @property
+  def titulo(self): return self._titulo
+  
+  @property
+  def cbarras(self): return self._cbarras
   
   @classmethod
   def llenar_desde_excel(cls, ruta):
@@ -327,14 +361,8 @@ class Libro:
       )
 
 if __name__ == '__main__':
-  ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Intercalador/Pruebas/Prueba_grande.xlsx'
-  ruta2 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
-  for _ in range(3):
-    Libro.llenar_desde_excel(ruta1)
-    print(len(Libro.all))
-    print(Libro.all[1].clasif_completa)
-    Libro.all[1].volumen = '3'
-    print(Libro.all[1].clasif_completa)
-    Libro.all = []
-    print(len(Libro.all))
-  
+  ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
+  Libro.llenar_desde_excel(ruta1)
+  print(Libro.all[-1]._etiqueta)
+  # etiqueta1 = Etiqueta('B2430.D484 P6818 1997', '', '', '1')
+  # print(etiqueta1)
