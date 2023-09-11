@@ -520,7 +520,7 @@ class VentanaGeneral:
     }
     
     #* Se agrega dicho elemento a las listas de datos
-    self.table_manager.agregar_elemento(lista_principal, lista_datos, 'True', '#696D7D')
+    self.table_manager.agregar_elemento(lista_principal, lista_datos, 'True', '#FFFFFF')
 
     #* Actualizando la tabla principal
     window["TABLE"].update(
