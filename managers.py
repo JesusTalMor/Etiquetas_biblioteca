@@ -448,8 +448,8 @@ class ManejoTabla:
     formato = (num_elem, color)
     self.formato_tabla[num_elem] = formato
 
-  def agregar_elemento_modificado(self, num_elem, aLibro):
-    self.lista_modificados[num_elem] = aLibro
+  def agregar_elemento_modificado(self, num_elem, aLibro, aClasifAnterior):
+    self.lista_modificados[num_elem] = (aLibro, aClasifAnterior)
     print('Elemento agregado')
   
   def actualizar_elemento(self, num_elem, aLibro):
@@ -472,7 +472,33 @@ class ManejoTabla:
     
     return libros_a_imprimir
 
+  def crear_reporte_modificados(self, path:str, nombre:str,):
+    '''Genera un reporte en un txt de libros modificados'''
+    if not self.lista_modificados: return False # Revisar si tenemos datos
+    
+    txt_path = f'{path}/{str(nombre)}_modificados.txt'
+    modif_file = open(txt_path, 'w', encoding="utf-8")
+    modif_file.write(f'Lista de Clasificaciones Modificadas\n')
+    for libro in self.lista_modificados.values():
+      texto_libro = f"{libro.titulo} | {libro.etiqueta}"
+      for elem in target:
+        if len(elem) > 40: modif_file.write(f'{elem[:40]}... | ')
+        else: modif_file.write(f'{elem} | ')
+      modif_file.write('\n')
+    modif_file.close()
+    return True
 
+  def crear_reporte_QRO(self, path:str, nombre:str,):
+    '''Genera un reporte en un txt de libros modificados'''
+    if not self.diccionario_modificados: return False # Revisar si tenemos datos
+    
+    txt_path = f'{path}/{str(nombre)}_QRO.txt'
+    modif_file = open(txt_path, 'w', encoding="utf-8")
+    for target in self.diccionario_modificados.values():
+        modif_file.write(f'{target[1]}')
+        modif_file.write('\n')
+    modif_file.close()
+    return True
 
   @property
   def tabla_len(self): return self._tabla_len

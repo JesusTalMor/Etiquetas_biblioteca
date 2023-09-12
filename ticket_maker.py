@@ -252,13 +252,19 @@ class TicketMaker:
     
     txt_path = f'{ruta}/{titulo}_etiquetas.txt'
     ticket_database = open(txt_path, 'w', encoding="utf-8")
+    #* Crear encabezado de base de datos
+    for num in range(9):
+      ticket_database.write(f'C{num},')
+    ticket_database.write('\n')
     #* Recorrer todas las etiquetas a imprimir
     for etiqueta in lista_a_imprimir:
       limpiar_lista = [x for ind, x in enumerate(etiqueta) if x != '' or ind == 0]
       #* Recorrer todos los elementos de la etiqueta.
       for elem in limpiar_lista: ticket_database.write(f'{elem},')
+      if len(limpiar_lista) < 9: ticket_database.write(','*(9-len(limpiar_lista)))
       ticket_database.write('\n')
     ticket_database.close()
+
 
 class DatabaseMaker:
   """ Clase implementada para crear bases de datos con txt tipo csv """
@@ -274,7 +280,7 @@ class DatabaseMaker:
       for elem in limpiar_lista: database_writer.write(f'{elem},')
       database_writer.write('\n')
     database_writer.close()
-
+    
   def separar_lista(self, aEtiqueta:Etiqueta):
     """ Recibe un diccionario y crea una lista para imprimir """
     lista_salida = []

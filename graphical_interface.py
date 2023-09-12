@@ -23,7 +23,7 @@ from managers import ExcelManager, Libro, ManejoTabla, TableManager
 from string_helper import creador_clasificacion
 from support_windows import (VentanaConfiguracion, VentanaModificar,
                              VentanaSeleccionarPosicion)
-from ticket_maker import TicketMaker
+from ticket_maker import DatabaseMaker, TicketMaker
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["TEC_Theme"] = {
@@ -614,6 +614,7 @@ class VentanaGeneral:
   def modificar_elemento(self, window, modify_index):
     #* Sacar los datos de esa etiqueta
     libro_a_modificar = self.table_manager.lista_libros[modify_index]
+    clasif_libro_a_modificar = libro_a_modificar.etiqueta.clasif_completa
     #* Mandar llamar ventana modificar
     VM = VentanaModificar(libro_a_modificar)
     estatus, libro_modificado = VM.run_window()
@@ -624,7 +625,7 @@ class VentanaGeneral:
     if estatus is False: return True
     
     # * Agregamos elemento a una tabla de modificaciones
-    self.table_manager.agregar_elemento_modificado(modify_index, libro_modificado)
+    self.table_manager.agregar_elemento_modificado(modify_index, libro_modificado, clasif_libro_a_modificar)
 
     # * Actualizar valores de tabla de datos
     self.table_manager.actualizar_elemento(modify_index, libro_modificado)
@@ -654,14 +655,11 @@ class VentanaGeneral:
     if len(ruta) == 0: return False
     today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
 
-    return False
-    # ? Función para el manejo y creación de eiquetas
-    try:
-      # TM = TicketMaker(etiquetas_a_imprimir, today_date, ruta, configuracion, position)
-      pass
-    except:
-      return False
-    # Generamos un reporte de modificaciones
+    #* Generar base de datos
+    DBM = DatabaseMaker
+    DBM.crear_database(etiquetas_a_imprimir, today_date, ruta)    
+
+    #* Generar reporte de datos modificados
     self.table_manager.crear_reporte_modificados(ruta, today_date)
     self.table_manager.crear_reporte_QRO(ruta, today_date)
     pop.success_program()
