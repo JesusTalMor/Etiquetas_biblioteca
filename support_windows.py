@@ -1,9 +1,11 @@
 import os
 import sys
 
-import pop_ups as pop
 import PySimpleGUI as sg
+
+import pop_ups as pop
 import string_helper as sh
+from managers import Libro
 from string_helper import creador_clasificacion
 
 """En este modulo se almacenan las ventanas auxiliares de trabajo."""
@@ -334,19 +336,7 @@ class VentanaConfiguracion:
     return main_config
 
 class VentanaModificar:
-  """ Ventana inicial del programa.
-  
-  Ventana para manejo inicial de programa.
-  Archivos, Nombres etc.
-
-  Atributos
-  ---------
-
-  Metodos
-  -------
-  """
-  '''
-    Modifica el contenido y parametros de una etiqueta
+  '''Modifica el contenido y parametros de una etiqueta
 
     Parametros:
       clasificacion_completa: Clasificación completa del libro a modificar
@@ -363,67 +353,10 @@ class VentanaModificar:
           Caso contrario regresa 2 listas de la siguiente manera [False],[False]
   '''
   titulo_ventana = 'Modificar Etiqueta'
-  def __init__(self, clas_completa:str, dicc_info:dict):
-    self.clasif_completa = clas_completa
-    self.clasif = dicc_info['clasif']
-    volumen = dicc_info['volumen']
-    self.copia = dicc_info['copia']
-    self.encabezado = dicc_info['encabeza']
-    self.titulo = dicc_info['titulo']
-    self.volumen = volumen[(volumen.index('V.') + 2):] if 'V.' in volumen else volumen
-    # self.volumen = self.volumen[self.volumen.index('V.' + 2):] if 'V.' in self.volumen else '0'
-  
-  def create_layout(self):
-    """ Crea el layout General de Esta Ventana 
-    Llaves que Maneja
-    -----------------
-      INFO: (boton) Muestra el titulo del Libro
-      TEXT: (str) Texto de clasificacion completa
-      Cancelar: (boton) Cierra la ventana
-      Modificar: (boton) Cierra la ventana y mandar los datos modificados
+  def __init__(self, aLibro:Libro):
+    self._Libro = aLibro
 
-
-    Llaves que Hereda
-    -----------------
-      PIPE_A: (str) PIPE A de la clasificacion
-      PIPE_B: (str) PIPE B de la clasificacion
-      VOL: (int) Volumen del Libro
-      COP: (int) Copia del Libro
-      CLAS: (str) Clasificacion del Libro
-      HEAD: (str) Encabezado del Libro
-    """
-    INDIV_LAYOUT = self.create_clasification_layout()
-    text_format = {'background_color':"#FFFFFF", 'justification':"c",}
-    frame_format = {'background_color':"#FFFFFF", 'element_justification':"c",}
-    GENERAL_LAYOUT = [
-      #* Titulo de la aplicacion y Boton de Mas Info
-      [
-        sg.Text(
-          text=self.titulo_ventana, font=("Open Sans", 18, "bold", "italic"), 
-          pad=(0, (0, 10)), ** text_format,
-        ),
-        sg.Button(
-          image_source=resource_path('Assets/info_icon.png'), image_subsample=10, 
-          border_width=0, key='INFO', pad=(5,(0,10))
-        )
-      ],
-      [
-        sg.Text(
-          text=self.clasif_completa, key="TEXT",
-          font=("Open Sans", 16, "bold"), **text_format
-        )
-      ],
-      [sg.HorizontalSeparator(pad=(0, (10, 6)))],
-      [sg.Frame("", layout=INDIV_LAYOUT, **frame_format)],
-      [sg.HorizontalSeparator(pad=(0, (6, 10)))],
-      [
-        sg.Button("Cancelar", font=("Open Sans", 12, "bold")),
-        sg.Button("Modificar", font=("Open Sans", 12, "bold"), disabled=True),
-      ],    
-    ]
-    return GENERAL_LAYOUT
-
-  def create_clasification_layout(self):
+  def clasification_layout(self):
     """ Layout para insertar clasificaciones 
     
     Llaves que Maneja
@@ -444,7 +377,7 @@ class VentanaModificar:
     }
     in_format = {
       'size':(14, 1), 
-      'font':("Open Sans", 10), 
+      'font':("Open Sans", 10, "bold"), 
       'justification':"center", 
       'disabled':True,
     }
@@ -477,9 +410,9 @@ class VentanaModificar:
     }
     VOL_COP_LAYOUT = [
       sg.Text(text="Volumen", **text_format),
-      sg.In(default_text=self.volumen, key="VOL", **in_format),
+      sg.In(default_text=self._Libro.etiqueta.volumen, key="VOL", **in_format),
       sg.Text(text="Copia", **text_format),
-      sg.In(default_text=self.copia, key="COP", **in_format),
+      sg.In(default_text=self._Libro.etiqueta.copia, key="COP", **in_format),
     ],
     
     #?#********* LAYOUT PARA MANEJO DE CLASIFICACION Y ENCABEZADO #?#*********
@@ -500,14 +433,64 @@ class VentanaModificar:
     LAYOUT_GENERAL = [
       #* Titulo de esta seccion
       [sg.Text(text="Clasificación", font=("Open Sans", 14, "bold"), **text_format)],
-      [sg.In(default_text=self.clasif, size=(28, 1), key="CLAS", pad=(15, 5), **in_format)],
+      [sg.In(default_text=self._Libro.etiqueta.clasif, size=(28, 1), key="CLAS", pad=(15, 5), **in_format)],
       #* Funcion para agregar un encabezado
       [sg.Text(text="Agregar Encabezado", font=("Open Sans", 12), **text_format)],
-      [sg.In(default_text=self.encabezado, size=(18, 1), key="HEAD", **in_format)],
+      [sg.In(default_text=self._Libro.etiqueta.encabezado, size=(18, 1), key="HEAD", **in_format)],
       [sg.Frame("",layout=VOL_COP_LAYOUT, **frame_format)],
       [sg.Frame("",layout=PIPE_AB_LAYOUT, **frame_format)],
     ]
     return LAYOUT_GENERAL
+
+  def create_layout(self):
+    """ Crea el layout General de Esta Ventana 
+    Llaves que Maneja
+    -----------------
+      INFO: (boton) Muestra el titulo del Libro
+      TEXT: (str) Texto de clasificacion completa
+      Cancelar: (boton) Cierra la ventana
+      Modificar: (boton) Cierra la ventana y mandar los datos modificados
+
+
+    Llaves que Hereda
+    -----------------
+      PIPE_A: (str) PIPE A de la clasificacion
+      PIPE_B: (str) PIPE B de la clasificacion
+      VOL: (int) Volumen del Libro
+      COP: (int) Copia del Libro
+      CLAS: (str) Clasificacion del Libro
+      HEAD: (str) Encabezado del Libro
+    """
+    INDIV_LAYOUT = self.clasification_layout()
+    text_format = {'background_color':"#FFFFFF", 'justification':"c",}
+    frame_format = {'background_color':"#FFFFFF", 'element_justification':"c",}
+    GENERAL_LAYOUT = [
+      #* Titulo de la aplicacion y Boton de Mas Info
+      [
+        sg.Text(
+          text=self.titulo_ventana, font=("Open Sans", 18, "bold", "italic"), 
+          pad=(0, (0, 10)), ** text_format,
+        ),
+        sg.Button(
+          image_source=resource_path('Assets/info_icon.png'), image_subsample=10, 
+          border_width=0, key='INFO', pad=(5,(0,10))
+        )
+      ],
+      [
+        sg.Text(
+          text=self._Libro.etiqueta.clasif_completa, key="TEXT",
+          font=("Open Sans", 16, "bold"), **text_format
+        )
+      ],
+      [sg.HorizontalSeparator(pad=(0, (10, 6)))],
+      [sg.Frame("", layout=INDIV_LAYOUT, **frame_format)],
+      [sg.HorizontalSeparator(pad=(0, (6, 10)))],
+      [
+        sg.Button("Cancelar", font=("Open Sans", 12, "bold")),
+        sg.Button("Modificar", font=("Open Sans", 12, "bold"), disabled=True),
+      ],    
+    ]
+    return GENERAL_LAYOUT
 
   def create_window(self):
     LAYOUT = self.create_layout()
@@ -515,6 +498,7 @@ class VentanaModificar:
     window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, element_justification='c', icon=resource_path('Assets/book_icon.ico'))
     return window
 
+  #? FUNCIONAMIENTO PRINCIPAL DE LA VENTANA ***********************
   def run_window(self):
     bandera_agregar = False
     clasif_completa = ''
@@ -523,87 +507,50 @@ class VentanaModificar:
     while True:
       event, values = window.read()
       self.show_window_events(event, values)
-      # #* Actualizar boton de modificar
-      # try:
-      #   if bandera_agregar is True: window['Modificar'].update(disabled=False)
-      #   else: window['Modificar'].update(disabled=True)
-      # except: return False, False
       #* Cerrar programa sin resultados
       if event in (sg.WINDOW_CLOSED, "Exit", "Cancelar"):
         window.close() 
-        return False,False
+        return False, self._Libro
       
       #* Actualizar elemento de Clasificacion Completa
-      clasif_completa = self.actualizar_clasif(values)
-      window['TEXT'].update(clasif_completa)
+      self.actualizar_clasif(window, values)
+      window['TEXT'].update(self._Libro.etiqueta.clasif_completa)
 
-      if event in ("CLAS", 'VOL', 'COP', 'HEAD'):
-        bandera_agregar = self.checar_clasificacion(window, values)
-      elif event == 'Modificar':
-        #* Tomar datos para modificar
-        tabla_principal = [
-          clasif_completa,
-          values['PIPE_A'],
-          values['PIPE_B'],
-          'Modified',
-        ]
-        tabla_datos = [
-          values['CLAS'],
-          values['VOL'],
-          values['COP'],
-          values['HEAD'],
-        ]
+      if event == 'Modificar':
         window.close()
-        return tabla_principal, tabla_datos
-      elif event == 'INFO': pop.show_info_libro(self.titulo)
+        return True, self._Libro
+      elif event == 'INFO': pop.show_info_libro(self._Libro.titulo)
 
-  
+  #? FUNCIONALIDAD GENERAL *********************************
   def show_window_events(self, event, values):
-    print('-'*50)
-    print(f'Eventos que suceden {event}')
-    print(f'Valores guardaros {values}')
-    print('-'*50 + '\n')
+    print(f"""
+      Imprimiendo Eventos de Suceden
+      {'-'*50}
+      Eventos que suceden {event}
+      Valores guardados {values}
+      {'-'*50}
+    """)
 
-  def actualizar_clasif(self, values):
+  def actualizar_clasif(self, window, values):
     """ Construye una clasificacion en tiempo real 
     """
     #* Tomar datos
     try:
-      clasif = str(values["CLAS"])
-      volumen = str(values['VOL'])
-      copia = str(values['COP'])
-      encabezado = str(values['HEAD'])
-      clasificacion_completa = creador_clasificacion(clasif, encabezado, volumen, copia)
-      return clasificacion_completa
+      self._Libro.etiqueta.clasif = str(values["CLAS"])
+      self._Libro.etiqueta.volumen = str(values['VOL'])
+      self._Libro.etiqueta.copia = str(values['COP'])
+      self._Libro.etiqueta.encabezado = str(values['HEAD'])
     except TypeError:
-      return ''
+      pass
 
-  def checar_clasificacion(self, window, values):
-    clasificacion = str(values["CLAS"])
-    # * Revisar si es relevante el cambio
-    if len(clasificacion) < 5: return False
-    
-    #* Se revisa si se puede separa la PIPE B
-    if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
-      posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
-      if posicion_corte != 0:
-        pipe_a_str = clasificacion[:posicion_corte]
-        pipe_b_str = '.' + clasificacion[posicion_corte + diferencia :]
-        window["PIPE_A"].update(pipe_a_str)  
-        window["PIPE_B"].update(pipe_b_str)
-        # ? Bandera Verdadera se puede agregar
-        window["Modificar"].update(disabled=False)
-        return True
-      else:
-        window["Modificar"].update(disabled=True)
-        return False
+    if self._Libro.etiqueta.clasif_valida:
+      window["PIPE_A"].update(value=self._Libro.etiqueta.PIPE_A, text_color='#1AB01F')  
+      window["PIPE_B"].update(value=self._Libro.etiqueta.PIPE_B, text_color='#1AB01F')
+      window["Modificar"].update(disabled=False)
     else:
-      window["PIPE_A"].update("NO")
-      window["PIPE_B"].update("APLICA")
+      window["PIPE_A"].update(value="XXXXXX", text_color='#F04150')  
+      window["PIPE_B"].update(value="XXXXXX", text_color='#F04150')
       window["Modificar"].update(disabled=True)
-      # ? Bandera Falsa no se puede agregar
-      return False
-
 
 if __name__ == "__main__":
   # VS = VentanaSeleccionarPosicion(10,10)

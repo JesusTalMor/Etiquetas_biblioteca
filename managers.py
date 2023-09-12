@@ -248,6 +248,7 @@ class Etiqueta:
   @clasif.setter
   def clasif(self, aClasif):
     self._clasif = self.limpiar_clasif(aClasif)
+    self.revisar_clasificacion()
     self.crear_clasif_completa()
   
   def limpiar_clasif(self, STR:str) -> str:
@@ -273,6 +274,8 @@ class Etiqueta:
       self._PIPE_B = '.' + self.clasif[pos_div+sum:]
       self._clasif_valida = True
       self._clasif = self._PIPE_A + ' ' + self._PIPE_B
+    else:
+      self._clasif_valida = False
 
   @property
   def volumen(self): return self._volumen
@@ -304,7 +307,7 @@ class Etiqueta:
     ''' Genera un atributo completo de clasificacion '''
     clasif_completa = self.clasif
     #* Manejo de el parametro de Encabezado
-    clasif_completa = self._clasif + ' ' + clasif_completa if self.encabezado != '' else clasif_completa
+    clasif_completa = self.encabezado + ' ' + clasif_completa if self.encabezado != '' else clasif_completa
     #* Manejo de el parametro de volumen
     clasif_completa += ' V.' + self.volumen if self.volumen != '0' else ''
     #* Manejo de el parametro de copia
@@ -390,8 +393,9 @@ class ManejoTabla:
   tabla_principal = []
   formato_tabla = []
   lista_libros = []
+  lista_modificados = {}
   _tabla_len = 0
-  estatus_color = {'Error':'#F04150', 'Valid':'#FFFFFF', 'Selected':'#498C8A'}
+  estatus_color = {'Error':'#F04150', 'Valid':'#FFFFFF', 'Selected':'#498C8A', 'Modify':'#E8871E'}
 
   def agregar_elemento(self, aLibro:Libro):
     """ Agregar un elemento a la tabla general """
@@ -415,6 +419,20 @@ class ManejoTabla:
       # print(libro)
       self.agregar_elemento(libro)
 
+  def seleccionar_tabla(self):
+    # recorrer tabla por completo
+    for num_libro in range(self.tabla_len):
+      estatus = self.lista_libros[num_libro].estatus
+      if estatus != "Error":
+        self.actualizar_estatus_elemento(num_libro,"Selected")
+
+  def deseleccionar_tabla(self):
+    # recorrer tabla por completo
+    for num_libro in range(self.tabla_len):
+      estatus = self.lista_libros[num_libro].estatus
+      if estatus != "Error":
+        self.actualizar_estatus_elemento(num_libro,"Valid")
+
   def reset_tabla(self):
     """ Reiniciar datos de la tabla por completo """
     self.tabla_principal = []
@@ -429,6 +447,21 @@ class ManejoTabla:
     color = self.estatus_color[aEstatus]
     formato = (num_elem, color)
     self.formato_tabla[num_elem] = formato
+
+  def agregar_elemento_modificado(self, num_elem, aLibro):
+    self.lista_modificados[num_elem] = aLibro
+    print('Elemento agregado')
+  
+  def actualizar_elemento(self, num_elem, aLibro):
+    principal = [
+      aLibro.etiqueta.clasif_completa, 
+      aLibro.etiqueta.PIPE_A, 
+      aLibro.etiqueta.PIPE_B, 
+      aLibro.estatus
+    ]
+    self.tabla_principal[num_elem] = principal
+    self.lista_libros[num_elem] = aLibro
+
 
   @property
   def tabla_len(self): return self._tabla_len

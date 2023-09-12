@@ -403,8 +403,8 @@ class VentanaGeneral:
     #? MANEJO DE VARIABLES
     bandera_agregar = False
     bandera_modificar = False
+    estatus_modificar = 'XXXXXX'
     index_modificar = 0
-    estatus_modificar = 'K'
     
     #? LOOP PRINCIPAL
     while True:
@@ -453,7 +453,6 @@ class VentanaGeneral:
       
       #?#********** FUNCIONALIDAD DE TABLA **********#?#
       elif event == "LIMPIAR":
-        print("Resetar ventana")
         self.reset_window(window)
         bandera_agregar = False
         bandera_modificar = False
@@ -542,107 +541,101 @@ class VentanaGeneral:
   def reset_window(self, window):
     """ Reiniciar todos los valores de la tabla que se trabaja """
     self.table_manager.reset_tabla()
+    
+    #* Actualizar tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
       row_colors=self.table_manager.formato_tabla
     )
 
   def select_all_table(self, window):
-    for x in range(self.table_manager.tabla_len):
-      estatus = self.table_manager.lista_libros[x].estatus
-      if estatus != "Error":
-        self.table_manager.actualizar_estatus_elemento(x,"Selected")
+    #* Selecciona toda la tabla
+    self.table_manager.seleccionar_tabla()
 
+    #* Actualizar tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
       row_colors=self.table_manager.formato_tabla)
   
   def deselect_all_table(self, window):
-    for x in range(self.table_manager.get_len()):
-      status = self.table_manager.get_status_element(x)
-      if status != "False":
-        self.table_manager.actualizar_elemento(x,"True","#FFFFFF")
+    #* Selecciona toda la tabla
+    self.table_manager.deseleccionar_tabla()
 
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato)
+      row_colors=self.table_manager.formato_tabla)
 
   def table_management(self, window, values, modify_object):
     modify_index, modify_flag, modify_status = modify_object
-    print(modify_index, modify_flag, modify_status)
+    # print(modify_index, modify_flag, modify_status)
     #* Manejar excepcion con respecto a datos inexistentes
     if len(values["TABLE"]) == 0: return modify_index, modify_flag, modify_status
     
     index_value = int(values["TABLE"][0])  # * elemento a seleccionar
-    status = self.table_manager.get_status_element(index_value)  # * Revisar el status del elemento
-    # print(status)
+    print('Libro seleccionado:', index_value)
+    estatus = self.table_manager.lista_libros[index_value].estatus
+    print('Estatus libro seleccionado', estatus)
 
     # * Seleccionar una casilla valida
-    if status == "True":
+    if estatus == "Valid":
       # Cambias el estatus de ese elemento a seleccionado
-      self.table_manager.actualizar_elemento(index_value, "Selected", "#498C8A")
+      self.table_manager.actualizar_estatus_elemento(index_value, "Selected")
 
     # * Seleccionar casilla para modificar
-    elif status in ("Selected", "False") and modify_flag is False:
+    elif estatus in ("Selected", "Error") and modify_flag is False:
       #* Actualizar datos de modificacion
-      modify_status = status
+      modify_status = estatus
       modify_flag = True
       modify_index = index_value
       #* Modificar elemento visualmente
-      self.table_manager.actualizar_elemento(index_value, "Modify", "#E8871E")
+      self.table_manager.actualizar_estatus_elemento(index_value, "Modify")
 
     # * Quitar casilla de modificar
-    elif status == "Modify":
+    elif estatus == "Modify":
       #? Cambiar elemento modificado/seleccionado a Normal
       if modify_status == "Selected":
-        self.table_manager.actualizar_elemento(index_value, "True", "#FFFFFF")
+        self.table_manager.actualizar_estatus_elemento(index_value, "Valid")
       #? Cambiar elemento modificado/error a Error
-      elif modify_status == "False":
-        self.table_manager.actualizar_elemento(index_value, "False", "#F04150")
+      elif modify_status == "Error":
+        self.table_manager.actualizar_estatus_elemento(index_value, "Error")
       modify_flag = False
 
     # * Regresar casilla a normalidad
-    elif status == "Selected" and modify_flag is True:
-      self.table_manager.actualizar_elemento(index_value, "True", "#FFFFFF")
+    elif estatus == "Selected" and modify_flag is True:
+      self.table_manager.actualizar_estatus_elemento(index_value, "Valid")
     
+    #* Actualizar tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato)
+      row_colors=self.table_manager.formato_tabla)
+    
     return modify_index, modify_flag, modify_status
 
   def modificar_elemento(self, window, modify_index):
     #* Sacar los datos de esa etiqueta
-    clasif_completa = self.table_manager.tabla_principal[modify_index][0]
-    datos_etiqueta = self.table_manager.tabla_datos[modify_index]
+    libro_a_modificar = self.table_manager.lista_libros[modify_index]
     #* Mandar llamar ventana modificar
-    VM = VentanaModificar(clasif_completa, datos_etiqueta)
-    aux_principal, aux_datos = VM.run_window()
+    VM = VentanaModificar(libro_a_modificar)
+    estatus, libro_modificado = VM.run_window()
     del VM
+
+    print('Se modifico? ', estatus)
     #* Checar si hubieron cambios
-    if aux_principal is False: return True
+    if estatus is False: return True
     
     # * Agregamos elemento a una tabla de modificaciones
-    self.table_manager.agregar_modificado(modify_index, aux_principal[0])
-
-    # * Cambiamos la apariencia del elemento en la tabla
-    self.table_manager.actualizar_elemento(modify_index, 'True', '#D8D8D8')
+    self.table_manager.agregar_elemento_modificado(modify_index, libro_modificado)
 
     # * Actualizar valores de tabla de datos
-    aux_tabla_datos = self.table_manager.get_data_element(modify_index)
-    aux_tabla_datos['clasif'] = aux_datos[0]
-    aux_tabla_datos['volumen'] = aux_datos[1]
-    aux_tabla_datos['copia'] = aux_datos[2]
-    aux_tabla_datos['encabeza'] = aux_datos[3]
-    print(aux_tabla_datos)
-    self.table_manager.set_data_element(modify_index, aux_tabla_datos)
+    self.table_manager.actualizar_elemento(modify_index, libro_modificado)
 
-    #* Actualizar valores de tabla principal
-    self.table_manager.set_element(modify_index, aux_principal)
+    # * Cambiamos la apariencia del elemento en la tabla
+    self.table_manager.actualizar_estatus_elemento(modify_index, 'Valid')
     
     #* Actualizar apariencia de la tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato
+      row_colors=self.table_manager.formato_tabla
     )
 
     return False
