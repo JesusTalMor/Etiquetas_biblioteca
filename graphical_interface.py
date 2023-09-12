@@ -90,7 +90,7 @@ class VentanaGeneral:
     
     in_format = {
       'size':(14, 1), 
-      'font':("Open Sans", 10), 
+      'font':("Open Sans", 10, "bold"), 
       'justification':"center", 
       'disabled':True,
     }
@@ -442,7 +442,7 @@ class VentanaGeneral:
       elif event == "Cargar":
         self.cargar_excel(window)
       
-      #? ********** FUNCIONALIDAD INDIVIDUAL ****************
+      #? ********** FUNCIONALIDAD CLASIFICACION ****************
       #* Revisar una clasificación
       elif event in ("CLAS", 'VOL', 'COP', 'HEAD'):
         bandera_agregar = self.checar_clasificacion(window, values)
@@ -471,14 +471,18 @@ class VentanaGeneral:
       elif event == 'EXPORTAR':
         self.exportar_etiquetas(window)
 
-#?#********* FUNCIONALIDAD #?#*********
-
+  #? FUNCIONALIDAD GENERAL *********************************
   def show_window_events(self, event, values):
-    print('-'*50)
-    print(f'Eventos que suceden {event}')
-    print(f'Valores guardaros {values}')
-    print('-'*50 + '\n')
+    print(f"""
+      Imprimiendo Eventos de Suceden
+      {'-'*50}
+      Eventos que suceden {event}
+      Valores guardados {values}
+      {'-'*50}
+    """)
 
+
+  #? FUNCIONALIDAD AGREGAR CLASIFICACION *******************
   def checar_clasificacion(self, window, values):
     clasificacion = str(values["CLAS"])
     # * Revisar si es relevante el cambio
@@ -490,44 +494,40 @@ class VentanaGeneral:
       if posicion_corte != 0:
         pipe_a_str = clasificacion[:posicion_corte]
         pipe_b_str = '.' + clasificacion[posicion_corte + diferencia :]
-        window["PIPE_A"].update(pipe_a_str)  
-        window["PIPE_B"].update(pipe_b_str)
+        window["PIPE_A"].update(value=pipe_a_str, text_color='#1AB01F')  
+        window["PIPE_B"].update(value=pipe_b_str, text_color='#1AB01F')
         # ? Bandera Verdadera se puede agregar
         return True
     else:
-      window["PIPE_A"].update("NO")
-      window["PIPE_B"].update("APLICA")
+      window["PIPE_A"].update(value="XXXXXX", text_color='#F04150')
+      window["PIPE_B"].update(value="XXXXXX", text_color='#F04150')
       # ? Bandera Falsa no se puede agregar
       return False
   
   def agregar_clasificacion(self, window, values):
-    #* Dar formato para la clasificación Completa
+    #* Tomar datos de la aplicacion
     clasificacion = str(values["CLAS"])
     volumen = str(values['VOL'])
     copia = str(values['COP'])
     encabezado = str(values['HEAD'])
-    
-    volumen = 'V.' + volumen if volumen not in (' ', '0', '') else ''
 
-    clasificacion_completa = creador_clasificacion(clasificacion, encabezado, volumen, copia)
-    
-    lista_principal = [clasificacion_completa, values["PIPE_A"], values["PIPE_B"], "Added",]
-    lista_datos = {
-      'titulo':'Sin Titulo', 
-      'cbarras':'No Aplica', 
-      'clasif':clasificacion, 
-      'volumen':volumen,
-      'copia':copia, 
-      'encabeza':encabezado
-    }
-    
+    #* Crear Objeto de Tipo Libro
+    newLibro = Libro(
+      aTitulo= 'Sin Titulo',
+      aCbarras= 'No Aplica',
+      aClasif= clasificacion,
+      aCopia= copia,
+      aEncabezado= encabezado,
+      aVolumen= volumen
+    )
+
     #* Se agrega dicho elemento a las listas de datos
-    self.table_manager.agregar_elemento(lista_principal, lista_datos, 'True', '#FFFFFF')
+    self.table_manager.agregar_elemento(newLibro)
 
     #* Actualizando la tabla principal
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato
+      row_colors=self.table_manager.formato_tabla
     )
 
     #* Limpiar datos de agregar clasificacion
@@ -538,24 +538,24 @@ class VentanaGeneral:
     window["PIPE_A"].update('')  
     window["PIPE_B"].update('')
 
-
+  #? FUNCIONALIDAD MANEJO DE TABLA *************************
   def reset_window(self, window):
     """ Reiniciar todos los valores de la tabla que se trabaja """
-    self.table_manager.reset_table()
+    self.table_manager.reset_tabla()
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato
+      row_colors=self.table_manager.formato_tabla
     )
 
   def select_all_table(self, window):
-    for x in range(self.table_manager.get_len()):
-      status = self.table_manager.get_status_element(x)
-      if status != "False":
-        self.table_manager.actualizar_elemento(x,"Selected","#498C8A")
+    for x in range(self.table_manager.tabla_len):
+      estatus = self.table_manager.lista_libros[x].estatus
+      if estatus != "Error":
+        self.table_manager.actualizar_estatus_elemento(x,"Selected")
 
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato)
+      row_colors=self.table_manager.formato_tabla)
   
   def deselect_all_table(self, window):
     for x in range(self.table_manager.get_len()):

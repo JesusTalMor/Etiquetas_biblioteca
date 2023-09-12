@@ -235,7 +235,6 @@ class Etiqueta:
     self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
     self._PIPE_A = 'XXXXXX'
     self._PIPE_B = 'XXXXXX'
-    self._clasif_estatus = 'FALSO'
     self._clasif_valida = False
     self._clasif_completa = ''
 
@@ -265,8 +264,6 @@ class Etiqueta:
   @property
   def PIPE_B(self): return self._PIPE_B
   @property
-  def clasif_estatus(self): return self._clasif_estatus
-  @property
   def clasif_valida(self): return self._clasif_valida
   def revisar_clasificacion(self):
     """ Revisar si la clasificacion cumple el estandar """
@@ -275,7 +272,6 @@ class Etiqueta:
       self._PIPE_A = self.clasif[:pos_div]
       self._PIPE_B = '.' + self.clasif[pos_div+sum:]
       self._clasif_valida = True
-      self._clasif_estatus = 'VALIDO'
       self._clasif = self._PIPE_A + ' ' + self._PIPE_B
 
   @property
@@ -345,6 +341,7 @@ class Libro:
       aVolumen= aVolumen,
       aCopia= aCopia,
     )
+    self._estatus = 'Valid' if self.etiqueta.clasif_valida else 'Error'
     # Agregar libro a una lista de objetos
     # Libro.all.append(self)
 
@@ -353,6 +350,12 @@ class Libro:
   
   @property
   def cbarras(self): return self._cbarras
+
+  @property
+  def estatus(self): return self._estatus
+
+  @estatus.setter
+  def estatus(self, aEstatus): self._estatus = aEstatus
   
   @classmethod
   def llenar_desde_excel(cls, ruta):
@@ -387,23 +390,23 @@ class ManejoTabla:
   tabla_principal = []
   formato_tabla = []
   lista_libros = []
-  tabla_len = 0
-  estatus_color = {'FALSO':'#F04150', 'VALIDO':'#FFFFFF'}
+  _tabla_len = 0
+  estatus_color = {'Error':'#F04150', 'Valid':'#FFFFFF', 'Selected':'#498C8A'}
 
   def agregar_elemento(self, aLibro:Libro):
     """ Agregar un elemento a la tabla general """
-    color = self.estatus_color[aLibro.etiqueta.clasif_estatus]
+    color = self.estatus_color[aLibro.estatus]
     formato = (self.tabla_len, color)
     principal = [
-      aLibro.etiqueta.clasif, 
+      aLibro.etiqueta.clasif_completa, 
       aLibro.etiqueta.PIPE_A, 
       aLibro.etiqueta.PIPE_B, 
-      aLibro.etiqueta.clasif_estatus
+      aLibro.estatus
     ]
     self.tabla_principal.append(principal)
     self.lista_libros.append(aLibro)
     self.formato_tabla.append(formato)
-    self.tabla_len += 1
+    self._tabla_len += 1
     # self.diccionario_estatus[largo_tabla] = estatus    
 
   def crear_tabla(self, aRuta:str):
@@ -412,11 +415,29 @@ class ManejoTabla:
       # print(libro)
       self.agregar_elemento(libro)
 
+  def reset_tabla(self):
+    """ Reiniciar datos de la tabla por completo """
+    self.tabla_principal = []
+    self.formato_tabla = []
+    self.lista_libros = []
+    self._tabla_len = 0
+    # self.diccionario_estatus = {}
+
+  def actualizar_estatus_elemento(self, num_elem, aEstatus):
+    self.lista_libros[num_elem].estatus = aEstatus
+    self.tabla_principal[num_elem][3] = aEstatus
+    color = self.estatus_color[aEstatus]
+    formato = (num_elem, color)
+    self.formato_tabla[num_elem] = formato
+
+  @property
+  def tabla_len(self): return self._tabla_len
+
   
 
 if __name__ == '__main__':
   ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
   libros = Libro.llenar_desde_excel(ruta1)
-  print(libros[-1])
+  print(libros[0])
   # etiqueta1 = Etiqueta('B2430.D484 P6818 1997', '', '', '1')
   # print(etiqueta1)
