@@ -19,7 +19,7 @@ import PySimpleGUI as sg
 
 import pop_ups as pop
 import string_helper as sh
-from managers import ExcelManager, Libro, TableManager
+from managers import ExcelManager, Libro, ManejoTabla, TableManager
 from string_helper import creador_clasificacion
 from support_windows import (VentanaConfiguracion, VentanaModificar,
                              VentanaSeleccionarPosicion)
@@ -64,7 +64,8 @@ class VentanaGeneral:
   def __init__(self) -> None:
     self.ruta_archivo = ''
     self.ruta_folder = ''
-    self.table_manager = TableManager()
+    # self.table_manager = TableManager()
+    self.table_manager = ManejoTabla()
     self.excel_manager = ExcelManager()
 
   #? LAYOUTS PARA LA VENTANA **********************************
@@ -332,7 +333,7 @@ class VentanaGeneral:
     colum = ["Clasificación", "PIPE_A", "PIPE_B", "STATUS"]
     col_width = [25, 15, 15, 10]
     tabla_principal = self.table_manager.tabla_principal
-    row_color_array = self.table_manager.tabla_formato
+    row_color_array = self.table_manager.formato_tabla
     boton_font = {'font':("Open Sans", 12),}
     LAYOUT = [
       [sg.Text(text="Lista de Etiquetas", background_color="#FFFFFF",font=("Open", 18, "bold", "italic"),)],
@@ -707,15 +708,13 @@ class VentanaGeneral:
     if len(self.ruta_archivo) == 0:
       pop.warning_excel_file()
       return False
-    
-    #* Generar libros del excel
-    Libro.llenar_desde_excel(self.ruta_archivo)
-    # Recorrer libros
 
+    # Crear tabla de datos    
+    self.table_manager.crear_tabla(self.ruta_archivo)
     #* Actualizar apariencia de la tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.tabla_formato
+      row_colors=self.table_manager.formato_tabla
     )
 
 

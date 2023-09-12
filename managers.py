@@ -262,8 +262,12 @@ class Etiqueta:
   
   @property
   def PIPE_A(self): return self._PIPE_A
+  @property
   def PIPE_B(self): return self._PIPE_B
+  @property
   def clasif_estatus(self): return self._clasif_estatus
+  @property
+  def clasif_valida(self): return self._clasif_valida
   def revisar_clasificacion(self):
     """ Revisar si la clasificacion cumple el estandar """
     if sh.revisar_corte_pipe(self.clasif) and sh.revisar_pipeB(self.clasif):
@@ -335,14 +339,14 @@ class Libro:
     self._titulo = aTitulo
     self._cbarras = aCbarras
     # Crear objeto de tipo etiqueta
-    self._etiqueta = Etiqueta(
+    self.etiqueta = Etiqueta(
       aClasif= aClasif,
       aEncabezado= aEncabezado,
       aVolumen= aVolumen,
       aCopia= aCopia,
     )
     # Agregar libro a una lista de objetos
-    Libro.all.append(self)
+    # Libro.all.append(self)
 
   @property
   def titulo(self): return self._titulo
@@ -355,15 +359,28 @@ class Libro:
     df = read_excel(ruta, header=0)
     header = df.head(0)
 
+    lista_libros = []
     for ind in df.index:
-      Libro(
+      lista_libros.append(Libro(
         aTitulo= str(df['Título'][ind]) if 'Título' in header else '',
         aCbarras= str(df['C. Barras'][ind]) if 'C. Barras' in header else '',
         aClasif= str(df['Clasificación'][ind]) if 'Clasificación' in header else '',
         aCopia= str(df['Copia'][ind]) if 'Copia' in header else '',
         aEncabezado= str(df['Encabezado'][ind]) if 'Encabezado' in header else '',
         aVolumen= str(df['Volumen'][ind]) if 'Volumen' in header else '',
-      )
+      ))
+    
+    return lista_libros
+  
+  def __str__(self) -> str:
+    return f"""  
+      Imprimiendo Libro:
+      ---------------------
+      Titulo: {self._titulo}
+      Codigo de Barras: {self._cbarras}
+
+      {self.etiqueta}
+      """
 
 class ManejoTabla:
   """ Clase para manejo de Tabla """
@@ -371,23 +388,35 @@ class ManejoTabla:
   formato_tabla = []
   lista_libros = []
   tabla_len = 0
+  estatus_color = {'FALSO':'#F04150', 'VALIDO':'#FFFFFF'}
 
-  def agregar_elemento(self, aLibro:Libro, aColor='#FFFFFF'):
+  def agregar_elemento(self, aLibro:Libro):
     """ Agregar un elemento a la tabla general """
-    formato = (self.tabla_len, aColor)
-    principal = [Etiqueta.clasif, Etiqueta.PIPE_A, Etiqueta.PIPE_B, Etiqueta.clasif_estatus]
+    color = self.estatus_color[aLibro.etiqueta.clasif_estatus]
+    formato = (self.tabla_len, color)
+    principal = [
+      aLibro.etiqueta.clasif, 
+      aLibro.etiqueta.PIPE_A, 
+      aLibro.etiqueta.PIPE_B, 
+      aLibro.etiqueta.clasif_estatus
+    ]
     self.tabla_principal.append(principal)
-    self.tabla_datos.append(aLibro)
-    self.tabla_formato.append(formato)
+    self.lista_libros.append(aLibro)
+    self.formato_tabla.append(formato)
+    self.tabla_len += 1
     # self.diccionario_estatus[largo_tabla] = estatus    
 
-  def crear_tabla(self, lista:list):
-    for 
+  def crear_tabla(self, aRuta:str):
+    lista_libros = Libro.llenar_desde_excel(aRuta)
+    for libro in lista_libros: 
+      # print(libro)
+      self.agregar_elemento(libro)
+
   
 
 if __name__ == '__main__':
   ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
-  Libro.llenar_desde_excel(ruta1)
-  print(Libro.all[-1]._etiqueta)
+  libros = Libro.llenar_desde_excel(ruta1)
+  print(libros[-1])
   # etiqueta1 = Etiqueta('B2430.D484 P6818 1997', '', '', '1')
   # print(etiqueta1)
