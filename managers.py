@@ -462,6 +462,17 @@ class ManejoTabla:
     self.tabla_principal[num_elem] = principal
     self.lista_libros[num_elem] = aLibro
 
+  def exportar_libros_selecionados(self):
+    libros_a_imprimir = []
+    #* Recorrer todos los libros de la tabla
+    for ind in range(self.tabla_len):
+      estatus = self.lista_libros[ind].estatus
+      if estatus == "Selected":
+        libros_a_imprimir.append(self.lista_libros[ind])
+    
+    return libros_a_imprimir
+
+
 
   @property
   def tabla_len(self): return self._tabla_len

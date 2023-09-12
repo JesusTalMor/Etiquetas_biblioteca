@@ -500,8 +500,6 @@ class VentanaModificar:
 
   #? FUNCIONAMIENTO PRINCIPAL DE LA VENTANA ***********************
   def run_window(self):
-    bandera_agregar = False
-    clasif_completa = ''
     window = self.create_window()
 
     while True:

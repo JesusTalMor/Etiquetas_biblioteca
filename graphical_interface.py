@@ -641,40 +641,12 @@ class VentanaGeneral:
     return False
 
   def exportar_etiquetas(self, window):
-    etiquetas_a_imprimir = []
-    # * LLenado de lista de elementos seleccionados
-    for ind in range(self.table_manager.get_len()):
-      status = self.table_manager.get_status_element(ind)
-      if status == "Selected":
-        # Crear la lista de datos
-        aux_datos = self.table_manager.get_data_element(ind)
-        encabezado = aux_datos['encabeza']
-        clasif = aux_datos['clasif']
-        volumen = aux_datos['volumen']
-        copia = aux_datos['copia']
+    etiquetas_a_imprimir = self.table_manager.exportar_libros_selecionados()
 
-        dict_format = {'HEAD':encabezado, 'CLASS':clasif, 'VOL':volumen, 'COP':copia}
-        etiquetas_a_imprimir.append(dict_format)
     # * Revisar que la tabla de seleccionado tenga valores para poder continuar
     if len(etiquetas_a_imprimir) == 0: 
       pop.warning_select()
       return False
-
-    #* Pasamos a la ventana de configuración
-    VC = VentanaConfiguracion()
-    estatus, configuracion = VC.run_window()
-    del VC
-    # * Revisar que tengamos configuraciones
-    if estatus is False: return False
-
-    # * Checar si se uso el formato de pagina
-    position = False
-    if int(configuracion['COL']) != 0: 
-      # * Formato de pagina
-      VSP = VentanaSeleccionarPosicion(int(configuracion['ROW']),int(configuracion['COL']))
-      position = VSP.run_window()
-      del VSP
-      if position is False: return False
 
     # * Pedir Folder para guardar
     window['Guardar'].click()
@@ -682,12 +654,11 @@ class VentanaGeneral:
     if len(ruta) == 0: return False
     today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
 
+    return False
     # ? Función para el manejo y creación de eiquetas
-    print(etiquetas_a_imprimir)
     try:
-      TM = TicketMaker(etiquetas_a_imprimir, today_date, ruta, configuracion, position)
-      if position is False: TM.crear_base_datos_etiquetas()
-      else: TM.imprimir_paginas()
+      # TM = TicketMaker(etiquetas_a_imprimir, today_date, ruta, configuracion, position)
+      pass
     except:
       return False
     # Generamos un reporte de modificaciones
