@@ -261,7 +261,7 @@ class ManejoTabla:
     modif_file = open(txt_path, 'w', encoding="utf-8")
     modif_file.write(f'Lista de Clasificaciones Modificadas\n')
     for libro, clasif_anterior in self.lista_modificados.values():
-      titulo_comprimido = libro.titulo if len(libro.titulo) < 40 else libro.titulo + ('_'*(40 - len(libro.titulo)))
+      titulo_comprimido = libro.titulo[:40] if len(libro.titulo) > 40 else libro.titulo + (' '*(40 - len(libro.titulo)))
       texto_libro = f"{titulo_comprimido} | {libro.etiqueta.clasif_completa} | {clasif_anterior} | {libro.cbarras}"
       modif_file.write(texto_libro)
       modif_file.write('\n')
