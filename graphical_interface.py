@@ -638,7 +638,6 @@ class VentanaGeneral:
       values=self.table_manager.tabla_principal, 
       row_colors=self.table_manager.formato_tabla
     )
-
     return False
 
   def exportar_etiquetas(self, window):
@@ -656,12 +655,12 @@ class VentanaGeneral:
     today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
 
     #* Generar base de datos
-    DBM = DatabaseMaker
+    DBM = DatabaseMaker()
     DBM.crear_database(etiquetas_a_imprimir, today_date, ruta)    
 
     #* Generar reporte de datos modificados
     self.table_manager.crear_reporte_modificados(ruta, today_date)
-    self.table_manager.crear_reporte_QRO(ruta, today_date)
+    # self.table_manager.crear_reporte_QRO(ruta, today_date)
     pop.success_program()
     return True
 

@@ -146,8 +146,8 @@ class TicketMaker:
     #* Guardar la imagen
     ruta_img = f'{ruta}/{num}.png'
     main_img.save(ruta_img)
-    
     return ruta_img
+  
   def imprimir_paginas(self):
     config = self.config
     ruta = self.ruta
@@ -278,6 +278,7 @@ class DatabaseMaker:
       limpiar_lista = [x for ind, x in enumerate(lista_etiqueta) if x != '' or ind == 0]
       #* Recorrer todos los elementos de la etiqueta.
       for elem in limpiar_lista: database_writer.write(f'{elem},')
+      if len(elem) < 9: database_writer.write(f'{','*(9-len(elem))}')
       database_writer.write('\n')
     database_writer.close()
     
@@ -285,10 +286,10 @@ class DatabaseMaker:
     """ Recibe un diccionario y crea una lista para imprimir """
     lista_salida = []
     #* Usando un diccionario obtener todos los elementos
-    encabezado = aEtiqueta.encabezado
+    encabezado = [aEtiqueta.encabezado]
     clasif = self.separar_clasificacion(aEtiqueta.clasif)
-    volumen = 'V.' + aEtiqueta.volumen
-    copia = 'C.' + aEtiqueta.copia
+    volumen = ['V.' + aEtiqueta.volumen] if aEtiqueta.volumen != '0' else ['']
+    copia = ['C.' + aEtiqueta.copia] if aEtiqueta.copia != '1' else ['']
     #* Juntar todos los elementos
     lista_salida.extend(encabezado)
     lista_salida.extend(clasif)

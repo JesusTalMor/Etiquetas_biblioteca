@@ -479,14 +479,12 @@ class ManejoTabla:
     txt_path = f'{path}/{str(nombre)}_modificados.txt'
     modif_file = open(txt_path, 'w', encoding="utf-8")
     modif_file.write(f'Lista de Clasificaciones Modificadas\n')
-    for libro in self.lista_modificados.values():
-      texto_libro = f"{libro.titulo} | {libro.etiqueta}"
-      for elem in target:
-        if len(elem) > 40: modif_file.write(f'{elem[:40]}... | ')
-        else: modif_file.write(f'{elem} | ')
+    for libro, clasif_anterior in self.lista_modificados.values():
+      titulo_comprimido = libro.titulo if len(libro.titulo) < 40 else libro.titulo + ('_'*(40 - len(libro.titulo)))
+      texto_libro = f"{titulo_comprimido} | {libro.etiqueta.clasif_completa} | {clasif_anterior} | {libro.cbarras}"
+      modif_file.write(texto_libro)
       modif_file.write('\n')
     modif_file.close()
-    return True
 
   def crear_reporte_QRO(self, path:str, nombre:str,):
     '''Genera un reporte en un txt de libros modificados'''
