@@ -6,7 +6,7 @@
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
 FUNCIONALIDAD = 5
-BUGS = 3
+BUGS = 5
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -487,7 +487,12 @@ class VentanaGeneral:
     if len(clasificacion) < 5: return False
     
     #* Se revisa si se puede separa la PIPE B
-    if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
+    if clasificacion.find(' ') < 3:
+      window["PIPE_A"].update(value="XXXXXX", text_color='#F04150')
+      window["PIPE_B"].update(value="XXXXXX", text_color='#F04150')
+      # ? Bandera Falsa no se puede agregar
+      return False
+    elif sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
       posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
       if posicion_corte != 0:
         pipe_a_str = clasificacion[:posicion_corte]
