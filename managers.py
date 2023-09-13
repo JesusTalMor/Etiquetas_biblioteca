@@ -273,7 +273,7 @@ class Etiqueta:
       self._clasif_valida = False
     elif sh.revisar_corte_pipe(self.clasif) and sh.revisar_pipeB(self.clasif):
       pos_div, sum = sh.buscar_pipe(self.clasif)
-      self._PIPE_A = self.clasif[:pos_div]
+      self._PIPE_A = self.clasif[:pos_div].replace(' ','.')
       self._PIPE_B = '.' + self.clasif[pos_div+sum:]
       self._clasif_valida = True
       self._clasif = self._PIPE_A + ' ' + self._PIPE_B

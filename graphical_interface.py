@@ -6,7 +6,7 @@
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
 FUNCIONALIDAD = 5
-BUGS = 5
+BUGS = 6
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -495,7 +495,7 @@ class VentanaGeneral:
     elif sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
       posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
       if posicion_corte != 0:
-        pipe_a_str = clasificacion[:posicion_corte]
+        pipe_a_str = clasificacion[:posicion_corte].replace(' ','.')
         pipe_b_str = '.' + clasificacion[posicion_corte + diferencia :]
         window["PIPE_A"].update(value=pipe_a_str, text_color='#1AB01F')  
         window["PIPE_B"].update(value=pipe_b_str, text_color='#1AB01F')
