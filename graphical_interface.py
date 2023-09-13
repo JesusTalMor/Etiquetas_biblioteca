@@ -18,11 +18,9 @@ import PySimpleGUI as sg
 
 import pop_ups as pop
 import string_helper as sh
-from managers import ExcelManager, Libro, ManejoTabla, TableManager
-from string_helper import creador_clasificacion
-from support_windows import (VentanaConfiguracion, VentanaModificar,
-                             VentanaSeleccionarPosicion)
-from ticket_maker import DatabaseMaker, TicketMaker
+from managers import Libro, ManejoTabla
+from support_windows import VentanaModificar
+from ticket_maker import DatabaseMaker
 
 # * Tema principal de las ventanas
 sg.LOOK_AND_FEEL_TABLE["TEC_Theme"] = {
@@ -63,9 +61,7 @@ class VentanaGeneral:
   def __init__(self) -> None:
     self.ruta_archivo = ''
     self.ruta_folder = ''
-    # self.table_manager = TableManager()
     self.table_manager = ManejoTabla()
-    self.excel_manager = ExcelManager()
 
   #? LAYOUTS PARA LA VENTANA **********************************
   def clasification_layout(self):
@@ -664,7 +660,7 @@ class VentanaGeneral:
 
     #* Generar reporte de datos modificados
     self.table_manager.crear_reporte_modificados(ruta, today_date)
-    # self.table_manager.crear_reporte_QRO(ruta, today_date)
+    self.table_manager.crear_reporte_QRO(ruta, today_date)
     pop.success_program()
     return True
 
@@ -691,24 +687,6 @@ def main():
   while formato in ("FILE", "ELEM"):
     formato = VG.run_window(VG_window)
     VG_window = VG.create_window(formato)
-
-def prueba():
-  #* Pasamos a la ventana de configuración
-  VC = VentanaConfiguracion()
-  estatus, configuracion = VC.run_window()
-  del VC
-  # * Revisar que tengamos configuraciones
-  if estatus is False: return False
-
-  # * Checar si se uso el formato de pagina
-  if int(configuracion['COL']) != 0: 
-    # * Formato de pagina
-    VSP = VentanaSeleccionarPosicion(int(configuracion['ROW']),int(configuracion['COL']))
-    position = VSP.run_window()
-    del VSP
-    if position is False: return False
-
-  return True
 
 if __name__ == '__main__':
   main()
