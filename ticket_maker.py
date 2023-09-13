@@ -6,7 +6,7 @@ from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
 
 import pop_ups as pop
-from managers import Etiqueta, Libro
+from managers import Etiqueta
 
 
 # TODO Ajustar el encabezado 1 cm de margen, listo pero no me convence
