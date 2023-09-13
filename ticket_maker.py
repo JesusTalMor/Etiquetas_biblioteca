@@ -272,15 +272,21 @@ class DatabaseMaker:
     if len(aListaLibros) == 0: return # Revisar que tenemos datos
     txt_path = f'{aRuta}/{aNombre}_etiquetas.txt'
     database_writer = open(txt_path, 'w', encoding="utf-8")
+    #* Crear encabezado de base de datos
+    for num in range(9):
+      database_writer.write(f'C{num},')
+    database_writer.write('\n')
+    #* Recorrer todos los libros
     for libro in aListaLibros:
       #* Crear lista para base de datos
       lista_etiqueta = self.separar_lista(libro.etiqueta)
       limpiar_lista = [x for ind, x in enumerate(lista_etiqueta) if x != '' or ind == 0]
       #* Recorrer todos los elementos de la etiqueta.
       for elem in limpiar_lista: database_writer.write(f'{elem},')
-      if len(elem) < 9: database_writer.write(f'{','*(9-len(elem))}')
+      if len(limpiar_lista) < 9: database_writer.write(','*(9-len(limpiar_lista)))
       database_writer.write('\n')
     database_writer.close()
+
     
   def separar_lista(self, aEtiqueta:Etiqueta):
     """ Recibe un diccionario y crea una lista para imprimir """
@@ -315,7 +321,9 @@ class DatabaseMaker:
     # Ejemplo [PQ7298] [424] [A76] -> [PQ7298] | [424] [A76]
     # print(space_list, pipe_a, letras_tema, sep='\n')
     #* Trabajar en separar letras y numeros
-    letras_tema = [letras_tema[:2], letras_tema[2:]] if letras_tema[1] in alphabet else [letras_tema[:1], letras_tema[1:]]
+    if letras_tema[2] in alphabet: letras_tema = [letras_tema[:3], letras_tema[3:]]
+    elif letras_tema[1] in alphabet: letras_tema = [letras_tema[:2], letras_tema[2:]]
+    else: letras_tema = [letras_tema[:1], letras_tema[1:]]
     # Ejemplo PQ7298 -> [PQ, 7298] si 2 letras otro caso P7298 -> [P, 7298]
     # print(space_list, pipe_a, letras_tema, sep='\n')
     #* Juntar todas las listas en la salida
