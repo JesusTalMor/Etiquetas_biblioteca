@@ -341,7 +341,7 @@ class VentanaGeneral:
           row_height=25,
           num_rows=15,
           auto_size_columns=False,
-          display_row_numbers=False,
+          display_row_numbers=True,
           justification="l",
           expand_y=False,
           enable_events=True,
@@ -507,6 +507,7 @@ class VentanaGeneral:
     #* Tomar datos de la aplicacion
     clasificacion = str(values["CLAS"])
     volumen = str(values['VOL'])
+    print(volumen)
     copia = str(values['COP'])
     encabezado = str(values['HEAD'])
 
