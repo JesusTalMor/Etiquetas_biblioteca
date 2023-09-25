@@ -9,7 +9,7 @@ class Etiqueta:
     # Asignar valores al objeto
     self._clasif = self.limpiar_clasif(aClasif)
     self._encabezado = aEncabezado
-    self._volumen = aVolumen[2:] if 'V.' in aVolumen or 'v.' in aVolumen else '0'
+    self._volumen = aVolumen if aVolumen not in ['', ' ', 'nan'] else '0'
     self._copia = aCopia if aCopia not in ['', ' ', 'nan'] else '1'
     self._PIPE_A = 'XXXXXX'
     self._PIPE_B = 'XXXXXX'
@@ -148,13 +148,16 @@ class Libro:
 
     lista_libros = []
     for ind in df.index:
+      # Manejo del volumen en los datos
+      vol = str(df['Volumen'][ind]) if 'Volumen' in header else ''
+      vol = vol[2:] if 'V.' in vol or 'v.' in vol else '0'
       lista_libros.append(Libro(
         aTitulo= str(df['Título'][ind]) if 'Título' in header else '',
         aCbarras= str(df['C. Barras'][ind]) if 'C. Barras' in header else '',
         aClasif= str(df['Clasificación'][ind]) if 'Clasificación' in header else '',
         aCopia= str(df['Copia'][ind]) if 'Copia' in header else '',
         aEncabezado= str(df['Encabezado'][ind]) if 'Encabezado' in header else '',
-        aVolumen= str(df['Volumen'][ind]) if 'Volumen' in header else '',
+        aVolumen= vol
       ))
     
     return lista_libros
