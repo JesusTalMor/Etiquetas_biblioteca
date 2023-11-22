@@ -1,12 +1,12 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 08 de Noviembre 2023
+# Fecha Trabajo: 21 de Noviembre 2023
 # Implementacion Orientada a Objetos
 #############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 5
-BUGS = 8
+FUNCIONALIDAD = 6
+BUGS = 2
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
