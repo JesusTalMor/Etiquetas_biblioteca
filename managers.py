@@ -373,7 +373,7 @@ if __name__ == '__main__':
   # ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
   # libros = Libro.llenar_desde_excel(ruta1)
   # print(libros[0])
-  etiqueta1 = Etiqueta('B2430.D484 .P6818 1997', '', '0', '1')
+  etiqueta1 = Etiqueta('B2430.D484 .P6818 1997', '', '1', '1')
   print(etiqueta1)
   # etiqueta1 = Etiqueta('B2430.D484 P6818 1997', '', '', '1')
   # print(etiqueta1)
