@@ -88,7 +88,7 @@ class Etiqueta:
     self.revisar_clasificacion()
     # Llenar los atributos de clasificacion
     if self.clasif_valida is True:
-      self._atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
+      self.atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
     # Crear clasificacion completa
     self.crear_clasif_completa()
   
@@ -101,7 +101,7 @@ class Etiqueta:
     self.revisar_clasificacion()
     # Llenar los atributos de clasificacion
     if self.clasif_valida is True:
-      self._atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
+      self.atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
     self.crear_clasif_completa()
   
   @property
