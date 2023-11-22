@@ -1,5 +1,5 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 13 de Agosto 2023
+# Fecha Trabajo: 08 de Noviembre 2023
 # Implementacion Orientada a Objetos
 #############################################################
 
@@ -236,7 +236,6 @@ class VentanaGeneral:
     
     Llaves que Hereda
     -----------------
-    TODO
 
     """
     #?#********* LAYOUT PARA SELECIONAR TIPO DE PROGRAMA #?#*********
@@ -643,7 +642,6 @@ class VentanaGeneral:
 
   def exportar_etiquetas(self, window):
     etiquetas_a_imprimir = self.table_manager.exportar_libros_selecionados()
-
     # * Revisar que la tabla de seleccionado tenga valores para poder continuar
     if len(etiquetas_a_imprimir) == 0: 
       pop.warning_select()

@@ -36,14 +36,8 @@ def contar_separadores(STR: str) -> int:
   '''
   cuenta_separador = len(re.findall('[. ,]' , STR))
   lista_char = [' .', '. ']
-  length = len(STR)
-  
-  # No se encontraron separadores
+# No se encontraron separadores
   if cuenta_separador == 0: return 0
-  
-  # No tienen porque existir estos parametros
-  if 'MAT' in STR or 'V.' in STR: return None
-  
   cuenta_separadores_especiales = 0
   for char in lista_char:
     cuenta_separadores_especiales += STR.count(char)
