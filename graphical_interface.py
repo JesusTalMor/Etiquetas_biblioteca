@@ -5,7 +5,7 @@
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 7
+FUNCIONALIDAD = 8
 BUGS = 0
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
@@ -556,6 +556,8 @@ class VentanaGeneral:
 
     #* Se agrega dicho elemento a las listas de datos
     self.table_manager.agregar_elemento(newLibro)
+    
+    #* Ordenar nuevo libro agregado
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.organizar_libros_tabla(indices_ordenados)
 
@@ -671,6 +673,10 @@ class VentanaGeneral:
     # * Cambiamos la apariencia del elemento en la tabla
     self.table_manager.actualizar_estatus_elemento(modify_index, 'Valid')
     
+    #* Ordenar libro modificado
+    indices_ordenados = self.table_manager.ordenar_libros()
+    self.table_manager.organizar_libros_tabla(indices_ordenados)
+    
     #* Actualizar apariencia de la tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 
@@ -679,6 +685,16 @@ class VentanaGeneral:
     return False
 
   def exportar_etiquetas(self, window):
+    #* Ordenar libro modificado
+    indices_ordenados = self.table_manager.ordenar_libros()
+    self.table_manager.organizar_libros_tabla(indices_ordenados)
+    
+    #* Actualizar apariencia de la tabla
+    window["TABLE"].update(
+      values=self.table_manager.tabla_principal, 
+      row_colors=self.table_manager.formato_tabla
+    )
+
     etiquetas_a_imprimir = self.table_manager.exportar_libros_selecionados()
     # * Revisar que la tabla de seleccionado tenga valores para poder continuar
     if len(etiquetas_a_imprimir) == 0: 
@@ -709,6 +725,11 @@ class VentanaGeneral:
 
     # Crear tabla de datos    
     self.table_manager.crear_tabla(self.ruta_archivo)
+
+    #* Ordenar libro modificado
+    indices_ordenados = self.table_manager.ordenar_libros()
+    self.table_manager.organizar_libros_tabla(indices_ordenados)
+
     #* Actualizar apariencia de la tabla
     window["TABLE"].update(
       values=self.table_manager.tabla_principal, 

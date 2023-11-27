@@ -381,23 +381,31 @@ class ManejoTabla:
 
     return libros_df['id'].tolist()
 
-  def organizar_libros_tabla(self, orden):
+  def organizar_libros_tabla(self, lista_orden):
     """ Ordena los libros del programa con base a un indice """
     # Llenar ambas tablas necesarias para el programa
     self.lista_original = self.lista_libros.copy()
     tabla_principal_aux = []
     lista_libros_aux = []
-    for indice in orden:
-      tabla_principal_aux.append(self.tabla_principal[indice])
-      # self.lista_libros[indice].ID = indice
-      lista_libros_aux.append(self.lista_libros[indice])
+    formato_tabla_aux = []
+    for ind, orden in enumerate(lista_orden):
+      # Agregar elemento en orden
+      tabla_principal_aux.append(self.tabla_principal[orden])
+      # Dar formato del libro
+      color = self.estatus_color[self.lista_libros[orden].estatus]
+      formato = (ind, color)
+      formato_tabla_aux.append(formato)
+      # Agregar Libro en lista auxiliar en su orden correcto
+      lista_libros_aux.append(self.lista_libros[orden])
+      self.lista_libros[orden].ID = ind
 
     self.tabla_principal = tabla_principal_aux.copy()
     self.lista_libros = lista_libros_aux.copy()
+    self.formato_tabla = formato_tabla_aux.copy()
 
-    # Imprimir los indices
-    for libro in self.lista_libros:
-      print(libro.ID)
+    # # Imprimir los indices
+    # for libro in self.lista_libros:
+    #   print(libro.ID)
 
   def organizar_libros_excel(self, ruta, orden):
     # * Importar el dataframe del Excel
