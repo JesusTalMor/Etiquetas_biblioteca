@@ -46,6 +46,16 @@ class Clasificacion:
       self._autor = 'A0'
 
     self.estandarizar_atributos()
+  
+  def sacar_atributos_lista(self, PIPE_A, PIPE_B):
+    salida = []
+    atributos_pipe_a = PIPE_A.split('.')
+    atributos_pipe_b = PIPE_B[1:].split(' ')
+    salida.extend(atributos_pipe_a)
+    salida.extend(atributos_pipe_b)
+
+    return salida
+
 
   def estandarizar(self, STR):
     largo_max = 10
@@ -141,6 +151,9 @@ class Etiqueta:
   @property
   def PIPE_B(self): return self._PIPE_B
 
+  def atributos_lista(self):
+    return self.atributos.sacar_atributos_lista(self.PIPE_A, self.PIPE_B)
+
   #? FUNCIONALIDAD DE LA CLASE *******************************************
   def limpiar_clasif(self, STR:str) -> str:
     ''' Limpiar la clasificación del libro de Caracteres no Necesarios'''
@@ -149,6 +162,7 @@ class Etiqueta:
     if 'MAT' in STR: STR = sh.cortar_string(STR, 'MAT')
     if 'V.' in STR: STR = sh.cortar_string(STR, 'V.')
     if 'C.' in STR: STR = sh.cortar_string(STR, 'C.')
+    if '\t' in STR: STR = STR.replace('\t','')
     return STR
   def revisar_clasificacion(self):
     """ Revisar si la clasificacion cumple el estandar """
@@ -526,7 +540,7 @@ if __name__ == '__main__':
   # ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
   # libros = Libro.llenar_desde_excel(ruta1)
   # print(libros[0])
-  etiqueta1 = Etiqueta('B2430.D484 .P6818 1997', '', '1', '1')
+  etiqueta1 = Etiqueta('B3376.W563 .N67 1986	', '', '1', '1')
   print(etiqueta1)
   # etiqueta1 = Etiqueta('B2430.D484 P6818 1997', '', '', '1')
   # print(etiqueta1)
