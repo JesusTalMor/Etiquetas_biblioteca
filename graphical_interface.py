@@ -78,31 +78,35 @@ class VentanaGeneral:
     """
     #?#********* LAYOUT PARA MANEJO DE PIPE'S #?#*********
     text_format = {
-      'font':("Open Sans", 12, "bold"), 
+      'font':("Open Sans", 12, "bold"),
+      'size' : (6,1), 
       'background_color':"#FFFFFF", 
       'justification':"center",
+      'pad' : 0,
     }
     
     in_format = {
-      'size':(14, 1), 
+      'size':(15, 1), 
       'font':("Open Sans", 10, "bold"), 
       'justification':"center", 
       'disabled':True,
+      'pad' : 5,
     }
     
     pipe_a_layout = [
-      [sg.Text(text="PIPE A", pad=5, **text_format)],
-      [sg.In(key="PIPE_A", ** in_format)],
+      [sg.Text(text="PIPE A", **text_format)],
+      [sg.In(key="PIPE_A", **in_format)],
     ]
     
     pipe_b_layout = [
-      [sg.Text(text="PIPE B", pad=5, **text_format)],
-      [sg.In(key="PIPE_B", ** in_format)],
+      [sg.Text(text="PIPE B", **text_format)],
+      [sg.In(key="PIPE_B", **in_format)],
     ]
     
     colum_format = {
       'background_color':"#FFFFFF", 
-      'element_justification':"c"
+      'element_justification':"c",
+      'pad' : 0
     }
     
     PIPE_AB_LAYOUT = [[
@@ -113,15 +117,16 @@ class VentanaGeneral:
     
     #?#********* LAYOUT PARA MANEJO DE COPIA Y VOLUMEN #?#*********
     text_format = {
-      'font':("Open Sans", 12,), 
+      'font':("Open Sans", 12, 'bold'), 
       'background_color':"#FFFFFF", 
       'justification':"center",
     }
     in_format = {
       'size':(2, 1), 
       'enable_events':True,
-      'font':("Open Sans", 10), 
-      'justification':"center", 
+      'font':("Open Sans", 10, 'bold'), 
+      'justification':"center",
+      'pad' : 0, 
     }
     VOL_COP_LAYOUT = [
       sg.Text(text="Volumen", **text_format),
@@ -131,7 +136,13 @@ class VentanaGeneral:
     ],
     
     #?#********* LAYOUT PARA MANEJO DE CLASIFICACION Y ENCABEZADO #?#*********
+    title_format = {
+      'font': ("Open Sans", 14, 'bold'),
+      'background_color':"#FFFFFF", 
+      'justification':"center",
+    }
     text_format = {
+      'font': ("Open Sans", 12, 'bold'),
       'background_color':"#FFFFFF", 
       'justification':"center",
     }
@@ -147,11 +158,11 @@ class VentanaGeneral:
     }
     LAYOUT_GENERAL = [
       #* Titulo de esta seccion
-      [sg.Text(text="Agregar Clasificación", font=("Open Sans", 14, "bold"), **text_format)],
-      [sg.In(size=(28, 1), key="CLAS", pad=(15, 5), **in_format)],
+      [sg.Text(text="Agregar Clasificación", **title_format)],
+      [sg.In(size=(30, 1), key="CLAS", pad=(10,0), **in_format)], # , pad=(15, 5)
       #* Funcion para agregar un encabezado
-      [sg.Text(text="Agregar Encabezado", font=("Open Sans", 12), **text_format)],
-      [sg.In(size=(18, 1), key="HEAD", **in_format)],
+      [sg.Text(text="Encabezado", **text_format)],
+      [sg.In(size=(20, 1), key="HEAD", pad=0, **in_format)],
       [sg.Frame("",layout=VOL_COP_LAYOUT, **frame_format)],
       [sg.Frame("",layout=PIPE_AB_LAYOUT, **frame_format)],
     ]
@@ -160,19 +171,18 @@ class VentanaGeneral:
   def individual_layout(self):
     """ Layout columna izquierda del programa
     
-    LLaves que Maneja
-    -----------------
-    FILE & ELEM: (Ventana) Maneja el cambio de ventana en la aplicacion
-    Agregar: (Boton) Agrega una nueva clasificacion
-    
-    Llaves que Hereda
-    -----------------
-    PIPE_A: (str) PIPE A de la clasificacion
-    PIPE_B: (str) PIPE B de la clasificacion
-    VOL: (int) Volumen del Libro
-    COP: (int) Copia del Libro
-    CLAS: (str) Clasificacion del Libro
-    HEAD: (str) Encabezado del Libro
+    Llaves del Layout
+    -----------------------------------------------
+    PIPE_A:       (str) PIPE A de la clasificacion
+    PIPE_B:       (str) PIPE B de la clasificacion
+    VOL:          (int) Volumen del Libro
+    COP:          (int) Copia del Libro
+    CLAS:         (str) Clasificacion del Libro
+    HEAD:         (str) Encabezado del Libro
+    TITLE:        (str) Título del Libro (Opcional)
+    CBARRAS:      (str) Código de Barras Libro (Opcional)
+    FILE & ELEM:  (Ventana) Maneja el cambio de ventana en la aplicacion
+    Agregar:      (Boton) Agrega una nueva clasificacion
 
     """
     CLASIF_LAYOUT = self.clasification_layout()
@@ -195,6 +205,27 @@ class VentanaGeneral:
         sg.Radio("Cargar Elemento", "O1", default=True, key="ELEM", **radio_format),
       ],    
     ]
+    #?#********* LAYOUT PARA AGREGAR TITULO Y CBARRAS #?#*********
+    text_format = {
+      'font': ("Open Sans", 12, 'bold'),
+      'background_color':"#FFFFFF", 
+      'justification':"center",
+    }
+    in_format = {
+      'font':("Open Sans", 10, 'bold'), 
+      'justification':"center", 
+    }
+    INFO_LAYOUT = [
+      [
+        sg.Text(text="Título", **text_format),
+        sg.In(size=(40, 1), key="TITLE", **in_format)
+      ],
+      [
+        sg.Text(text="Código de Barras", pad=((0,20), 0), **text_format),
+        sg.In(size=(20, 1), key="CBARRAS", **in_format)
+      ],
+    ]
+
     #?#********* LAYOUT GENERAL DE ESTA FUNCION #?#*********
     text_format = {
       'font':("Open Sans", 20, "bold", "italic"), 
@@ -215,6 +246,8 @@ class VentanaGeneral:
       [sg.HSep(pad=(0, 5))], # Separadores
       #* Layout para agregar etiquetas individuales
       [sg.Frame("",layout=CLASIF_LAYOUT, **frame_format)],
+      [sg.HSep(pad=(0, 5))], # Separadores
+      [sg.Frame("",layout=INFO_LAYOUT, border_width=0, **frame_format)],
       [sg.HSep(pad=(0, 5))], # Separadores
       [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
 
@@ -290,10 +323,10 @@ class VentanaGeneral:
       [sg.Text(text=self.titulo_ventana, **text_format)],
       #* Seleccion de ventana
       [sg.Frame("",layout=SELECCIONAR_LAYOUT, border_width=0, **frame_format)],
-      [sg.HSep(pad=(0, 5))], # Separador 
+      [sg.HSep(pad=(0, 10))], # Separador 
       #* Seleccion de Archivo
       [sg.Frame("",layout=SELECCIONAR_ARCHIVO, border_width=0, **frame_format)],
-      [sg.HSep(pad=(0, (5,30)))], # Separador
+      [sg.HSep(pad=(0, (10,30)))], # Separador
       [sg.Button("Cargar", font=("Open Sans", 14, 'bold'))],
       #* Layout Invisible para guardar el archivo
       [
@@ -338,7 +371,7 @@ class VentanaGeneral:
           font=("Open Sans", 9),
           col_widths=col_width,
           row_height=25,
-          num_rows=15,
+          num_rows=16,
           auto_size_columns=False,
           display_row_numbers=True,
           justification="l",
