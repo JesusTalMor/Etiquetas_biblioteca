@@ -37,11 +37,6 @@ sg.LOOK_AND_FEEL_TABLE["TEC_Theme"] = {
 }
 sg.theme("TEC_Theme")
 
-# ? Menu superior de opciones
-menu_opciones = [
-  ["Ayuda", ["Tutoriales", "Licencia", "Acerca de..."]],
-]
-
 #?#********** Función apoyo para relative path *********#
 def resource_path(relative_path):
   """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -415,9 +410,13 @@ class VentanaGeneral:
   def create_window(self, formato = "FILE"):
     """ Genera un Objeto tipo Ventana de PySimpleGUI """
     LAYOUT = self.create_layout(formato)
+    # ? Menu superior de opciones
+    MENU_OPCIONES = [
+      ["Ayuda", ["Tutoriales", "Licencia", "Acerca de..."]],
+    ]
     MAIN_LAYOUT = [
       #* Menu superior de la APP
-      [sg.Menu(menu_opciones, tearoff=False)],
+      [sg.Menu(MENU_OPCIONES, tearoff=False)],
       [sg.Frame("",layout=LAYOUT, background_color='#FFFFFF', element_justification='c')],
     ]
     
