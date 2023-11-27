@@ -545,7 +545,8 @@ class VentanaGeneral:
 
     #* Crear Objeto de Tipo Libro
     newLibro = Libro(
-      aTitulo= titulo,
+      aID=self.table_manager.tabla_len,
+      aTitulo= titulo if len(titulo) != 0 else 'Sin Título',
       aCbarras= cbarras,
       aClasif= clasificacion,
       aCopia= copia,
@@ -555,6 +556,8 @@ class VentanaGeneral:
 
     #* Se agrega dicho elemento a las listas de datos
     self.table_manager.agregar_elemento(newLibro)
+    indices_ordenados = self.table_manager.ordenar_libros()
+    self.table_manager.organizar_libros_tabla(indices_ordenados)
 
     #* Actualizando la tabla principal
     window["TABLE"].update(
