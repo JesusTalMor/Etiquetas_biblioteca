@@ -51,7 +51,7 @@ class Clasificacion:
     ceros = (largo_max - len(STR)) * '0'
     for ind, char in enumerate(STR):
       if char.isalpha() is False:
-        str_salida = STR[:ind] + ceros + STR[ind:]
+        str_salida = STR[:ind] + ceros + STR[ind:] if ind != 0 else 'A' + ceros + STR
         break
     
     return str_salida

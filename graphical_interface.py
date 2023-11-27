@@ -474,7 +474,7 @@ class VentanaGeneral:
         bandera_agregar = self.checar_clasificacion(window, values)
       #* Añadir una clasificación a la tabla 
       elif event == "Agregar" and bandera_agregar:
-        self.agregar_clasificacion(window, values)
+        self.agregar_clasificacion(window)
         bandera_agregar = False
       
       #?#********** FUNCIONALIDAD DE TABLA **********#?#
@@ -534,7 +534,7 @@ class VentanaGeneral:
       # ? Bandera Falsa no se puede agregar
       return False
   
-  def agregar_clasificacion(self, window, values):
+  def agregar_clasificacion(self, window):
     #* Tomar datos de la aplicacion
     clasificacion = window['CLAS'].get()
     volumen = window['VOL'].get()
@@ -724,5 +724,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-  # print(prueba())
-
