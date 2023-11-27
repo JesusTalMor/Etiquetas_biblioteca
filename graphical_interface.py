@@ -1,12 +1,12 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 21 de Noviembre 2023
+# Fecha Trabajo: 27 de Noviembre 2023
 # Implementacion Orientada a Objetos
 #############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 6
-BUGS = 2
+FUNCIONALIDAD = 7
+BUGS = 0
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -537,16 +537,17 @@ class VentanaGeneral:
   
   def agregar_clasificacion(self, window, values):
     #* Tomar datos de la aplicacion
-    clasificacion = str(values["CLAS"])
-    volumen = str(values['VOL'])
-    print(volumen)
-    copia = str(values['COP'])
-    encabezado = str(values['HEAD'])
+    clasificacion = window['CLAS'].get()
+    volumen = window['VOL'].get()
+    copia = window['COP'].get()
+    encabezado = window['HEAD'].get()
+    titulo = window['TITLE'].get()
+    cbarras = window['CBARRAS'].get()
 
     #* Crear Objeto de Tipo Libro
     newLibro = Libro(
-      aTitulo= 'Sin Titulo',
-      aCbarras= 'No Aplica',
+      aTitulo= titulo,
+      aCbarras= cbarras,
       aClasif= clasificacion,
       aCopia= copia,
       aEncabezado= encabezado,
@@ -567,6 +568,8 @@ class VentanaGeneral:
     window["VOL"].update('')
     window["COP"].update('1')
     window["HEAD"].update('')
+    window['TITLE'].update('')
+    window['CBARRAS'].update('')
     window["PIPE_A"].update('')  
     window["PIPE_B"].update('')
 

@@ -277,6 +277,12 @@ class ManejoTabla:
     self.lista_libros.append(aLibro)
     self.formato_tabla.append(formato)
     self._tabla_len += 1
+    print(
+      f"""
+      [INFO] Elemento Agregado
+      {aLibro}
+      """
+    )
     # self.diccionario_estatus[largo_tabla] = estatus    
 
   def crear_tabla(self, aRuta:str):
