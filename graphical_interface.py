@@ -5,8 +5,8 @@
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 8
-BUGS = 1
+FUNCIONALIDAD = 9
+BUGS = 0
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -709,7 +709,8 @@ class VentanaGeneral:
 
     #* Generar base de datos
     DBM = DatabaseMaker()
-    DBM.crear_database(etiquetas_a_imprimir, today_date, ruta)    
+    DBM.crear_database(etiquetas_a_imprimir, today_date, ruta)  
+    DBM.crear_instrucciones_pegado(etiquetas_a_imprimir, today_date, ruta)  
 
     #* Generar reporte de datos modificados
     self.table_manager.crear_reporte_modificados(ruta, today_date)
