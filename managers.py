@@ -158,10 +158,9 @@ class Etiqueta:
   def limpiar_clasif(self, STR:str) -> str:
     ''' Limpiar la clasificación del libro de Caracteres no Necesarios'''
     # * Eliminar caracteres no deseados
-    if 'LX' in STR: STR = sh.cortar_string(STR, 'LX')
-    if 'MAT' in STR: STR = sh.cortar_string(STR, 'MAT')
-    if 'V.' in STR: STR = sh.cortar_string(STR, 'V.')
-    if 'C.' in STR: STR = sh.cortar_string(STR, 'C.')
+    lista_no_deseados = ['LX', 'MAT', 'V.', 'C.']
+    for char in lista_no_deseados:
+      STR = sh.cortar_string(STR, char)
     if '\t' in STR: STR = STR.replace('\t','')
     return STR
   def revisar_clasificacion(self):
@@ -540,7 +539,7 @@ if __name__ == '__main__':
   # ruta1 = 'C:/Users/EQUIPO/Desktop/Proyectos_biblioteca/Etiquetas/Pruebas/Mario_excel.xlsx'
   # libros = Libro.llenar_desde_excel(ruta1)
   # print(libros[0])
-  etiqueta1 = Etiqueta('B3376.W563 .N67 1986	', '', '1', '1')
+  etiqueta1 = Etiqueta('B3209.B753 .P7518 2004 V.1', '', '1', '1')
   print(etiqueta1)
   # etiqueta1 = Etiqueta('B2430.D484 P6818 1997', '', '', '1')
   # print(etiqueta1)

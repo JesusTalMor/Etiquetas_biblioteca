@@ -6,7 +6,7 @@
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
 FUNCIONALIDAD = 9
-BUGS = 0
+BUGS = 2
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -53,10 +53,9 @@ def resource_path(relative_path):
 class VentanaGeneral:
   """ Ventana General para el Generador de Etiquetas """
   titulo_ventana = 'Generador de Etiquetas'
-  def __init__(self) -> None:
-    self.ruta_archivo = ''
-    self.ruta_folder = ''
-    self.table_manager = ManejoTabla()
+  ruta_archivo = ''
+  ruta_folder = ''
+  table_manager = ManejoTabla()
 
   #? LAYOUTS PARA LA VENTANA **********************************
   def clasification_layout(self):
@@ -79,7 +78,6 @@ class VentanaGeneral:
       'justification':"center",
       'pad' : 0,
     }
-    
     in_format = {
       'size':(15, 1), 
       'font':("Open Sans", 10, "bold"), 
@@ -87,23 +85,19 @@ class VentanaGeneral:
       'disabled':True,
       'pad' : 5,
     }
-    
     pipe_a_layout = [
       [sg.Text(text="PIPE A", **text_format)],
       [sg.In(key="PIPE_A", **in_format)],
     ]
-    
     pipe_b_layout = [
       [sg.Text(text="PIPE B", **text_format)],
       [sg.In(key="PIPE_B", **in_format)],
     ]
-    
     colum_format = {
       'background_color':"#FFFFFF", 
       'element_justification':"c",
       'pad' : 0
     }
-    
     PIPE_AB_LAYOUT = [[
       sg.Column(layout=pipe_a_layout, **colum_format),
       sg.VSeperator(),
@@ -466,12 +460,12 @@ class VentanaGeneral:
       
       # * Cargar excel completo de un archivo
       elif event == "Cargar":
-        self.cargar_excel(window)
+        self.cargar_excel()
       
       #? ********** FUNCIONALIDAD CLASIFICACION ****************
       #* Revisar una clasificación
       elif event in ("CLAS", 'VOL', 'COP', 'HEAD'):
-        bandera_agregar = self.checar_clasificacion(window, values)
+        bandera_agregar = self.checar_clasificacion(window)
       #* Añadir una clasificación a la tabla 
       elif event == "Agregar" and bandera_agregar:
         self.agregar_clasificacion(window)
@@ -479,15 +473,15 @@ class VentanaGeneral:
       
       #?#********** FUNCIONALIDAD DE TABLA **********#?#
       elif event == "LIMPIAR":
-        self.reset_window(window)
+        self.reset_window()
         bandera_agregar = False
         bandera_modificar = False
       elif event == "SELECT-ALL":
         bandera_modificar = False
-        self.select_all_table(window)
+        self.select_all_table()
       elif event == "DESELECT-ALL":
         bandera_modificar = False
-        self.deselect_all_table(window)
+        self.deselect_all_table()
       elif event == "TABLE":
         modify_object = (index_modificar, bandera_modificar, estatus_modificar)
         index_modificar, bandera_modificar, estatus_modificar = self.table_management(window, values, modify_object)
@@ -495,6 +489,11 @@ class VentanaGeneral:
         bandera_modificar = self.modificar_elemento(window, index_modificar)
       elif event == 'EXPORTAR':
         self.exportar_etiquetas(window)
+      
+      window["TABLE"].update(
+        values=self.table_manager.tabla_principal, 
+        row_colors=self.table_manager.formato_tabla
+      )
 
   #? FUNCIONALIDAD GENERAL *********************************
   def show_window_events(self, event, values):
@@ -508,8 +507,8 @@ class VentanaGeneral:
 
 
   #? FUNCIONALIDAD AGREGAR CLASIFICACION *******************
-  def checar_clasificacion(self, window, values):
-    clasificacion = str(values["CLAS"])
+  def checar_clasificacion(self, window):
+    clasificacion = window['CLAS'].get()
     # * Revisar si es relevante el cambio
     if len(clasificacion) < 5: return False
     
@@ -519,7 +518,8 @@ class VentanaGeneral:
       window["PIPE_B"].update(value="XXXXXX", text_color='#F04150')
       # ? Bandera Falsa no se puede agregar
       return False
-    elif sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
+    
+    if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
       posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
       if posicion_corte != 0:
         pipe_a_str = clasificacion[:posicion_corte].replace(' ','.')
@@ -561,12 +561,6 @@ class VentanaGeneral:
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.organizar_libros_tabla(indices_ordenados)
 
-    #* Actualizando la tabla principal
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla
-    )
-
     #* Limpiar datos de agregar clasificacion
     window["CLAS"].update('')
     window["VOL"].update('')
@@ -578,32 +572,18 @@ class VentanaGeneral:
     window["PIPE_B"].update('')
 
   #? FUNCIONALIDAD MANEJO DE TABLA *************************
-  def reset_window(self, window):
+  def reset_window(self):
     """ Reiniciar todos los valores de la tabla que se trabaja """
     self.table_manager.reset_tabla()
-    
-    #* Actualizar tabla
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla
-    )
 
-  def select_all_table(self, window):
+  def select_all_table(self):
     #* Selecciona toda la tabla
     self.table_manager.seleccionar_tabla()
-
-    #* Actualizar tabla
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla)
   
-  def deselect_all_table(self, window):
+  def deselect_all_table(self):
     #* Selecciona toda la tabla
     self.table_manager.deseleccionar_tabla()
 
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla)
 
   def table_management(self, window, values, modify_object):
     modify_index, modify_flag, modify_status = modify_object
@@ -644,11 +624,6 @@ class VentanaGeneral:
     elif estatus == "Selected" and modify_flag is True:
       self.table_manager.actualizar_estatus_elemento(index_value, "Valid")
     
-    #* Actualizar tabla
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla)
-    
     return modify_index, modify_flag, modify_status
 
   def modificar_elemento(self, window, modify_index):
@@ -660,7 +635,6 @@ class VentanaGeneral:
     estatus, libro_modificado = VM.run_window()
     del VM
 
-    print('Se modifico? ', estatus)
     #* Checar si hubieron cambios
     if estatus is False: return True
     
@@ -677,11 +651,6 @@ class VentanaGeneral:
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.organizar_libros_tabla(indices_ordenados)
     
-    #* Actualizar apariencia de la tabla
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla
-    )
     return False
 
   def exportar_etiquetas(self, window):
@@ -689,12 +658,6 @@ class VentanaGeneral:
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.organizar_libros_tabla(indices_ordenados)
     
-    #* Actualizar apariencia de la tabla
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla
-    )
-
     etiquetas_a_imprimir = self.table_manager.exportar_libros_selecionados()
     # * Revisar que la tabla de seleccionado tenga valores para poder continuar
     if len(etiquetas_a_imprimir) == 0: 
@@ -718,7 +681,7 @@ class VentanaGeneral:
     pop.success_program()
     return True
 
-  def cargar_excel(self, window):
+  def cargar_excel(self):
     # Revisar que tengamos un archivo excel
     if len(self.ruta_archivo) == 0:
       pop.warning_excel_file()
@@ -730,12 +693,6 @@ class VentanaGeneral:
     #* Ordenar libro modificado
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.organizar_libros_tabla(indices_ordenados)
-
-    #* Actualizar apariencia de la tabla
-    window["TABLE"].update(
-      values=self.table_manager.tabla_principal, 
-      row_colors=self.table_manager.formato_tabla
-    )
 
 
 def main():
