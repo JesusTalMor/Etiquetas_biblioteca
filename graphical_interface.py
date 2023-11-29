@@ -1,11 +1,11 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 28 de Noviembre 2023
+# Fecha Trabajo: 29 de Noviembre 2023
 # Implementacion Orientada a Objetos
 #############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 10
+FUNCIONALIDAD = 11
 BUGS = 0
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
@@ -406,6 +406,7 @@ class VentanaGeneral:
     LAYOUT = self.create_layout(formato)
     # ? Menu superior de opciones
     MENU_OPCIONES = [
+      ['Programa', ['Guardar', 'Salir']],
       ["Ayuda", ["Tutoriales", "Licencia", "Acerca de..."]],
     ]
     MAIN_LAYOUT = [
@@ -432,7 +433,10 @@ class VentanaGeneral:
       self.show_window_events(event, values)
       #? ******** FUNCIONALIDAD BASICA VENTANA  ***************
       #* Cerrar la aplicación
-      if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__"):
+      if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__", 'Salir'):
+        #* Ver si quiere guardar el archivo
+        if pop.save_file() is True:
+          self.guardar_programa()
         window.close()
         return "TRUE"
       #* Cambio de Ventana a ARCHIVO
@@ -449,6 +453,9 @@ class VentanaGeneral:
       #* Mostrar version del Programa
       elif event == "Acerca de...":
         pop.info_about(VERSION)
+      #* Guardar progreso del programa
+      elif event == 'Guardar':
+        self.guardar_programa()
       
       #? ********** FUNCIONALIDAD ARCHIVO *******************
       elif event == "UPLOAD":
@@ -457,16 +464,13 @@ class VentanaGeneral:
         # Actualizar nombre del archivo de la ventana
         nombre_archivo = self.ruta_archivo.split('/')[-1] if len(self.ruta_archivo) != 0 else 'Sin Archivo'
         window["EXCEL_TEXT"].update(nombre_archivo)
-      
-      # * Cargar excel completo de un archivo
       elif event == "Cargar":
         self.cargar_excel()
       
+
       #? ********** FUNCIONALIDAD CLASIFICACION ****************
-      #* Revisar una clasificación
       elif event in ("CLAS", 'VOL', 'COP', 'HEAD'):
         bandera_agregar = self.checar_clasificacion(window)
-      #* Añadir una clasificación a la tabla 
       elif event == "Agregar" and bandera_agregar:
         self.agregar_clasificacion(window)
         bandera_agregar = False
@@ -658,6 +662,7 @@ class VentanaGeneral:
   def eliminar_elemento(self, modify_index):
     self.table_manager.eliminar_elemento(modify_index)
 
+  #? FUNCIONALIDAD DEL PROGRAMA ***************************
   def exportar_etiquetas(self, window):
     #* Ordenar libro modificado
     indices_ordenados = self.table_manager.ordenar_libros()
@@ -699,6 +704,17 @@ class VentanaGeneral:
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.organizar_libros_tabla(indices_ordenados)
 
+  def guardar_programa(self):
+    #* Revisar archivo de Excel
+    if len(self.ruta_archivo) == 0: return False 
+    
+    nombre_archivo = self.ruta_archivo.split('/')[-1]
+    nombre_archivo = nombre_archivo[:nombre_archivo.find('.xlsx')]
+    ruta_archivo = self.ruta_archivo[:self.ruta_archivo.find(nombre_archivo)-1]
+    nombre_archivo += '_guardado'
+    #* Crear y actualizar el dataframe del excel
+    guardar_df = self.table_manager.exportar_a_df()
+    self.table_manager.escribir_excel(ruta_archivo, nombre_archivo, guardar_df)
 
 def main():
   """ Funcion principal para el manejo de la aplicacion """

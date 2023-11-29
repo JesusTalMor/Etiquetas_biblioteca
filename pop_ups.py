@@ -56,6 +56,10 @@ def check_images():
   msg = f'Imágenes Prueba Generadas\n Presione Aceptar para generar todas las etiquetas'
   answer = messagebox.askokcancel("Confirmar", msg)
   return answer
+def save_file():
+  msg = f'Desea guardar su progreso ?'
+  answer = messagebox.askokcancel("Save Progress", msg)
+  return answer
 
 if __name__ == "__main__":
   print(check_images())

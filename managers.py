@@ -505,7 +505,7 @@ class ManejoTabla:
       'Volumen' : [libro.etiqueta.volumen for libro in self.lista_libros],
       'Encabezado' : [libro.etiqueta.encabezado for libro in self.lista_libros]
     }
-    
+    df_salida = pd.DataFrame(df_salida)
     return df_salida
 
   #? CREACION DE REPORTES SOBRE TABLA ************************************
