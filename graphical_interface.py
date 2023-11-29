@@ -1,12 +1,12 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 27 de Noviembre 2023
+# Fecha Trabajo: 28 de Noviembre 2023
 # Implementacion Orientada a Objetos
 #############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
-FUNCIONALIDAD = 9
-BUGS = 2
+FUNCIONALIDAD = 10
+BUGS = 0
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -366,7 +366,7 @@ class VentanaGeneral:
           justification="l",
           expand_y=False,
           enable_events=True,
-          right_click_menu=["Etiqueta", ["Modificar"]],
+          right_click_menu=["Etiqueta", ["Modificar", "Eliminar"]],
           alternating_row_color="#FFFFFF",
           background_color="#FFFFFF",
           header_border_width=2,
@@ -484,9 +484,12 @@ class VentanaGeneral:
         self.deselect_all_table()
       elif event == "TABLE":
         modify_object = (index_modificar, bandera_modificar, estatus_modificar)
-        index_modificar, bandera_modificar, estatus_modificar = self.table_management(window, values, modify_object)
+        index_modificar, bandera_modificar, estatus_modificar = self.table_management(values, modify_object)
       elif event == "Modificar" and bandera_modificar is True:
-        bandera_modificar = self.modificar_elemento(window, index_modificar)
+        bandera_modificar = self.modificar_elemento(index_modificar)
+      elif event == "Eliminar" and bandera_modificar is True:
+        self.eliminar_elemento(index_modificar)
+        bandera_modificar = False
       elif event == 'EXPORTAR':
         self.exportar_etiquetas(window)
       
@@ -584,17 +587,16 @@ class VentanaGeneral:
     #* Selecciona toda la tabla
     self.table_manager.deseleccionar_tabla()
 
-
-  def table_management(self, window, values, modify_object):
+  def table_management(self, values, modify_object):
     modify_index, modify_flag, modify_status = modify_object
     # print(modify_index, modify_flag, modify_status)
     #* Manejar excepcion con respecto a datos inexistentes
     if len(values["TABLE"]) == 0: return modify_index, modify_flag, modify_status
     
     index_value = int(values["TABLE"][0])  # * elemento a seleccionar
-    print('Libro seleccionado:', index_value)
+    print('[INFO] Libro seleccionado:', index_value)
     estatus = self.table_manager.lista_libros[index_value].estatus
-    print('Estatus libro seleccionado', estatus)
+    print('[INFO] Estatus libro seleccionado', estatus)
 
     # * Seleccionar una casilla valida
     if estatus == "Valid":
@@ -626,7 +628,7 @@ class VentanaGeneral:
     
     return modify_index, modify_flag, modify_status
 
-  def modificar_elemento(self, window, modify_index):
+  def modificar_elemento(self, modify_index):
     #* Sacar los datos de esa etiqueta
     libro_a_modificar = self.table_manager.lista_libros[modify_index]
     clasif_libro_a_modificar = libro_a_modificar.etiqueta.clasif_completa
@@ -652,6 +654,9 @@ class VentanaGeneral:
     self.table_manager.organizar_libros_tabla(indices_ordenados)
     
     return False
+
+  def eliminar_elemento(self, modify_index):
+    self.table_manager.eliminar_elemento(modify_index)
 
   def exportar_etiquetas(self, window):
     #* Ordenar libro modificado

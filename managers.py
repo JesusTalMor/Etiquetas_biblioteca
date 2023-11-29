@@ -336,8 +336,28 @@ class ManejoTabla:
     #   {aLibro.etiqueta}
     #   """
     # )
-    # self.diccionario_estatus[largo_tabla] = estatus    
+    # self.diccionario_estatus[largo_tabla] = estatus   
 
+  def eliminar_elemento(self, aIndex:int):
+    """ Elimina un elemento de la tabla """
+    if aIndex < 0 or aIndex >= self.tabla_len: return False
+    print(f'[WARNING] Eliminando Elemento {aIndex}')
+    self.lista_original = self.lista_libros.copy() # Copia de seguridad
+    libro_eliminado = self.lista_libros.pop(aIndex)
+    self.tabla_principal.pop(aIndex)
+    self.formato_tabla.pop(aIndex)
+    # Actualizar todo el formato de la tabla
+    for indice, tupla in enumerate(self.formato_tabla):
+      nueva_tupla = (indice, tupla[1])
+      self.formato_tabla[indice] = nueva_tupla
+
+    print(
+      F"""
+      Informacion del Libro Eliminado
+      -------------------------------
+      {libro_eliminado}""")
+    self.agregar_elemento_modificado(aIndex, libro_eliminado, 'Libro Eliminado')
+    self.tabla_len -+ 1
   def agregar_elemento_modificado(self, num_elem, aLibro, aClasifAnterior):
     self.lista_modificados[num_elem] = (aLibro, aClasifAnterior)
     print('[INFO] Elemento modificado agregado')
@@ -457,7 +477,7 @@ class ManejoTabla:
       dataframe.to_excel(excel_writer, index=False)
       excel_writer.close()
 
-  def guardar_libros_tabla(self, ruta):
+  def guardar_libros_excel(self, ruta):
     """ Guarda todos los cambios realizados en el programa hasta ahora """
     # * Importar el dataframe del Excel
     df_excel = read_excel(ruta, header=0)
@@ -474,6 +494,19 @@ class ManejoTabla:
     for column, values in correct_df.items():
       df_excel[column] = values
     return df_excel
+
+  def exportar_a_df(self):
+    """ Toma los libros actuales de la tabla y los pasa a un formato de dataframe """
+    df_salida = {
+      'Título' : [libro.titulo for libro in self.lista_libros],
+      'C. Barras' : [libro.cbarras for libro in self.lista_libros],
+      'Clasificación' : [libro.etiqueta.clasif for libro in self.lista_libros],
+      'Copia' : [libro.etiqueta.copia for libro in self.lista_libros],
+      'Volumen' : [libro.etiqueta.volumen for libro in self.lista_libros],
+      'Encabezado' : [libro.etiqueta.encabezado for libro in self.lista_libros]
+    }
+    
+    return df_salida
 
   #? CREACION DE REPORTES SOBRE TABLA ************************************
   def crear_reporte_modificados(self, path:str, nombre:str,):
