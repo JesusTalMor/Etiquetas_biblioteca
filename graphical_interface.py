@@ -415,7 +415,13 @@ class VentanaGeneral:
       [sg.Frame("",layout=LAYOUT, background_color='#FFFFFF', element_justification='c')],
     ]
     
-    window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, element_justification="c", icon=resource_path("Assets/ticket_icon.ico"))  
+    window = sg.Window(
+      title= self.titulo_ventana, 
+      layout= MAIN_LAYOUT, 
+      element_justification="c", 
+      icon=resource_path("Assets/ticket_icon.ico"),
+      enable_close_attempted_event=True,
+    )  
     return window
 
 
@@ -433,10 +439,10 @@ class VentanaGeneral:
       self.show_window_events(event, values)
       #? ******** FUNCIONALIDAD BASICA VENTANA  ***************
       #* Cerrar la aplicación
-      if event in (sg.WINDOW_CLOSED, "Exit", "__TIMEOUT__", 'Salir'):
+      if event in ('Salir', '-WINDOW CLOSE ATTEMPTED-'):
         #* Ver si quiere guardar el archivo
         if pop.save_file() is True:
-          self.guardar_programa()
+          self.guardar_programa(window)
         window.close()
         return "TRUE"
       #* Cambio de Ventana a ARCHIVO
@@ -455,7 +461,7 @@ class VentanaGeneral:
         pop.info_about(VERSION)
       #* Guardar progreso del programa
       elif event == 'Guardar':
-        self.guardar_programa()
+        self.guardar_programa(window)
       
       #? ********** FUNCIONALIDAD ARCHIVO *******************
       elif event == "UPLOAD":
@@ -497,6 +503,7 @@ class VentanaGeneral:
       elif event == 'EXPORTAR':
         self.exportar_etiquetas(window)
       
+      #? ACTUALIZAR TABLA VISUAL *******************************
       window["TABLE"].update(
         values=self.table_manager.tabla_principal, 
         row_colors=self.table_manager.formato_tabla
@@ -566,7 +573,7 @@ class VentanaGeneral:
     
     #* Ordenar nuevo libro agregado
     indices_ordenados = self.table_manager.ordenar_libros()
-    self.table_manager.organizar_libros_tabla(indices_ordenados)
+    self.table_manager.ordenar_tabla(indices_ordenados)
 
     #* Limpiar datos de agregar clasificacion
     window["CLAS"].update('')
@@ -655,7 +662,7 @@ class VentanaGeneral:
     
     #* Ordenar libro modificado
     indices_ordenados = self.table_manager.ordenar_libros()
-    self.table_manager.organizar_libros_tabla(indices_ordenados)
+    self.table_manager.ordenar_tabla(indices_ordenados)
     
     return False
 
@@ -702,16 +709,22 @@ class VentanaGeneral:
 
     #* Ordenar libro modificado
     indices_ordenados = self.table_manager.ordenar_libros()
-    self.table_manager.organizar_libros_tabla(indices_ordenados)
+    self.table_manager.ordenar_tabla(indices_ordenados)
 
-  def guardar_programa(self):
+  def guardar_programa(self, window):
     #* Revisar archivo de Excel
-    if len(self.ruta_archivo) == 0: return False 
-    
-    nombre_archivo = self.ruta_archivo.split('/')[-1]
-    nombre_archivo = nombre_archivo[:nombre_archivo.find('.xlsx')]
-    ruta_archivo = self.ruta_archivo[:self.ruta_archivo.find(nombre_archivo)-1]
-    nombre_archivo += '_guardado'
+    if len(self.ruta_archivo) == 0:
+      # * Pedir Folder para guardar
+      window['Guardar'].click()
+      ruta_archivo = window['FOLDER'].get()
+      if len(ruta_archivo) == 0: return False
+      today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
+      nombre_archivo = f'{today_date}_guardado'
+    else:
+      nombre_archivo = self.ruta_archivo.split('/')[-1]
+      nombre_archivo = nombre_archivo[:nombre_archivo.find('.xlsx')]
+      ruta_archivo = self.ruta_archivo[:self.ruta_archivo.find(nombre_archivo)-1]
+      nombre_archivo += '_guardado'
     #* Crear y actualizar el dataframe del excel
     guardar_df = self.table_manager.exportar_a_df()
     self.table_manager.escribir_excel(ruta_archivo, nombre_archivo, guardar_df)

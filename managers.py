@@ -53,9 +53,7 @@ class Clasificacion:
     atributos_pipe_b = PIPE_B[1:].split(' ')
     salida.extend(atributos_pipe_a)
     salida.extend(atributos_pipe_b)
-
     return salida
-
 
   def estandarizar(self, STR):
     largo_max = 10
@@ -65,7 +63,6 @@ class Clasificacion:
       if char.isalpha() is False:
         str_salida = STR[:ind] + ceros + STR[ind:] if ind != 0 else 'A' + ceros + STR
         break
-    
     return str_salida
 
   def estandarizar_atributos(self):
@@ -99,8 +96,7 @@ class Etiqueta:
     # llenar pipe_a_b y marcar como correcta la etiqueta
     self.revisar_clasificacion()
     # Llenar los atributos de clasificacion
-    if self.clasif_valida is True:
-      self.atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
+    if self.clasif_valida is True: self.atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
     # Crear clasificacion completa
     self.crear_clasif_completa()
   
@@ -112,12 +108,11 @@ class Etiqueta:
     self._clasif = self.limpiar_clasif(aClasif)
     self.revisar_clasificacion()
     # Llenar los atributos de clasificacion
-    if self.clasif_valida is True:
-      self.atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
+    if self.clasif_valida is True: self.atributos.sacar_atributos(self._PIPE_A, self.PIPE_B)
     self.crear_clasif_completa()
   
   @property
-  def volumen(self): return self._volumen
+  def volumen(self): return self._volumen 
   @volumen.setter
   def volumen(self, aVolumen):
     #* Unicamente acepta numeros
@@ -169,9 +164,9 @@ class Etiqueta:
     if self.clasif.find(' ') < 3:
       self._clasif_valida = False
     elif sh.revisar_corte_pipe(self.clasif) and sh.revisar_pipeB(self.clasif):
-      pos_div, sum = sh.buscar_pipe(self.clasif)
+      pos_div, suma = sh.buscar_pipe(self.clasif)
       self._PIPE_A = self.clasif[:pos_div].replace(' ','.')
-      self._PIPE_B = '.' + self.clasif[pos_div+sum:]
+      self._PIPE_B = '.' + self.clasif[pos_div+suma:]
       self._clasif_valida = True
       self._clasif = self._PIPE_A + ' ' + self._PIPE_B
     else:
@@ -197,7 +192,7 @@ class Etiqueta:
       Atributos:
       ----------
       Volumen: {self._volumen} Copia: {self._copia} Encabezado: {self._encabezado}
-      Clasificacion: {self._clasif} PIPES: {self._PIPE_A}|{self._PIPE_B}
+      Clasificacion: {self._clasif} PIPES: [{self._PIPE_A}|{self._PIPE_B}]
 
       {self.atributos}
       """
@@ -235,7 +230,10 @@ class Libro:
   @property
   def estatus(self): return self._estatus
   @estatus.setter
-  def estatus(self, aEstatus): self._estatus = aEstatus
+  def estatus(self, aEstatus): 
+    posibles_estatus = ['Error', 'Valid', 'Selected', 'Modify']
+    if aEstatus in posibles_estatus:
+      self._estatus = aEstatus
   
   @classmethod
   def llenar_desde_excel(cls, ruta):
@@ -261,9 +259,9 @@ class Libro:
   def __str__(self) -> str:
     return f"""  
       Imprimiendo Libro:
-      ---------------------
-      Libro num. : {self._ID}
-      Titulo: {self._titulo}
+      ------------------
+      Libro num.  : {self._ID}
+      Titulo      : {self._titulo}
       Codigo de Barras: {self._cbarras}
 
       {self.etiqueta}
@@ -272,7 +270,7 @@ class Libro:
 class ManejoTabla:
   """ Clase para manejo de Tabla """
   tabla_principal = []
-  lista_original = []
+  resplado_libros = []
   formato_tabla = []
   lista_libros = []
   lista_modificados = {}
@@ -283,25 +281,19 @@ class ManejoTabla:
   def crear_tabla(self, aRuta:str):
     lista_libros = Libro.llenar_desde_excel(aRuta)
     for libro in lista_libros: 
-      # print(libro)
       self.agregar_elemento(libro)
 
   def seleccionar_tabla(self):
-    # recorrer tabla por completo
     for num_libro in range(self.tabla_len):
       estatus = self.lista_libros[num_libro].estatus
-      if estatus != "Error":
-        self.actualizar_estatus_elemento(num_libro,"Selected")
+      if estatus != "Error": self.actualizar_estatus_elemento(num_libro,"Selected")
 
   def deseleccionar_tabla(self):
-    # recorrer tabla por completo
     for num_libro in range(self.tabla_len):
       estatus = self.lista_libros[num_libro].estatus
-      if estatus != "Error":
-        self.actualizar_estatus_elemento(num_libro,"Valid")
+      if estatus != "Error": self.actualizar_estatus_elemento(num_libro,"Valid")
 
   def revisar_tabla(self):
-    # recorrer tabla por completo
     for num_libro in range(self.tabla_len):
       if self.lista_libros[num_libro].estatus == 'Error':
         return False
@@ -312,8 +304,8 @@ class ManejoTabla:
     self.tabla_principal = []
     self.formato_tabla = []
     self.lista_libros = []
+    self.lista_modificados = {}
     self._tabla_len = 0
-    # self.diccionario_estatus = {}
 
   #? FUNCIONES PARA MANEJO DE UN SOLO ELEMENTO *********************************
   def agregar_elemento(self, aLibro:Libro):
@@ -336,13 +328,12 @@ class ManejoTabla:
     #   {aLibro.etiqueta}
     #   """
     # )
-    # self.diccionario_estatus[largo_tabla] = estatus   
 
   def eliminar_elemento(self, aIndex:int):
     """ Elimina un elemento de la tabla """
     if aIndex < 0 or aIndex >= self.tabla_len: return False
     print(f'[WARNING] Eliminando Elemento {aIndex}')
-    self.lista_original = self.lista_libros.copy() # Copia de seguridad
+    self.resplado_libros = self.lista_libros.copy() # Copia de seguridad
     libro_eliminado = self.lista_libros.pop(aIndex)
     self.tabla_principal.pop(aIndex)
     self.formato_tabla.pop(aIndex)
@@ -350,58 +341,54 @@ class ManejoTabla:
     for indice, tupla in enumerate(self.formato_tabla):
       nueva_tupla = (indice, tupla[1])
       self.formato_tabla[indice] = nueva_tupla
-
     print(
       F"""
       Informacion del Libro Eliminado
       -------------------------------
-      {libro_eliminado}""")
+      {libro_eliminado}"""
+    )
     self.agregar_elemento_modificado(aIndex, libro_eliminado, 'Libro Eliminado')
-    self.tabla_len -+ 1
-  def agregar_elemento_modificado(self, num_elem, aLibro, aClasifAnterior):
-    self.lista_modificados[num_elem] = (aLibro, aClasifAnterior)
+    self._tabla_len -= 1
+  
+  def agregar_elemento_modificado(self, aIndex, aLibro, aClasifAnterior):
+    self.lista_modificados[aIndex] = (aLibro, aClasifAnterior)
     print('[INFO] Elemento modificado agregado')
 
-  def actualizar_elemento(self, num_elem, aLibro):
+  def actualizar_elemento(self, aIndex, aLibro):
     principal = [
       aLibro.etiqueta.clasif_completa, 
       aLibro.etiqueta.PIPE_A, 
       aLibro.etiqueta.PIPE_B, 
       aLibro.estatus
     ]
-    self.tabla_principal[num_elem] = principal
-    self.lista_libros[num_elem] = aLibro
+    self.tabla_principal[aIndex] = principal
+    self.lista_libros[aIndex] = aLibro
     print('[INFO] Elemento Actualizado')
 
-  def actualizar_estatus_elemento(self, num_elem, aEstatus):
-    self.lista_libros[num_elem].estatus = aEstatus
-    self.tabla_principal[num_elem][3] = aEstatus
+  def actualizar_estatus_elemento(self, aIndex, aEstatus):
+    self.lista_libros[aIndex].estatus = aEstatus
+    self.tabla_principal[aIndex][3] = aEstatus
     color = self.estatus_color[aEstatus]
-    formato = (num_elem, color)
-    self.formato_tabla[num_elem] = formato
+    formato = (aIndex, color)
+    self.formato_tabla[aIndex] = formato
   
   #? OPERACIONES FINALES DE LA TABLA *************************************
   def exportar_libros_selecionados(self):
-    libros_a_imprimir = []
-    #* Recorrer todos los libros de la tabla
-    for ind in range(self.tabla_len):
-      estatus = self.lista_libros[ind].estatus
-      if estatus == "Selected":
-        libros_a_imprimir.append(self.lista_libros[ind])    
-    
+    """ Agrega todos los libros con estatus Selected a una lista"""
+    libros_a_imprimir = [libro for libro in self.lista_libros if libro.estatus == 'Selected']
     return libros_a_imprimir
 
   def ordenar_libros(self):
-    """ 
-    Convierte toda la tabla en general y los objetos
-    a un dataframe general donde cada columna es un atributo del libro.
-
-    Esta funcion es un paso previo para el ordenamiento de los libros.
+    """ Ordena todos los libros de la tabla
+    Crea un dataframe usando los atributos y caracteristicas de una
+    clasificacion de libro.
+    Posteriormente aplica un ordenamiento usando pandas
+    Retorna una lista con el orden de los libros.
     """
     orden_jerarquia = ['clase', 'subdecimal', 'temaesp', 'autor', 'anio', 'volumen', 'copia']
     
     libros_df = {
-      'id'          : [libro.ID for libro in self.lista_libros],
+      'id'          : [indice for indice in range(self.tabla_len)],
       'clase'       : [libro.etiqueta.atributos.clase for libro in self.lista_libros],
       'subdecimal'  : [libro.etiqueta.atributos.subdecimal for libro in self.lista_libros],
       'temaesp'     : [libro.etiqueta.atributos.temaesp for libro in self.lista_libros],
@@ -415,23 +402,23 @@ class ManejoTabla:
 
     return libros_df['id'].tolist()
 
-  def organizar_libros_tabla(self, lista_orden):
+  def ordenar_tabla(self, orden):
     """ Ordena los libros del programa con base a un indice """
     # Llenar ambas tablas necesarias para el programa
-    self.lista_original = self.lista_libros.copy()
+    self.resplado_libros = self.lista_libros.copy() # Copia de respaldo
     tabla_principal_aux = []
     lista_libros_aux = []
     formato_tabla_aux = []
-    for ind, orden in enumerate(lista_orden):
+    for ind, ind_orden in enumerate(orden):
       # Agregar elemento en orden
-      tabla_principal_aux.append(self.tabla_principal[orden])
+      tabla_principal_aux.append(self.tabla_principal[ind_orden])
       # Dar formato del libro
-      color = self.estatus_color[self.lista_libros[orden].estatus]
+      color = self.estatus_color[self.lista_libros[ind_orden].estatus]
       formato = (ind, color)
       formato_tabla_aux.append(formato)
       # Agregar Libro en lista auxiliar en su orden correcto
-      lista_libros_aux.append(self.lista_libros[orden])
-      self.lista_libros[orden].ID = ind
+      lista_libros_aux.append(self.lista_libros[ind_orden])
+      # lista_libros_aux[ind_orden].ID = ind # Actualizar indice
 
     self.tabla_principal = tabla_principal_aux.copy()
     self.lista_libros = lista_libros_aux.copy()
@@ -441,10 +428,11 @@ class ManejoTabla:
     # for libro in self.lista_libros:
     #   print(libro.ID)
 
-  def organizar_libros_excel(self, ruta, orden):
+  def ordenar_excel(self, ruta, orden):
     # * Importar el dataframe del Excel
     df_excel = read_excel(ruta, header=0)
     
+    #* Ordena el dataframe del Excel
     df_order = pd.DataFrame()
     for index in orden:
       row = df_excel.iloc[index]
@@ -464,18 +452,20 @@ class ManejoTabla:
     return df_order
 
   def escribir_excel(self, ruta, nombre, dataframe):
+    """ Escribe un archivo excel usando un dataframe """
     excel_path = f'{ruta}/{nombre}.xlsx'
-    print(excel_path)
     try:
       excel_writer = pd.ExcelWriter(excel_path, mode='w')
       dataframe.to_excel(excel_writer, index=False)
       excel_writer.close()
+      print(f'[INFO] Archivo Escrito Correctamente')
     except:
-      print('No se pudo escribir en la ruta seleccionada')
+      print(f'[WARNING] Archivo Abierto Creando Copia')
       excel_path = f'{ruta}/{nombre}_copia.xlsx'
       excel_writer = pd.ExcelWriter(excel_path, mode='w')
       dataframe.to_excel(excel_writer, index=False)
       excel_writer.close()
+      print(f'[INFO] Archivo Escrito Correctamente')
 
   def guardar_libros_excel(self, ruta):
     """ Guarda todos los cambios realizados en el programa hasta ahora """
@@ -485,7 +475,7 @@ class ManejoTabla:
     #* Corregir columnas seleccionadas
     correct_df = {
       'Copia'         : [libro.etiqueta.copia for libro in self.lista_libros],
-      'Volumen'       : ['V.' + str(libro.etiqueta.volumen) if str(libro.etiqueta.volumen) != '0' else '' for libro in self.lista_libros],
+      'Volumen'       : [libro.etiqueta.volumen if libro.etiqueta.volumen != '0' else '' for libro in self.lista_libros],
       'Clasificación' : [libro.etiqueta.clasif for libro in self.lista_libros],
       'Encabezado'    : [libro.etiqueta.encabezado for libro in self.lista_libros],
       'Clasificación Completa' : [libro.etiqueta.clasif_completa for libro in self.lista_libros]
@@ -498,33 +488,34 @@ class ManejoTabla:
   def exportar_a_df(self):
     """ Toma los libros actuales de la tabla y los pasa a un formato de dataframe """
     df_salida = {
-      'Título' : [libro.titulo for libro in self.lista_libros],
-      'C. Barras' : [libro.cbarras for libro in self.lista_libros],
+      'Título'        : [libro.titulo for libro in self.lista_libros],
+      'C. Barras'     : [libro.cbarras for libro in self.lista_libros],
       'Clasificación' : [libro.etiqueta.clasif for libro in self.lista_libros],
-      'Copia' : [libro.etiqueta.copia for libro in self.lista_libros],
-      'Volumen' : [libro.etiqueta.volumen for libro in self.lista_libros],
-      'Encabezado' : [libro.etiqueta.encabezado for libro in self.lista_libros]
+      'Copia'         : [libro.etiqueta.copia for libro in self.lista_libros],
+      'Volumen'       : [libro.etiqueta.volumen if libro.etiqueta.volumen != '0' else '' for libro in self.lista_libros],
+      'Encabezado'    : [libro.etiqueta.encabezado for libro in self.lista_libros],
+      'Clasificación Completa' : [libro.etiqueta.clasif_completa for libro in self.lista_libros]
     }
     df_salida = pd.DataFrame(df_salida)
     return df_salida
 
   #? CREACION DE REPORTES SOBRE TABLA ************************************
-  def crear_reporte_modificados(self, path:str, nombre:str,):
+  def crear_reporte_modificados(self, aPath:str, aNombre:str,):
     '''Genera un reporte en un txt de libros modificados'''
     if not self.lista_modificados: return False # Revisar si tenemos datos
-    
-    txt_path = f'{path}/{str(nombre)}_modificados.txt'
-    modif_file = open(txt_path, 'w', encoding="utf-8")
-    modif_file.write(f'Lista de Clasificaciones Modificadas\n')
-    for libro, clasif_anterior in self.lista_modificados.values():
-      titulo_comprimido = libro.titulo[:40] if len(libro.titulo) > 40 else libro.titulo + (' '*(40 - len(libro.titulo)))
-      texto_libro = f"{titulo_comprimido} | {libro.etiqueta.clasif_completa} | {clasif_anterior} | {libro.cbarras}"
-      modif_file.write(texto_libro)
-      modif_file.write('\n')
-    modif_file.close()
+    nombre = f'{aNombre}_modificados.txt'
+    #* Crear una dataframe modificados
+    modif_df = {
+      'Título'    : [libro.titulo for libro, clasif_anterior in self.lista_modificados.values()],
+      'C. Barras' : [libro.cbarras for libro, clasif_anterior in self.lista_modificados.values()],
+      'Clasificación Completa' : [libro.etiqueta.clasif_completa for libro, clasif_anterior in self.lista_modificados.values()],
+      'Clasificación Anterior' : [clasif_anterior for libro, clasif_anterior in self.lista_modificados.values()],
+    }
+    modif_df = pd.DataFrame(modif_df)
+    self.escribir_excel(aPath, nombre, modif_df)
 
   def crear_reporte_QRO(self, path:str, nombre:str,):
-    '''Genera un reporte en un txt de libros modificados'''
+    """ Genera una lista de Codigos de Barras en un txt """
     if not self.lista_modificados: return False # Revisar si tenemos datos
     
     txt_path = f'{path}/{str(nombre)}_QRO.txt'
@@ -533,10 +524,10 @@ class ManejoTabla:
         modif_file.write(libro.cbarras)
         modif_file.write('\n')
     modif_file.close()
-    return True
+    print(f'[INFO] Archivo de Codigos de Barras Creado')
 
   def crear_reporte_general(self, path:str, nombre_salida:str, nombre_archivo:str):
-    '''Genera un reporte en un txt de libros modificados'''
+    """ Reporte sobre el archivo de Excel Utilizado """
     txt_path = f'{path}/{str(nombre_salida)}_reporte.txt'
     
     separador = 50*'=' # largo de separadores de caracteres
