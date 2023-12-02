@@ -559,7 +559,6 @@ class VentanaGeneral:
 
     #* Crear Objeto de Tipo Libro
     newLibro = Libro(
-      aID=self.table_manager.tabla_len,
       aTitulo= titulo if len(titulo) != 0 else 'Sin Título',
       aCbarras= cbarras,
       aClasif= clasificacion,
@@ -673,7 +672,7 @@ class VentanaGeneral:
   def exportar_etiquetas(self, window):
     #* Ordenar libro modificado
     indices_ordenados = self.table_manager.ordenar_libros()
-    self.table_manager.organizar_libros_tabla(indices_ordenados)
+    self.table_manager.ordenar_tabla(indices_ordenados)
     
     etiquetas_a_imprimir = self.table_manager.exportar_libros_selecionados()
     # * Revisar que la tabla de seleccionado tenga valores para poder continuar

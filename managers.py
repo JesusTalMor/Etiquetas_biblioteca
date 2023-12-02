@@ -199,7 +199,7 @@ class Etiqueta:
 
 class Libro:
   """ Clase para generar objectos de tipo libro con todos sus datos """
-  def __init__(self, aID=1, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
+  def __init__(self, aID=1000, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
     # Asignar Valores al objeto
     self._titulo = aTitulo
     self._cbarras = aCbarras
