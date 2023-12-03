@@ -193,7 +193,7 @@ class VentanaModificar:
   def create_window(self):
     LAYOUT = self.create_layout()
     MAIN_LAYOUT = [[sg.Frame('', LAYOUT, background_color='#FFFFFF', element_justification='c')]]
-    window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, element_justification='c', icon=resource_path('Assets/book_icon.ico'))
+    window = sg.Window(self.titulo_ventana, MAIN_LAYOUT, element_justification='c', icon=resource_path('Assets/ticket_icon.ico'))
     return window
 
   #? FUNCIONAMIENTO PRINCIPAL DE LA VENTANA ***********************
@@ -215,7 +215,8 @@ class VentanaModificar:
       if event == 'Modificar':
         window.close()
         return True, self._Libro
-      elif event == 'INFO': pop.show_info_libro(self._Libro.titulo)
+      elif event == 'INFO': 
+        pop.info_pop('book_info', [self._Libro.titulo, self._Libro.cbarras])
 
   #? FUNCIONALIDAD GENERAL *********************************
   def show_window_events(self, event, values):

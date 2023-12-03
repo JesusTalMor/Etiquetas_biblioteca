@@ -59,9 +59,9 @@ def info_pop(option:str, aditional=''):
     Opciones
     ---------
     success   : El programa finalizo con exito
-    license   : Informacion en licencia de la aplicacion
-    about     : Informacion del programa en general
-    book_info : Informacion adicional del libro
+    license   : Informacion en licencia de la aplicacion. Aditional(Firma)
+    about     : Informacion del programa en general.      Aditional(Version)
+    book_info : Informacion adicional del libro.          Aditional(Titulo, Cbarras)
   """
   posible_options = {
     'success' : (
@@ -83,12 +83,13 @@ def info_pop(option:str, aditional=''):
 
   }
   title, msg = posible_options[option]
-  messagebox.showerror(title=title, message=msg, parent=window)
+  messagebox.showinfo(title=title, message=msg, parent=window)
 
 def ask_pop(option:str):
   """ Genera un pop up de pregunta  
     Opciones
     ----------
+    save : Guardar el progreso del programa
   """
   posible_options = {
     'save' : (

@@ -6,7 +6,7 @@
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
 FUNCIONALIDAD = 11
-BUGS = 4
+BUGS = 6
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -46,9 +46,6 @@ def resource_path(relative_path):
   except Exception:
     base_path = os.path.abspath(".")
   return os.path.join(base_path, relative_path)
-
-
-
 
 class VentanaGeneral:
   """ Ventana General para el Generador de Etiquetas """
@@ -441,7 +438,7 @@ class VentanaGeneral:
       #* Cerrar la aplicación
       if event in ('Salir', '-WINDOW CLOSE ATTEMPTED-'):
         #* Ver si quiere guardar el archivo
-        if pop.save_file() is True:
+        if pop.ask_pop('save') is True:
           self.guardar_programa(window)
         window.close()
         return "TRUE"
@@ -455,10 +452,10 @@ class VentanaGeneral:
         return "ELEM"
       #* Mostrar licencia del Programa
       elif event == "Licencia":
-        pop.info_license()
+        pop.info_pop('license', 'JDTM2023')
       #* Mostrar version del Programa
       elif event == "Acerca de...":
-        pop.info_about(VERSION)
+        pop.info_pop('about', VERSION)
       #* Guardar progreso del programa
       elif event == 'Guardar':
         self.guardar_programa(window)
@@ -677,7 +674,7 @@ class VentanaGeneral:
     etiquetas_a_imprimir = self.table_manager.exportar_libros_selecionados()
     # * Revisar que la tabla de seleccionado tenga valores para poder continuar
     if len(etiquetas_a_imprimir) == 0: 
-      pop.warning_select()
+      pop.warning_pop('selection')
       return False
 
     # * Pedir Folder para guardar
@@ -694,13 +691,13 @@ class VentanaGeneral:
     #* Generar reporte de datos modificados
     self.table_manager.crear_reporte_modificados(ruta, today_date)
     self.table_manager.crear_reporte_QRO(ruta, today_date)
-    pop.success_program()
+    pop.info_pop('success')
     return True
 
   def cargar_excel(self):
     # Revisar que tengamos un archivo excel
     if len(self.ruta_archivo) == 0:
-      pop.warning_excel_file()
+      pop.warning_pop('no_file')
       return False
 
     # Crear tabla de datos    
@@ -739,4 +736,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-  pop.check_pdf()
