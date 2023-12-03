@@ -1,5 +1,5 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 29 de Noviembre 2023
+# Fecha Trabajo: 2 de Diciembre 2023
 # Implementacion Orientada a Objetos
 #############################################################
 
