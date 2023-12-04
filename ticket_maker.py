@@ -69,3 +69,17 @@ if __name__ == "__main__":
   print(db.separar_tema('B111'))
   print(db.separar_tema('BV11'))
   print(db.separar_tema('BVD1'))
+  # dinero_inicial = 19000 * 0.1 * 12
+  # dinero = dinero_inicial
+  # interes = 11.29
+  # periodo = 100
+  # # total = 4300000000
+  # for n in range(1, periodo+1):
+  #   dinero += dinero_inicial # Anadir dinero cada ano
+  #   dinero = dinero * (1 + (interes/100.0))
+  #   porcentaje = ((dinero / dinero_inicial) * 100) - 100
+  #   if n%5 == 0:
+  #     print(f'Dinero acumulado al ano {n} = {dinero:.2f} $')
+  #     print(f'Aumento en porcentaje de {porcentaje:.2f} %')
+  #     print('-'*100)
+  # # print(f'Total de Dinero acumulado en {periodo} anos es: {dinero}')
