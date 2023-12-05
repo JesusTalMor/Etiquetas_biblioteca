@@ -1,6 +1,5 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 2 de Diciembre 2023
-# Implementacion Orientada a Objetos
+# Fecha Trabajo: 4 de Diciembre 2023
 #############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
