@@ -647,12 +647,13 @@ class VentanaGeneral:
     if estatus is False: return True
     
     # * Agregamos elemento a una tabla de modificaciones
-    self.table_manager.agregar_elemento_modificado(modify_index, libro_modificado, clasif_libro_a_modificar)
+    self.table_manager.agregar_elemento_modificado(libro_modificado, clasif_libro_a_modificar)
 
     # * Actualizar valores de tabla de datos
     self.table_manager.actualizar_elemento(modify_index, libro_modificado)
 
     # * Cambiamos la apariencia del elemento en la tabla
+    # TODO cambiar el estatus a modified
     self.table_manager.actualizar_estatus_elemento(modify_index, 'Valid')
     
     #* Ordenar libro modificado

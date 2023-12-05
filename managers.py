@@ -352,9 +352,10 @@ class ManejoTabla:
     self.agregar_elemento_modificado(aIndex, libro_eliminado, 'Libro Eliminado')
     self._tabla_len -= 1
   
-  def agregar_elemento_modificado(self, aIndex, aLibro, aClasifAnterior):
-    self.lista_modificados[aIndex] = (aLibro, aClasifAnterior)
-    print(f'[INFO] Elemento modificado agregado\n{aLibro}')
+  def agregar_elemento_modificado(self, libro, clasif_anterior):
+    index = libro.ID  
+    self.lista_modificados[index] = (libro, clasif_anterior)
+    print(f'[INFO] Elemento modificado agregado\n')
 
   def actualizar_elemento(self, aIndex, aLibro):
     principal = [
