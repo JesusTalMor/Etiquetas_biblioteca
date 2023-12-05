@@ -517,6 +517,7 @@ class ManejoTabla:
     }
     modif_df = pd.DataFrame(modif_df)
     self.escribir_excel(path, nombre, modif_df)
+    print(f'[INFO] Archivo de Etiquetas Modificadas Creado')
 
   def crear_reporte_QRO(self, path:str, nombre='',):
     """ Genera una lista de Codigos de Barras en un txt """

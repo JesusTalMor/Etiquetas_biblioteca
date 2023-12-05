@@ -1,3 +1,5 @@
+import pandas as pd
+
 from managers import Etiqueta, Libro
 
 
@@ -22,25 +24,37 @@ class DatabaseMaker:
       if len(limpiar_lista) < 9: database_writer.write(','*(9-len(limpiar_lista)))
       database_writer.write('\n')
     database_writer.close()
+    print('[INFO] Base de Datos Creada Correctamente')
 
-  def crear_instrucciones_pegado(self, aListaLibros:list, aRuta:str, aNombre=''):
-    if len(aListaLibros) == 0: return # Revisar que tenemos datos
-    # txt_path = f'{aRuta}/{aNombre}_instrucciones.txt' # Version sin carpeta
-    txt_path = f'{aRuta}/Instrucciones.txt' # Version generada usando carpeta auxiliar
-    instruc_writer = open(txt_path, 'w', encoding="utf-8")
-    #* Recorrer todos los libros
-    for ind, libro in enumerate(aListaLibros):
-      #* Escribir en el archivo      
-      indice = str(ind)
-      ceros = '0'*(len(str(len(aListaLibros))) - len(indice))
-      indice = ceros + indice
-      cbarras = libro.cbarras
-      titulo = libro.titulo[:40] if len(libro.titulo) > 40 else libro.titulo + ('_'*(40 - len(libro.titulo)))
-      clasif = libro.etiqueta.clasif_completa
-      texto = f'{indice}|{cbarras}|{titulo.upper()}|{clasif}\n'
-      # print(texto)
-      instruc_writer.write(texto)
-    instruc_writer.close()
+  def crear_instrucciones_pegado(self, libros_lista:list, ruta:str, nombre=''):
+    if len(libros_lista) == 0: return # Revisar que tenemos datos
+    nombre = f'{nombre}_Instrucciones' if len(nombre) != 0 else 'Instrucciones'
+    #* Crear dataframe de los datos
+    instruc_df = {
+      'Indice' : [index for index in range(len(libros_lista))],
+      'Clasificación' : [libro.etiqueta.clasif_completa for libro in libros_lista],
+      'Título'        : [libro.titulo for libro in libros_lista],
+      'C. Barras'     : [libro.cbarras for libro in libros_lista],
+    }
+    instruc_df = pd.DataFrame(instruc_df)
+    self.escribir_excel(ruta, nombre, instruc_df)
+    print('[INFO] Archivo de Instrucciones Creado Correctamente')
+  
+  def escribir_excel(self, ruta, nombre, dataframe):
+    """ Escribe un archivo excel usando un dataframe """
+    excel_path = f'{ruta}/{nombre}.xlsx'
+    try:
+      excel_writer = pd.ExcelWriter(excel_path, mode='w')
+      dataframe.to_excel(excel_writer, index=False)
+      excel_writer.close()
+      print(f'[INFO] Archivo Escrito Correctamente')
+    except:
+      print(f'[WARNING] Archivo Abierto Creando Copia')
+      excel_path = f'{ruta}/{nombre}_copia.xlsx'
+      excel_writer = pd.ExcelWriter(excel_path, mode='w')
+      dataframe.to_excel(excel_writer, index=False)
+      excel_writer.close()
+      print(f'[INFO] Archivo Escrito Correctamente')
 
   def separar_lista(self, aEtiqueta:Etiqueta):
     """ Recibe un diccionario y crea una lista para imprimir """
