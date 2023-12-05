@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from pandas import read_excel
 
@@ -352,7 +354,7 @@ class ManejoTabla:
   
   def agregar_elemento_modificado(self, aIndex, aLibro, aClasifAnterior):
     self.lista_modificados[aIndex] = (aLibro, aClasifAnterior)
-    print('[INFO] Elemento modificado agregado')
+    print(f'[INFO] Elemento modificado agregado\n{aLibro}')
 
   def actualizar_elemento(self, aIndex, aLibro):
     principal = [
@@ -500,10 +502,11 @@ class ManejoTabla:
     return df_salida
 
   #? CREACION DE REPORTES SOBRE TABLA ************************************
-  def crear_reporte_modificados(self, aPath:str, aNombre:str,):
+  def crear_reporte_modificados(self, path:str, nombre='',):
     '''Genera un reporte en un txt de libros modificados'''
     if not self.lista_modificados: return False # Revisar si tenemos datos
-    nombre = f'{aNombre}_modificados.txt'
+    # nombre = f'{nombre}_modificados.txt' # Version sin folder
+    nombre = f'Etiquetas_Modificados.txt' # Version con folder auxiliar
     #* Crear una dataframe modificados
     modif_df = {
       'Título'    : [libro.titulo for libro, clasif_anterior in self.lista_modificados.values()],
@@ -512,17 +515,18 @@ class ManejoTabla:
       'Clasificación Anterior' : [clasif_anterior for libro, clasif_anterior in self.lista_modificados.values()],
     }
     modif_df = pd.DataFrame(modif_df)
-    self.escribir_excel(aPath, nombre, modif_df)
+    self.escribir_excel(path, nombre, modif_df)
 
-  def crear_reporte_QRO(self, path:str, nombre:str,):
+  def crear_reporte_QRO(self, path:str, nombre='',):
     """ Genera una lista de Codigos de Barras en un txt """
     if not self.lista_modificados: return False # Revisar si tenemos datos
     
-    txt_path = f'{path}/{str(nombre)}_QRO.txt'
+    # txt_path = f'{path}/{str(nombre)}_QRO.txt' # Version sin folder 
+    txt_path = f'{path}/Codigo_Barras.txt' #Version con folder auxiliar
     modif_file = open(txt_path, 'w', encoding="utf-8")
     for libro, clasif_anterior in self.lista_modificados.values():
-        modif_file.write(libro.cbarras)
-        modif_file.write('\n')
+      modif_file.write(libro.cbarras)
+      modif_file.write('\n')
     modif_file.close()
     print(f'[INFO] Archivo de Codigos de Barras Creado')
 
@@ -554,6 +558,20 @@ class ManejoTabla:
       report_file.write(texto_libro)
       report_file.write('\n')
     report_file.close()    
+
+  def crear_carpeta(self, ruta, nombre):
+    """ Genera una carpeta de salida en una ruta seleccionada """
+    folder_path = f'{ruta}/{nombre}'
+    try:
+      os.makedirs(folder_path, exist_ok=True)
+      print(f'[INFO] Folder Creado Correctamente')
+    except:
+      print(f'[WARNING] Folder Ya Usado. Creando Copia')
+      folder_path += '_copia'
+      os.makedirs(folder_path, exist_ok=True)
+      print(f'[INFO] Folder Creado Correctamente')
+    return folder_path
+
 
   @property
   def tabla_len(self): return self._tabla_len

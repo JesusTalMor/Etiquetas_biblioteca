@@ -54,7 +54,7 @@ def error_pop(option:str):
   messagebox.showerror(title=title, message=msg, parent=window)
 
 
-def info_pop(option:str, aditional=''):
+def info_pop(option:str, aditional='JDTM'):
   """ Genera un pop up de informacion 
     Opciones
     ---------

@@ -6,7 +6,7 @@
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 1
 FUNCIONALIDAD = 11
-BUGS = 6
+BUGS = 7
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
@@ -681,16 +681,19 @@ class VentanaGeneral:
     window['Guardar'].click()
     ruta = window['FOLDER'].get()
     if len(ruta) == 0: return False
-    today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
+    date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
+
+    #* Generar carpeta de salida
+    ruta_folder = self.table_manager.crear_carpeta(ruta, date)
 
     #* Generar base de datos
     DBM = DatabaseMaker()
-    DBM.crear_database(etiquetas_a_imprimir, today_date, ruta)  
-    DBM.crear_instrucciones_pegado(etiquetas_a_imprimir, today_date, ruta)  
+    DBM.crear_database(etiquetas_a_imprimir, ruta_folder)  
+    DBM.crear_instrucciones_pegado(etiquetas_a_imprimir, ruta_folder)  
 
     #* Generar reporte de datos modificados
-    self.table_manager.crear_reporte_modificados(ruta, today_date)
-    self.table_manager.crear_reporte_QRO(ruta, today_date)
+    self.table_manager.crear_reporte_modificados(ruta_folder)
+    self.table_manager.crear_reporte_QRO(ruta_folder)
     pop.info_pop('success')
     return True
 

@@ -3,9 +3,10 @@ from managers import Etiqueta, Libro
 
 class DatabaseMaker:
   """ Clase implementada para crear bases de datos con txt tipo csv """
-  def crear_database(self, aListaLibros:list, aNombre:str, aRuta:str):
+  def crear_database(self, aListaLibros:list, aRuta:str, aNombre=''):
     if len(aListaLibros) == 0: return # Revisar que tenemos datos
-    txt_path = f'{aRuta}/{aNombre}_etiquetas.txt'
+    # txt_path = f'{aRuta}/{aNombre}_etiquetas.txt' # Version sin carpeta
+    txt_path = f'{aRuta}/Etiquetas.txt' # Version generada usando carpeta auxiliar
     database_writer = open(txt_path, 'w', encoding="utf-8")
     #* Crear encabezado de base de datos
     for num in range(9):
@@ -22,9 +23,10 @@ class DatabaseMaker:
       database_writer.write('\n')
     database_writer.close()
 
-  def crear_instrucciones_pegado(self, aListaLibros:list, aNombre:str, aRuta:str):
+  def crear_instrucciones_pegado(self, aListaLibros:list, aRuta:str, aNombre=''):
     if len(aListaLibros) == 0: return # Revisar que tenemos datos
-    txt_path = f'{aRuta}/{aNombre}_instrucciones.txt'
+    # txt_path = f'{aRuta}/{aNombre}_instrucciones.txt' # Version sin carpeta
+    txt_path = f'{aRuta}/Instrucciones.txt' # Version generada usando carpeta auxiliar
     instruc_writer = open(txt_path, 'w', encoding="utf-8")
     #* Recorrer todos los libros
     for ind, libro in enumerate(aListaLibros):
@@ -36,7 +38,7 @@ class DatabaseMaker:
       titulo = libro.titulo[:40] if len(libro.titulo) > 40 else libro.titulo + ('_'*(40 - len(libro.titulo)))
       clasif = libro.etiqueta.clasif_completa
       texto = f'{indice}|{cbarras}|{titulo.upper()}|{clasif}\n'
-      print(texto)
+      # print(texto)
       instruc_writer.write(texto)
     instruc_writer.close()
 
@@ -65,10 +67,11 @@ class DatabaseMaker:
     return salida
 
 if __name__ == "__main__":
-  db = DatabaseMaker()
-  print(db.separar_tema('B111'))
-  print(db.separar_tema('BV11'))
-  print(db.separar_tema('BVD1'))
+  pass
+  # db = DatabaseMaker()
+  # print(db.separar_tema('B111'))
+  # print(db.separar_tema('BV11'))
+  # print(db.separar_tema('BVD1'))
   # dinero_inicial = 19000 * 0.1 * 12
   # dinero = dinero_inicial
   # interes = 11.29
