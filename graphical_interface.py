@@ -565,6 +565,7 @@ class VentanaGeneral:
 
     #* Se agrega dicho elemento a las listas de datos
     self.table_manager.agregar_elemento(newLibro)
+    self.table_manager.actualizar_estatus_elemento(self.table_manager.tabla_len-1, 'Added')
     
     #* Ordenar nuevo libro agregado
     indices_ordenados = self.table_manager.ordenar_libros()
@@ -595,17 +596,16 @@ class VentanaGeneral:
 
   def table_management(self, values, modify_object):
     modify_index, modify_flag, modify_status = modify_object
-    # print(modify_index, modify_flag, modify_status)
     #* Manejar excepcion con respecto a datos inexistentes
     if len(values["TABLE"]) == 0: return modify_index, modify_flag, modify_status
     
     index_value = int(values["TABLE"][0])  # * elemento a seleccionar
     print('[INFO] Libro seleccionado:', index_value)
     estatus = self.table_manager.lista_libros[index_value].estatus
-    print('[INFO] Estatus libro seleccionado', estatus)
+    print(f'[INFO] Estatus libro seleccionado es {estatus}')
 
     # * Seleccionar una casilla valida
-    if estatus == "Valid":
+    if estatus in ['Valid', 'Modified', 'Added']:
       # Cambias el estatus de ese elemento a seleccionado
       self.table_manager.actualizar_estatus_elemento(index_value, "Selected")
 
@@ -653,8 +653,8 @@ class VentanaGeneral:
     self.table_manager.actualizar_elemento(modify_index, libro_modificado)
 
     # * Cambiamos la apariencia del elemento en la tabla
-    # TODO cambiar el estatus a modified
-    self.table_manager.actualizar_estatus_elemento(modify_index, 'Valid')
+    self.table_manager.actualizar_estatus_elemento(modify_index, 'Modified')
+    
     
     #* Ordenar libro modificado
     indices_ordenados = self.table_manager.ordenar_libros()
@@ -713,19 +713,24 @@ class VentanaGeneral:
   def guardar_programa(self, window):
     #* Revisar archivo de Excel
     if len(self.ruta_archivo) == 0:
+      #? No contamos con archivo de excel
       # * Pedir Folder para guardar
       window['Guardar'].click()
       ruta_archivo = window['FOLDER'].get()
       if len(ruta_archivo) == 0: return False
       today_date = datetime.now().strftime("%d_%m_%Y_%H%M%S") # Chequeo de hora de consulta
       nombre_archivo = f'{today_date}_guardado'
+      #* Crea un dataframe usando solo datos de la tabla sin excel
+      guardar_df = self.table_manager.exportar_a_df()
     else:
+      #? Contamos con archivo de Excel
       nombre_archivo = self.ruta_archivo.split('/')[-1]
       nombre_archivo = nombre_archivo[:nombre_archivo.find('.xlsx')]
       ruta_archivo = self.ruta_archivo[:self.ruta_archivo.find(nombre_archivo)-1]
       nombre_archivo += '_guardado'
-    #* Crear y actualizar el dataframe del excel
-    guardar_df = self.table_manager.exportar_a_df()
+      #* Modifica el archivo de excel actual
+      guardar_df = self.table_manager.guardar_libros_excel2(self.ruta_archivo)
+    #* Salvar archivo generado
     self.table_manager.escribir_excel(ruta_archivo, nombre_archivo, guardar_df)
 
 def main():

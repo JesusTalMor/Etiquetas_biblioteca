@@ -201,7 +201,7 @@ class Etiqueta:
 
 class Libro:
   """ Clase para generar objectos de tipo libro con todos sus datos """
-  def __init__(self, aID=1000, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
+  def __init__(self, aID=2099, aTitulo='', aCbarras='', aClasif='', aVolumen='0', aCopia='1', aEncabezado=''):
     # Asignar Valores al objeto
     self._titulo = aTitulo
     self._cbarras = aCbarras
@@ -233,14 +233,14 @@ class Libro:
   def estatus(self): return self._estatus
   @estatus.setter
   def estatus(self, aEstatus): 
-    posibles_estatus = ['Error', 'Valid', 'Selected', 'Modify']
+    posibles_estatus = ['Error', 'Valid', 'Selected', 'Modify', 'Added', 'Modified']
     if aEstatus in posibles_estatus:
       self._estatus = aEstatus
   
   @classmethod
   def llenar_desde_excel(cls, ruta):
-    df = read_excel(ruta, header=0,  dtype=str)
-    header = df.head(0)
+    df = read_excel(ruta, header=0, dtype=str)
+    header = list(df.columns)
 
     lista_libros = []
     for ind in df.index:
@@ -277,7 +277,14 @@ class ManejoTabla:
   lista_libros = []
   lista_modificados = {}
   _tabla_len = 0
-  estatus_color = {'Error':'#F04150', 'Valid':'#FFFFFF', 'Selected':'#498C8A', 'Modify':'#E8871E'}
+  estatus_color = {
+    'Error':'#F04150', 
+    'Valid':'#FFFFFF', 
+    'Selected':'#498C8A', 
+    'Modify':'#E8871E',
+    'Modified':'#673C4F',
+    'Added':'#003CA3',
+  }
 
   #? OPERACIONES GENERALES DE LA TABLA *************************************
   def crear_tabla(self, aRuta:str):
@@ -324,12 +331,7 @@ class ManejoTabla:
     self.lista_libros.append(aLibro)
     self.formato_tabla.append(formato)
     self._tabla_len += 1
-    # print(
-    #   f"""
-    #   [INFO] Elemento Agregado
-    #   {aLibro.etiqueta}
-    #   """
-    # )
+    print('[INFO] Elemento Agregado con Exito')
 
   def eliminar_elemento(self, aIndex:int):
     """ Elimina un elemento de la tabla """
@@ -355,7 +357,7 @@ class ManejoTabla:
   def agregar_elemento_modificado(self, libro, clasif_anterior):
     index = libro.ID  
     self.lista_modificados[index] = (libro, clasif_anterior)
-    print(f'[INFO] Elemento modificado agregado\n')
+    print(f'[INFO] Elemento modificado agregado')
 
   def actualizar_elemento(self, aIndex, aLibro):
     principal = [
@@ -368,12 +370,18 @@ class ManejoTabla:
     self.lista_libros[aIndex] = aLibro
     print('[INFO] Elemento Actualizado')
 
-  def actualizar_estatus_elemento(self, aIndex, aEstatus):
-    self.lista_libros[aIndex].estatus = aEstatus
-    self.tabla_principal[aIndex][3] = aEstatus
-    color = self.estatus_color[aEstatus]
-    formato = (aIndex, color)
-    self.formato_tabla[aIndex] = formato
+  def actualizar_estatus_elemento(self, index, estatus):
+    estatus_anterior = self.lista_libros[index].estatus
+    self.lista_libros[index].estatus = estatus
+    self.actualizar_color_elemento(index, estatus)
+    print(f'[INFO] Estatus Elemento Actualizado\n[{estatus_anterior}|{estatus}]')
+  
+  def actualizar_color_elemento(self, index, estatus):
+    self.tabla_principal[index][3] = estatus
+    color = self.estatus_color[estatus]
+    formato = (index, color)
+    self.formato_tabla[index] = formato
+    print(f'[INFO] Color de Elemento Actualizado\n {index}|{color}')
   
   #? OPERACIONES FINALES DE LA TABLA *************************************
   def exportar_libros_selecionados(self):
@@ -454,22 +462,6 @@ class ManejoTabla:
       df_order[column] = values
     return df_order
 
-  def escribir_excel(self, ruta, nombre, dataframe):
-    """ Escribe un archivo excel usando un dataframe """
-    excel_path = f'{ruta}/{nombre}.xlsx'
-    try:
-      excel_writer = pd.ExcelWriter(excel_path, mode='w')
-      dataframe.to_excel(excel_writer, index=False)
-      excel_writer.close()
-      print(f'[INFO] Archivo Escrito Correctamente')
-    except:
-      print(f'[WARNING] Archivo Abierto Creando Copia')
-      excel_path = f'{ruta}/{nombre}_copia.xlsx'
-      excel_writer = pd.ExcelWriter(excel_path, mode='w')
-      dataframe.to_excel(excel_writer, index=False)
-      excel_writer.close()
-      print(f'[INFO] Archivo Escrito Correctamente')
-
   def guardar_libros_excel(self, ruta):
     """ Guarda todos los cambios realizados en el programa hasta ahora """
     # * Importar el dataframe del Excel
@@ -488,6 +480,44 @@ class ManejoTabla:
       df_excel[column] = values
     return df_excel
 
+  def guardar_libros_excel2(self, ruta):
+    """ Guarda todos los cambios realizados en elprograma hasta ahora """
+    # * Importar el dataframe del Excel
+    df_excel = read_excel(ruta, header=0)
+    # * Encabezados
+    header = list(df_excel.columns)
+
+    #* Crear un dataframe usando el excel y los valores agregados
+    safe_df = pd.DataFrame()
+    for libro in self.lista_libros:
+      index = libro.ID
+      if index != 2099:
+        # * El libro se encuentra en el excel
+        row = df_excel.iloc[index] 
+        safe_df = pd.concat([safe_df, pd.DataFrame([row])], ignore_index=True)
+      else:
+        # * Crear un row completamente vacio y añadirlo
+        empty_row = pd.Series(['' for n in header],index=header)
+        safe_df = pd.concat([safe_df, pd.DataFrame([empty_row])], ignore_index=True)    
+    print(safe_df.head(50))
+
+    #* Dataframe con los valores ya modificados
+    correct_df = {
+      'Título'        : [libro.titulo for libro in self.lista_libros],
+      'C. Barras'     : [libro.cbarras for libro in self.lista_libros],
+      'Clasificación' : [libro.etiqueta.clasif for libro in self.lista_libros],
+      'Copia'         : [libro.etiqueta.copia for libro in self.lista_libros],
+      'Volumen'       : [libro.etiqueta.volumen if libro.etiqueta.volumen != '0' else '' for libro in self.lista_libros],
+      'Encabezado'    : [libro.etiqueta.encabezado for libro in self.lista_libros],
+      'Clasificación Completa' : [libro.etiqueta.clasif_completa for libro in self.lista_libros]
+    }
+
+    for column, values in correct_df.items():
+      safe_df[column] = values
+    print(f'[INFO] Dataframe Final \n\n\n\n')
+    print(safe_df.head(50))    
+    return safe_df
+
   def exportar_a_df(self):
     """ Toma los libros actuales de la tabla y los pasa a un formato de dataframe """
     df_salida = {
@@ -501,6 +531,22 @@ class ManejoTabla:
     }
     df_salida = pd.DataFrame(df_salida)
     return df_salida
+
+  def escribir_excel(self, ruta, nombre, dataframe):
+    """ Escribe un archivo excel usando un dataframe """
+    excel_path = f'{ruta}/{nombre}.xlsx'
+    try:
+      excel_writer = pd.ExcelWriter(excel_path, mode='w')
+      dataframe.to_excel(excel_writer, index=False)
+      excel_writer.close()
+      print(f'[INFO] Archivo Escrito Correctamente')
+    except:
+      print(f'[WARNING] Archivo Abierto Creando Copia')
+      excel_path = f'{ruta}/{nombre}_copia.xlsx'
+      excel_writer = pd.ExcelWriter(excel_path, mode='w')
+      dataframe.to_excel(excel_writer, index=False)
+      excel_writer.close()
+      print(f'[INFO] Archivo Escrito Correctamente')
 
   #? CREACION DE REPORTES SOBRE TABLA ************************************
   def crear_reporte_modificados(self, path:str, nombre='',):
