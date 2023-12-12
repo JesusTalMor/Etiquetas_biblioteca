@@ -280,10 +280,10 @@ class ManejoTabla:
   estatus_color = {
     'Error':'#F04150', 
     'Valid':'#FFFFFF', 
-    'Selected':'#498C8A', 
+    'Selected':'#A1CECC', 
     'Modify':'#E8871E',
-    'Modified':'#673C4F',
-    'Added':'#003CA3',
+    'Modified':'#9C99C2',
+    'Added':'#C5C992',
   }
 
   #? OPERACIONES GENERALES DE LA TABLA *************************************
@@ -351,7 +351,7 @@ class ManejoTabla:
       -------------------------------
       {libro_eliminado}"""
     )
-    self.agregar_elemento_modificado(aIndex, libro_eliminado, 'Libro Eliminado')
+    self.agregar_elemento_modificado(libro_eliminado, 'Libro Eliminado')
     self._tabla_len -= 1
   
   def agregar_elemento_modificado(self, libro, clasif_anterior):
