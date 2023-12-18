@@ -220,9 +220,14 @@ class Libro:
   #? GETTERS Y SETTERS *****************************
   @property
   def titulo(self): return self._titulo
+  @titulo.setter
+  def titulo(self, aTitulo): self._titulo = aTitulo
+
   
   @property
   def cbarras(self): return self._cbarras
+  @cbarras.setter
+  def cbarras(self, aCbarras): self._cbarras = aCbarras
 
   @property
   def ID(self): return self._ID
@@ -374,14 +379,14 @@ class ManejoTabla:
     estatus_anterior = self.lista_libros[index].estatus
     self.lista_libros[index].estatus = estatus
     self.actualizar_color_elemento(index, estatus)
-    print(f'[INFO] Estatus Elemento Actualizado\n[{estatus_anterior}|{estatus}]')
+    print(f'[INFO] Estatus Elemento Actualizado [{estatus_anterior}|{estatus}]')
   
   def actualizar_color_elemento(self, index, estatus):
     self.tabla_principal[index][3] = estatus
     color = self.estatus_color[estatus]
     formato = (index, color)
     self.formato_tabla[index] = formato
-    print(f'[INFO] Color de Elemento Actualizado\n {index}|{color}')
+    print(f'[INFO] Color de Elemento Actualizado [{index}|{color}]')
   
   #? OPERACIONES FINALES DE LA TABLA *************************************
   def exportar_libros_selecionados(self):

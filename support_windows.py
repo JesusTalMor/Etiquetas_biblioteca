@@ -69,25 +69,33 @@ class VentanaModificar:
     """
     #?#********* LAYOUT PARA MANEJO DE PIPE'S #?#*********
     text_format = {
-      'font':("Open Sans", 12, "bold"), 
-      'background_color':"#FFFFFF", 
-      'justification':"center",
+      'font' :  ("Open Sans", 12, "bold"),
+      'size' :  (6,1),
+      'pad'  :  0,
+      'background_color'  : "#FFFFFF", 
+      'justification'     : "center",
     }
     in_format = {
       'size':(14, 1), 
       'font':("Open Sans", 10, "bold"), 
       'justification':"center", 
       'disabled':True,
+      'text_color' : '#1AB01F' if self._Libro.etiqueta.clasif_valida else '#F04150',
+      'pad' : 5,
     }
     pipe_a_layout = [
-      [sg.Text(text="PIPE A", pad=5, **text_format)],
-      [sg.In(default_text='', key="PIPE_A", ** in_format)],
+      [sg.Text(text="PIPE A", **text_format)],
+      [sg.In(default_text=self._Libro.etiqueta.PIPE_A, key="PIPE_A", **in_format)],
     ]
     pipe_b_layout = [
-      [sg.Text(text="PIPE B", pad=5, **text_format)],
-      [sg.In(default_text='', key="PIPE_B", ** in_format)],
+      [sg.Text(text="PIPE B", **text_format)],
+      [sg.In(default_text=self._Libro.etiqueta.PIPE_B, key="PIPE_B", **in_format)],
     ]
-    colum_format = {'background_color':"#FFFFFF", 'element_justification':"c"}
+    colum_format = {
+      'background_color':"#FFFFFF", 
+      'element_justification':"c",
+      'pad' : 0
+    }
     PIPE_AB_LAYOUT = [[
       sg.Column(layout=pipe_a_layout, **colum_format),
       sg.VSeperator(),
@@ -103,8 +111,9 @@ class VentanaModificar:
     in_format = {
       'size':(2, 1), 
       'enable_events':True,
-      'font':("Open Sans", 10), 
-      'justification':"center", 
+      'font':("Open Sans", 10, 'bold'), 
+      'justification':"center",
+      'pad' : 0, 
     }
     VOL_COP_LAYOUT = [
       sg.Text(text="Volumen", **text_format),
@@ -114,7 +123,13 @@ class VentanaModificar:
     ],
     
     #?#********* LAYOUT PARA MANEJO DE CLASIFICACION Y ENCABEZADO #?#*********
+    title_format = {
+      'font': ("Open Sans", 14, 'bold'),
+      'background_color':"#FFFFFF", 
+      'justification':"center",
+    }
     text_format = {
+      'font': ("Open Sans", 12, 'bold'),
       'background_color':"#FFFFFF", 
       'justification':"center",
     }
@@ -130,11 +145,11 @@ class VentanaModificar:
     }
     LAYOUT_GENERAL = [
       #* Titulo de esta seccion
-      [sg.Text(text="Clasificación", font=("Open Sans", 14, "bold"), **text_format)],
-      [sg.In(default_text=self._Libro.etiqueta.clasif, size=(28, 1), key="CLAS", pad=(15, 5), **in_format)],
+      [sg.Text(text="Clasificación", **title_format)],
+      [sg.In(default_text=self._Libro.etiqueta.clasif, size=(30, 1), key="CLAS", pad=(10, 0), **in_format)],
       #* Funcion para agregar un encabezado
-      [sg.Text(text="Agregar Encabezado", font=("Open Sans", 12), **text_format)],
-      [sg.In(default_text=self._Libro.etiqueta.encabezado, size=(18, 1), key="HEAD", **in_format)],
+      [sg.Text(text="Encabezado", **text_format)],
+      [sg.In(default_text=self._Libro.etiqueta.encabezado, size=(20, 1), key="HEAD", pad=0, **in_format)],
       [sg.Frame("",layout=VOL_COP_LAYOUT, **frame_format)],
       [sg.Frame("",layout=PIPE_AB_LAYOUT, **frame_format)],
     ]
@@ -160,32 +175,60 @@ class VentanaModificar:
       HEAD: (str) Encabezado del Libro
     """
     INDIV_LAYOUT = self.clasification_layout()
-    text_format = {'background_color':"#FFFFFF", 'justification':"c",}
+    #?#********* LAYOUT PARA AGREGAR TITULO Y CBARRAS #?#*********
+    text_format = {
+      'font': ("Open Sans", 12, 'bold'),
+      'background_color':"#FFFFFF", 
+      'justification':"center",
+    }
+    in_format = {
+      'font':("Open Sans", 10, 'bold'), 
+      'justification':"center", 
+    }
+    INFO_LAYOUT = [
+      [
+        sg.Text(text="Título", **text_format),
+        sg.In(default_text=self._Libro.titulo, size=(40, 1), key="TITLE", **in_format)
+      ],
+      [
+        sg.Text(text="Código de Barras", pad=((0,20), 0), **text_format),
+        sg.In(default_text=self._Libro.cbarras, size=(20, 1), key="CBARRAS", **in_format)
+      ],
+    ]
+    #?#********* LAYOUT GENERAL DE ESTA APLICACION #?#*********
+    title_format = {
+      'font' : ("Open Sans", 20, "bold", "italic"),
+      'background_color' : '#FFFFFF',
+      'justification' : 'c',
+      'pad' : (0, 5),
+    }
+    text_format = {
+      'font' : ("Open Sans", 14, "bold"),
+      'background_color':"#FFFFFF", 
+      'justification':"c",
+    }
     frame_format = {'background_color':"#FFFFFF", 'element_justification':"c",}
     GENERAL_LAYOUT = [
       #* Titulo de la aplicacion y Boton de Mas Info
       [
-        sg.Text(
-          text=self.titulo_ventana, font=("Open Sans", 18, "bold", "italic"), 
-          pad=(0, (0, 10)), ** text_format,
-        ),
+        sg.Text(text=self.titulo_ventana, **title_format,),
         sg.Button(
           image_source=resource_path('Assets/info_icon.png'), image_subsample=10, 
-          border_width=0, key='INFO', pad=(5,(0,10))
+          border_width=0, key='INFO', pad=(5,5)
         )
       ],
-      [
-        sg.Text(
-          text=self._Libro.etiqueta.clasif_completa, key="TEXT",
-          font=("Open Sans", 16, "bold"), **text_format
-        )
-      ],
-      [sg.HorizontalSeparator(pad=(0, (10, 6)))],
+      #* Texto para mostrar clasificacion completa
+      [sg.Text(text=self._Libro.etiqueta.clasif_completa, key="TEXT", **text_format)],
+      [sg.HSep(pad=(0, 5))], # Separador
+      #* Layout para modificar atributos etiquetas
       [sg.Frame("", layout=INDIV_LAYOUT, **frame_format)],
-      [sg.HorizontalSeparator(pad=(0, (6, 10)))],
+      [sg.HSep(pad=(0, 5))], # Separador
+      #* Layout para modificar informacion etiquetas
+      [sg.Frame("", layout=INFO_LAYOUT, border_width=0, **frame_format)],
+      [sg.HSep(pad=(0, 5))], # Separadores
       [
         sg.Button("Cancelar", font=("Open Sans", 12, "bold")),
-        sg.Button("Modificar", font=("Open Sans", 12, "bold"), disabled=True),
+        sg.Button("Modificar", font=("Open Sans", 12, "bold"), disabled= not self._Libro.etiqueta.clasif_valida),
       ],    
     ]
     return GENERAL_LAYOUT
@@ -209,7 +252,7 @@ class VentanaModificar:
         return False, self._Libro
       
       #* Actualizar elemento de Clasificacion Completa
-      self.actualizar_clasif(window, values)
+      self.actualizar_clasif(window)
       window['TEXT'].update(self._Libro.etiqueta.clasif_completa)
 
       if event == 'Modificar':
@@ -228,15 +271,17 @@ class VentanaModificar:
       {'-'*50}
     """)
 
-  def actualizar_clasif(self, window, values):
+  def actualizar_clasif(self, window):
     """ Construye una clasificacion en tiempo real 
     """
     #* Tomar datos
     try:
-      self._Libro.etiqueta.clasif = str(values["CLAS"])
-      self._Libro.etiqueta.volumen = str(values['VOL'])
-      self._Libro.etiqueta.copia = str(values['COP'])
-      self._Libro.etiqueta.encabezado = str(values['HEAD'])
+      self._Libro.etiqueta.clasif = window["CLAS"].get()
+      self._Libro.etiqueta.volumen = window['VOL'].get()
+      self._Libro.etiqueta.copia = window['COP'].get()
+      self._Libro.etiqueta.encabezado = window['HEAD'].get()
+      self._Libro.titulo = window['TITLE'].get() if window['TITLE'].get() != '' else self._Libro.titulo
+      self._Libro.cbarras = window['CBARRAS'].get() if window['CBARRAS'].get() != '' else self._Libro.cbarras
     except TypeError:
       pass
 
@@ -250,6 +295,18 @@ class VentanaModificar:
       window["Modificar"].update(disabled=True)
 
 if __name__ == "__main__":
-  # VS = VentanaSeleccionarPosicion(10,10)
-  # print(VS.run_window())
-  pass
+  libro_prueba = Libro(
+    aID=1,
+    aTitulo= 'Titulo_Prueba',
+    aCbarras= 'QRO123123123',
+    aClasif= 'A00.A00.A00 .A00 1000',
+    aVolumen= '0',
+    aCopia= '1',
+    aEncabezado= '',
+  )
+  VM = VentanaModificar(libro_prueba)
+  estatus, libro_modificado = VM.run_window()
+  del VM
+
+  if estatus is True: print(f'[INFO] El Libro fue modificado \n {libro_modificado}')
+  else: print(f'[INFO] Libro sin modificaciones \n {libro_prueba}')

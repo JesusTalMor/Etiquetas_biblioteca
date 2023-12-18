@@ -1,10 +1,10 @@
 # Editor: Jesus Talamantes Morales
-# Fecha Trabajo: 4 de Diciembre 2023
+# Fecha Trabajo: 17 de Diciembre 2023
 #############################################################
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 2
-FUNCIONALIDAD = 4
+FUNCIONALIDAD = 5
 BUGS = 5
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
@@ -68,14 +68,14 @@ class VentanaGeneral:
     """
     #?#********* LAYOUT PARA MANEJO DE PIPE'S #?#*********
     text_format = {
-      'font':("Open Sans", 12, "bold"),
-      'size' : (6,1), 
-      'background_color':"#FFFFFF", 
-      'justification':"center",
-      'pad' : 0,
+      'font'  : ("Open Sans", 12, "bold"),
+      'size'  : (6,1), 
+      'pad'   : 0,
+      'background_color'  : "#FFFFFF", 
+      'justification'     : "center",
     }
     in_format = {
-      'size':(15, 1), 
+      'size':(14, 1), 
       'font':("Open Sans", 10, "bold"), 
       'justification':"center", 
       'disabled':True,
@@ -432,7 +432,7 @@ class VentanaGeneral:
     #? LOOP PRINCIPAL
     while True:
       event, values = window.read()
-      self.show_window_events(event, values)
+      # self.show_window_events(event, values)
       #? ******** FUNCIONALIDAD BASICA VENTANA  ***************
       #* Cerrar la aplicación
       if event in ('Salir', '-WINDOW CLOSE ATTEMPTED-'):
@@ -644,7 +644,7 @@ class VentanaGeneral:
     del VM
 
     #* Checar si hubieron cambios
-    if estatus is False: return True
+    if estatus is False: return True # Cambio de bandera a true
     
     # * Agregamos elemento a una tabla de modificaciones
     self.table_manager.agregar_elemento_modificado(libro_modificado, clasif_libro_a_modificar)
@@ -660,7 +660,7 @@ class VentanaGeneral:
     indices_ordenados = self.table_manager.ordenar_libros()
     self.table_manager.ordenar_tabla(indices_ordenados)
     
-    return False
+    return False # Cambio de bandera a False
 
   def eliminar_elemento(self, modify_index):
     self.table_manager.eliminar_elemento(modify_index)
