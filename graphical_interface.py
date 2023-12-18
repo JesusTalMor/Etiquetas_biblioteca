@@ -5,7 +5,7 @@
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 2
 FUNCIONALIDAD = 4
-BUGS = 3
+BUGS = 5
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
 #?#********** IMPORTAR MODULOS **********#
