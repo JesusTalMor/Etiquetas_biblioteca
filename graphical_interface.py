@@ -551,7 +551,7 @@ class VentanaGeneral:
     copia = window['COP'].get()
     encabezado = window['HEAD'].get()
     titulo = window['TITLE'].get()
-    cbarras = 'QRO' + window['CBARRAS'].get()
+    cbarras = window['CBARRAS'].get()
 
     #* Crear Objeto de Tipo Libro
     newLibro = Libro(
