@@ -52,7 +52,7 @@ class Clasificacion:
   def sacar_atributos_lista(self, PIPE_A, PIPE_B):
     salida = []
     atributos_pipe_a = PIPE_A.split('.')
-    atributos_pipe_b = PIPE_B[1:].split(' ')
+    atributos_pipe_b = PIPE_B.split(' ')
     salida.extend(atributos_pipe_a)
     salida.extend(atributos_pipe_b)
     return salida
