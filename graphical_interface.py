@@ -4,7 +4,7 @@
 
 #?#********** VARIABLES CONTROL DE VERSIONES **********#
 ALPHA = 2
-FUNCIONALIDAD = 5
+FUNCIONALIDAD = 6
 BUGS = 5
 VERSION = f'{ALPHA}.{FUNCIONALIDAD}.{BUGS}'
 
@@ -52,6 +52,7 @@ class VentanaGeneral:
   ruta_archivo = ''
   ruta_folder = ''
   table_manager = ManejoTabla()
+  libro_base = Libro()
 
   #? LAYOUTS PARA LA VENTANA **********************************
   def clasification_layout(self):
@@ -234,7 +235,7 @@ class VentanaGeneral:
       [sg.HSep(pad=(0, 5))], # Separadores
       [sg.Frame("",layout=INFO_LAYOUT, border_width=0, **frame_format)],
       [sg.HSep(pad=(0, 5))], # Separadores
-      [sg.Button("Agregar", font=("Open Sans", 12, 'bold'))],
+      [sg.Button("Agregar", font=("Open Sans", 12, 'bold'), disabled=True)],
 
       #* Layout invisible para guardar en la carpeta
       [
@@ -424,7 +425,6 @@ class VentanaGeneral:
   #? FUNCIONAMIENTO PRINCIPAL DE LA VENTANA ***********************
   def run_window(self, window):
     #? MANEJO DE VARIABLES
-    bandera_agregar = False
     bandera_modificar = False
     estatus_modificar = 'XXXXXX'
     index_modificar = 0
@@ -472,10 +472,9 @@ class VentanaGeneral:
 
       #? ********** FUNCIONALIDAD CLASIFICACION ****************
       elif event in ("CLAS", 'VOL', 'COP', 'HEAD'):
-        bandera_agregar = self.checar_clasificacion(window)
-      elif event == "Agregar" and bandera_agregar:
+        self.checar_clasificacion(window)
+      elif event == "Agregar":
         self.agregar_clasificacion(window)
-        bandera_agregar = False
       
       #?#********** FUNCIONALIDAD DE TABLA **********#?#
       elif event == "LIMPIAR":
@@ -521,29 +520,21 @@ class VentanaGeneral:
     clasificacion = window['CLAS'].get()
     # * Revisar si es relevante el cambio
     if len(clasificacion) < 5: return False
+
+    # TODO Contemplar opcion de mostrar en tiempo real la clasificacion
+    #* Actualizar clasificacion en libro basico
+    self.libro_base.etiqueta.clasif = clasificacion
     
-    #* Se revisa si se puede separa la PIPE B
-    if clasificacion.find(' ') < 3:
-      window["PIPE_A"].update(value="XXXXXX", text_color='#F04150')
-      window["PIPE_B"].update(value="XXXXXX", text_color='#F04150')
-      # ? Bandera Falsa no se puede agregar
-      return False
-    
-    if sh.revisar_corte_pipe(clasificacion) and sh.revisar_pipeB(clasificacion):
-      posicion_corte, diferencia = sh.buscar_pipe(clasificacion)
-      if posicion_corte != 0:
-        pipe_a_str = clasificacion[:posicion_corte].replace(' ','.')
-        pipe_b_str = '.' + clasificacion[posicion_corte + diferencia :]
-        window["PIPE_A"].update(value=pipe_a_str, text_color='#1AB01F')  
-        window["PIPE_B"].update(value=pipe_b_str, text_color='#1AB01F')
-        # ? Bandera Verdadera se puede agregar
-        return True
+    #* Actualizar estatus
+    if self.libro_base.etiqueta.clasif_valida:
+      window["PIPE_A"].update(value=self.libro_base.etiqueta.PIPE_A, text_color='#1AB01F')  
+      window["PIPE_B"].update(value=self.libro_base.etiqueta.PIPE_B, text_color='#1AB01F')
+      window["Agregar"].update(disabled=False)
     else:
-      window["PIPE_A"].update(value="XXXXXX", text_color='#F04150')
+      window["PIPE_A"].update(value="XXXXXX", text_color='#F04150')  
       window["PIPE_B"].update(value="XXXXXX", text_color='#F04150')
-      # ? Bandera Falsa no se puede agregar
-      return False
-  
+      window["Agregar"].update(disabled=True)
+
   def agregar_clasificacion(self, window):
     #* Tomar datos de la aplicacion
     clasificacion = window['CLAS'].get()
@@ -580,6 +571,7 @@ class VentanaGeneral:
     window['CBARRAS'].update('')
     window["PIPE_A"].update('')  
     window["PIPE_B"].update('')
+    window["Agregar"].update(disabled=True)
 
   #? FUNCIONALIDAD MANEJO DE TABLA *************************
   def reset_window(self):
